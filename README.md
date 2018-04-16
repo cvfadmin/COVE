@@ -20,7 +20,7 @@ These instructions will get you a copy of the project up and running on your loc
    3.2 virtualenv venv/  
    3.3 source venv/bin/activate (starting the virtual machine) 
    3.4 pip install -r requirements.txt (installing required packages)  
-   3.5 config your database settings in backend/application/\_\_init\_\_.py
+   3.5 config your database settings in backend/application/__init__.py
    (line 16  app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://username:password@localhost:port_number/database_name") 
    3.6 python db_create.py (create database according to your models) 
    3.7 python application.py (get the server running)
