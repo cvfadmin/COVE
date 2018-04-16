@@ -34,5 +34,8 @@ These instructions will get you a copy of the project up and running on your loc
 5. Check the website at http://localhost:8000/
 
 ### Reminds:
-You can check your environment configurations at backend/application/__init__.py and frontend/js/cove.js to make sure the frontend can sent request to backend at the right port.
+You can check your environment configurations at  
+backend/application/\_\_init\_\_.py and  
+frontend/js/cove.js  
+to make sure the frontend can sent request to backend at the right port.
 
