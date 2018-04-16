@@ -1,0 +1,37 @@
+<footer class="footer">
+    <div class="container">
+        <span class="text-muted">Other COVE Tools:</span>
+        <span class="octicon octicon-git-pull-request"></span><a href="#" onclick="show_dataset_submit(); return false;" class="footer-text">Dataset Submission Request</a>
+        <span class="octicon octicon-tools"></span><a href="#/admin" class="footer-text">Administrator Login</a>
+    </div>
+</footer>
+
+    <div class="modal fade" id="dst_submit" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Dataset Submission Request</h4>
+                </div>
+                <div class="modal-body">
+                   <div class="input-group input-group-sm">
+                        <span class="input-group-addon" id="sizing-addon3">First Name</span>
+                        <input id="first-name" type="text" class="form-control" aria-describedby="sizing-addon3">
+                        <span class="input-group-addon" id="sizing-addon3">Last Name</span>
+                        <input id="last-name" type="text" class="form-control"  aria-describedby="sizing-addon3">
+                   </div>
+                   <div class="input-group input-group-sm">
+                        <span class="input-group-addon" id="sizing-addon3">@</span>
+                        <input id="email-address" type="text" class="form-control" placeholder="Email Address" aria-describedby="sizing-addon3">
+                   </div>
+                   <div id = "messagegoeshere">
+                   </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button id="send_submission_request" type="button" class="btn btn-primary" ng-click="send_submission_request()">Send Request</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
