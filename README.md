@@ -29,7 +29,7 @@ These instructions will get you a copy of the project up and running on your loc
 4. Deploy your frontend locally using the following commands:
    ```
    4.1 cd frontend/   
-   4.2 python -m SimpleHTTPServer 8000 (8000 refer to the portnumber)
+   4.2 python -m CGIHTTPServer 8000 (8000 refer to the portnumber)
    ```
 5. Check the website at http://localhost:8000/
 
