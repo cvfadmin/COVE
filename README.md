@@ -31,7 +31,7 @@ These instructions will get you a copy of the project up and running on your loc
    4.1 cd frontend/   
    4.2 python -m CGIHTTPServer 8000 (8000 refer to the portnumber)
    ```
-5. Check the website at http://localhost:8000/cgi-bin/
+5. Check the website at http://localhost:8000/cgi-bin/index.py
 
 ### Reminds:
 You can check your environment configurations at  
