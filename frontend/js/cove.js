@@ -1,9 +1,15 @@
 var cove = angular.module('CoveFront', ['ngRoute','ngCookies']);
-var REQUEST_URL = 'http://127.0.0.1:5000/api/search/';
+var HOME_URL = 'http://127.0.0.1:5000/api'
+var RESULTS_URL = 'http://127.0.0.1:5000/api/results';
+var DATASET_URL = 'http://127.0.0.1:5000/api/dataset';
 var REQUEST_DST_URL = 'http://127.0.0.1:5000/api/search_dataset/';
 var NEW_DATASET_SUBMISSION_URL = 'http://127.0.0.1:5000/api/request';
 var ADMIN_URL = 'http://127.0.0.1:5000/api/admin';
 var NEW_DATASET_URL = 'http://127.0.0.1:5000/api/new_dataset';
+
+var NUM_ROWS = 2;
+var NUM_COL = 4;
+var TOTAL_DISP = NUM_ROWS * NUM_COL;
 
 cove.run(function($rootScope, $compile, $http){
     $rootScope.download_list = new Set();
@@ -154,7 +160,10 @@ cove.run(function($rootScope, $compile, $http){
 cove.config(['$routeProvider', function ($routeProvider) {
     $routeProvider
         // Home
-        .when("/", {templateUrl: "partials/home.html", controller: "BrowseCtrl", search_datasample : true})
+        .when("/", {templateUrl: "partials/home.html", controller: "HomeCtrl", search_datasample : true})
+        .when("/result", {templateUrl: "partials/search_results.html", controller: "BrowseCtrl", search_datasample : true})
+        .when("/dataset", {templateUrl: "partials/dataset.html", controller: "DatasetCtrl", search_datasample : true})
+      
         .when("/search/:query_type", {templateUrl: "partials/home.html", controller: "BrowseCtrl", search_datasample : true})
         .when("/search_dataset/:query_type", {templateUrl: "partials/home.html", controller: "BrowseCtrl", search_datasample : false})
         // Download

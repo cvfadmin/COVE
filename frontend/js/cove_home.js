@@ -1,17 +1,41 @@
-cove.controller('BrowseCtrl', function ($scope, $route, $http, $window, $compile, $rootScope, $routeParams) {
-    $scope.search_type = "Text";
-    $scope.ret_num = 10;
-    $scope.browse_list_by_dataset = [];
-    // contains display cards, which contains title name and pic urls
-    $scope.search_queries = new Array(3); // text, problem, dataset, annotation, category, conference
-    $scope.search_queries_dst = new Array(7);
-    $scope.browse_list_by_annotation = [];
-    $scope.datasample_list = [];
-    $scope.global_id = 0; 
-    $scope.is_loading = false;
-    $scope.is_advance = false;
-    $scope.search_datasample = $route.current.$$route.search_datasample;
-    $scope.search_text = "";
+cove.controller('HomeCtrl', function ($scope, $route, $http, $location, $window, $compile, $rootScope, $routeParams) {
+
+    $scope.tasks = [];
+    $scope.topics = [];
+    $scope.types = [];
+    $http.get(HOME_URL).then(function(results) {
+        $scope.tasks = results.data.tasks;
+        $scope.topics = results.data.topics;
+        $scope.types = results.data.types;
+    }) 
+
+    $(document).ready(function(){			
+    	$('#filter').click(function() {
+    		$('#filters').slideToggle('slow');
+    	});
+    });
+
+
+    // TO-DO
+   // $http.get(SEARCH_URL).then(function(results) {   
+        // total row count
+
+
+        // sets range of rows to query for chosen page        
+   //     var limit = 
+
+        // This sets the range of rows to query for the chosen $pagenum
+     //   $limit = 'LIMIT ' .($pagenum - 1) * $page_rows .',' .$page_rows;
+        // This is your query again, it is for grabbing just one page worth of rows by applying $limit
+     //   $query = "SELECT * ".$query_base." ORDER BY id_num ASC $limit"; 
+      //  $result = mysqli_query($link, $query);
+        //echo '<pre>',print_r(mysqli_fetch_all($result)),'</pre>';
+
+   // })
+    
+    // TO-DO
+
+               
 
     $scope.$on('$viewContentLoaded', function(event){
         if($routeParams.query_type){
