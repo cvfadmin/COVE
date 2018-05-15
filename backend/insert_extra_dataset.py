@@ -1,14 +1,10 @@
-from sqlalchemy.orm.mapper import configure_mappers
-from application.models import Base
-from application.models.dataset import Dataset
-from application.models.relation import DatasetAnnCatAssoc, Dataset_Institution, Dataset_Task, Dataset_Datatype, Dataset_Topic, Dataset_Annotation
-from application import application, db
-from application.utils.dbmanage.model_insert import ModelInsert, CategoryManage 
+from application import app, db
+from application.utils.dbmanage.model_insert import ModelInsert 
 from datetime import datetime
 import csv
 
 # replace .csv file name
-with application.test_request_context():
+with app.test_request_context():
     # vegfru = db.session.query(Dataset).filter_by(name="VegFru").first()
     # if vegfru is None:
     #   vegfru = ModelInsert.insertDataset("VegFru", "https://github.com/hshustc/vegfru", "", "", False, "Saihui Hou, Yushan Feng, Zilei Wang", datetime.now(), \
@@ -32,34 +28,35 @@ with application.test_request_context():
     # db.session.commit()
     #ret = db.session.query(Dataset).join(Dataset_Topic).join(Dataset_Datatype)filter(Dataset.year == 2017).first()
     
-    with open('./test_datasets.csv', 'rU') as f:
+    with open('./cove_clean_subset.csv', 'rU') as f:
         reader = csv.reader(f)
         attributes = next(reader)
         for dataset in reader:
             d = dict(zip(attributes, dataset))
-            if d['year'] == "":
-                d['year'] = "0"
-            if d['size'] == "":
-                d['size'] = "0"
             dst = ModelInsert.insertDataset(
                                 d['name'], \
+                                True, 
+                                None, 
                                 d['url'], \
+                                d['thumbnail'], \
                                 d['description'], \
                                 "",\
                                 False,\
                                 d['author'],\
                                 int(d['year']),\
-                                int(d['size']),\
+                                d['size'],\
+                                d['num_cat'],\
                                 "",\
                                 "",\
                                 "",\
                                 d['paper'], \
-                                d['conferences'], \
+                                d['citations'].split(';'),\
+                                d['conferences'].split(';'), \
+                                d['keywords'].split(';'), \
                                 d['tasks'].split(';'),\
-                                d['data_types'].split(';'), \
+                                d['types'].split(';'), \
                                 d['topics'].split(';'), \
                                 d['annotations'].split(';'), \
-                                d['thumbnail'].split(';'), \
                                 d['institutions'].split(';'),
                                 db.session)
     db.session.commit()

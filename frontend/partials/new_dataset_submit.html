@@ -1,71 +1,70 @@
 <div class="container-fluid" id="new_dst_form" role="main" style="padding-top: 60px; padding-bottom: 5rem; display: none">
   <form>
       <div class="form-group">
-        <label for="exampleInputEmail1">Email address</label>
-        <input type="email" id="email_input" class="form-control" id="email" aria-describedby="emailHelp">
+        <label for="exampleInputEmail1">Contact Email *</label>
+        <input type="email" id="email_input" class="form-control" aria-describedby="emailHelp">
       </div>
       <div class="form-group">
         <label>Dataset Name *</label>
         <input type="text" class="form-control" id="dst_name" >
       </div>
       <div class="form-group">
-        <label>Description</label>
+        <label>Url *</label>
+        <input type="text" class="form-control" id="dst_url" >
+      </div>
+      <div class="form-group">
+        <label>Description *</label>
         <textarea class="form-control" id="dst_description" rows="3"></textarea>
       </div>
       <div class="form-group">
-        <label>Created Year</label>
+        <label>Year Created</label>
         <input type="text" class="form-control" id="dst_year" >
       </div>
       <div class="form-group">
-        <label>Author</label>
-        <small class="form-text text-muted">split with semicolon</small>
+        <label>Authors</label>
+        <!--<small class="form-text text-muted">split with semicolon and only with semicolon</small>-->
         <input type="text" class="form-control" id="dst_author" >
       </div>
       <div class="form-group">
         <label>Tasks</label>
-        <small class="form-text text-muted">split with semicolon</small>
+        <small class="form-text text-muted">split with semicolon and only with semicolon</small>
         <input type="text" class="form-control" id="dst_task" >
       </div>
       <div class="form-group">
         <label>Topics</label>
-        <small class="form-text text-muted">split with semicolon</small>
-        <input type="text" class="form-control" id="dst_toopic" >
+        <small class="form-text text-muted">split with semicolon and only with semicolon</small>
+        <input type="text" class="form-control" id="dst_topic" >
       </div>
       <div class="form-group">
         <label>Keywords</label>
-        <small class="form-text text-muted">split with semicolon</small>
+        <small class="form-text text-muted">split with semicolon and only with semicolon</small>
         <input type="text" class="form-control" id="dst_keyword" >
       </div>
       <div class="form-group">
         <label>Data Types</label>
-        <small class="form-text text-muted">split with semicolon</small>
+        <small class="form-text text-muted">split with semicolon and only with semicolon</small>
         <input type="text" class="form-control" id="dst_type" >
       </div>
       <div class="form-group">
         <label>Annotations</label>
-        <small class="form-text text-muted">split with semicolon</small>
+        <small class="form-text text-muted">split with semicolon and only with semicolon</small>
         <input type="text" class="form-control" id="dst_annotation" >
       </div>
       <div class="form-group">
-        <label>Size (kb)</label>
+        <label>Size</label>
         <input type="text" class="form-control" id="dst_size" >
       </div>
       <div class="form-group">
-        <label>Number of Categories (if application)</label>
-        <input type="text" class="form-control" id="dst_num_of_cats" >
+        <label>Number of Categories</label>
+        <input type="text" class="form-control" id="dst_numcat" >
       </div>
+
       <div class="form-group">
-        <label>Url</label>
-        <input type="text" class="form-control" id="dst_url" >
-      </div>
-      <div class="form-group">
-        <label>Thumbnail Links</label>
-        <small class="form-text text-muted">split with semicolon</small>
+        <label>Thumbnail (Dataset Cover) Link</label>
         <input type="text" class="form-control" id="dst_thumbnail" >
       </div>
       <div class="form-group">
-        <label>Paper</label>
-        <small class="form-text text-muted">split with semicolon</small>
+        <label>Paper (Where the dataset comes from)</label>
         <input type="text" class="form-control" id="dst_paper" >
       </div>
       <div class="form-group">

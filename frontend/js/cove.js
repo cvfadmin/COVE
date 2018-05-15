@@ -1,9 +1,17 @@
 var cove = angular.module('CoveFront', ['ngRoute','ngCookies']);
-var REQUEST_URL = 'http://127.0.0.1:5000/api/search/';
+var HOME_URL = 'http://127.0.0.1:5000/api'
+var RESULTS_URL = 'http://127.0.0.1:5000/api/results';
+var DATASET_URL = 'http://127.0.0.1:5000/api/dataset';
 var REQUEST_DST_URL = 'http://127.0.0.1:5000/api/search_dataset/';
-var NEW_DATASET_SUBMISSION_URL = 'http://127.0.0.1:5000/api/request';
+//var NEW_DATASET_SUBMISSION_URL = 'http://127.0.0.1:5000/api/request';
+var MODIFY_RQST_URL = 'http://127.0.0.1:5000/api/add_request';
+var PROCESS_REQUEST_URL = 'http://127.0.0.1:5000/api/process_request';
 var ADMIN_URL = 'http://127.0.0.1:5000/api/admin';
 var NEW_DATASET_URL = 'http://127.0.0.1:5000/api/new_dataset';
+
+var NUM_ROWS = 2;
+var NUM_COL = 4;
+var TOTAL_DISP = NUM_ROWS * NUM_COL;
 
 cove.run(function($rootScope, $compile, $http){
     $rootScope.download_list = new Set();
@@ -62,24 +70,35 @@ cove.run(function($rootScope, $compile, $http){
         }
     };
 
-    $rootScope.send_submission_request = function(){
+   $rootScope.send_submission_request = function(){
         $("#messagegoeshere").empty();
         var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
         var email = $("#email-address").val();
-        console.log(email);
         var bool = re.test(String(email).toLowerCase());
-        if(!bool){
+        var dst_name = $("#dst-name").val();
+        var intro = $("#intro").val();
+        var url = $("#dst-url").val();
+        if(!dst_name || !intro || !email || !url){
+            $("<p>Please enter all required fields.</p>"
+                            ).addClass("text-warning").appendTo("#messagegoeshere");
+        }
+        else if(!bool){
             $("<p>Please enter an valid email address.</p>"
                             ).addClass("text-warning").appendTo("#messagegoeshere");
         }
         else{
+            console.log(dst_name);
             var dict = {
                 "email" : email,
                 "firstname" : $("#first-name").val(),
-                "lastname" : $("#last-name").val()
+                "lastname" : $("#last-name").val(),
+                "r_type" : "add",
+                "dataset_name" : dst_name,
+                "intro" : intro,
+                "url" : url
             };
             $http({
-                url : NEW_DATASET_SUBMISSION_URL, 
+                url : MODIFY_RQST_URL, 
                 method : "POST",
                 data : JSON.stringify(dict),
                 headers: {'Content-Type':'application/json; charset=UTF-8'}
@@ -89,7 +108,7 @@ cove.run(function($rootScope, $compile, $http){
                 $("#send_submission_request").attr("disabled", true);
             })
         }
-    }
+    };
 
     $rootScope.construct_browse_disp = function(download = true){
         $('#browse-side').empty();
@@ -154,7 +173,10 @@ cove.run(function($rootScope, $compile, $http){
 cove.config(['$routeProvider', function ($routeProvider) {
     $routeProvider
         // Home
-        .when("/", {templateUrl: "partials/home.html", controller: "BrowseCtrl", search_datasample : true})
+        .when("/", {templateUrl: "partials/home.html", controller: "HomeCtrl", search_datasample : true})
+        .when("/results", {templateUrl: "partials/search_results.html", controller: "BrowseCtrl", search_datasample : true})
+        .when("/dataset", {templateUrl: "partials/dataset.html", controller: "DatasetCtrl", search_datasample : true})
+      
         .when("/search/:query_type", {templateUrl: "partials/home.html", controller: "BrowseCtrl", search_datasample : true})
         .when("/search_dataset/:query_type", {templateUrl: "partials/home.html", controller: "BrowseCtrl", search_datasample : false})
         // Download
@@ -169,5 +191,7 @@ cove.config(['$routeProvider', function ($routeProvider) {
         // });
         .when("/dataset/:dataset_id", {templateUrl: "partials/dataset_frontpage/1.html", controller: "Dataset_intro"})
         .when("/admin", {templateUrl : "partials/admin.html", controller: "AdminCtrl"})
-        .when("/new_dataset/:identifier", {templateUrl: "partials/new_dataset_submit.html", controller: "Add_new_dataset"});
+        .when("/add_dataset/:identifier", {templateUrl: "partials/new_dataset_submit.html", controller: "Modify_dataset"})
+        .when("/edit_dataset/:identifier", {templateUrl: "partials/new_dataset_submit.html", controller: "Modify_dataset"})
+        .when("/pending_datasets", {templateUrl: "partials/pending_datasets.html", controller: "PendingDST"});
 }]);

@@ -8,9 +8,10 @@ from application.views import mail
 from application.views.api import api
 
 app = Flask(__name__)
-#CORS(app)
+
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 CORS(api, resources={r"/api/*": {"origins": "*"}})
+
 
 app.config.from_object(__name__)
 #app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://johndickinson:@localhost/test3"

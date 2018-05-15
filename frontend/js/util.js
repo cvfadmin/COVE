@@ -63,11 +63,228 @@ gen_group_button = function(){
             '</div>';
 }
 
+gen_display_html = function(cur, prev){
+  var res = '';
+  if(!prev){
+    for(var key in cur){
+      console.log(key , cur[key]);
+    res += '<div class="row" style = "border-bottom: 1pt solid black;">'
+     + '<div class="col-sm-2" style = "padding: 5px 0">'
+     + key
+     + '</div>'
+      + '<div class="col-sm-10" style = "padding: 5px 0">'
+      + cur[key]
+      + '</div>'
+      +'</div>'
+    }
+  }
+  else{
+    res += '<div class="row" style = "border-bottom: 1pt solid black;">'
+     + '<div class="col-sm-2" style = "padding: 5px 0">'
+     + '</div>'
+      + '<div class="col-sm-5" style = "padding: 5px 0">'
+      + 'Previous'
+      + '</div>'
+      + '<div class="col-sm-5" style = "padding: 5px 0">'
+      + 'Current'
+      + '</div>'
+      +'</div>'
+    for(var key in cur){
+      res += '<div class="row" style = "border-bottom: 1pt solid black;">'
+     + '<div class="col-sm-2" style = "padding: 5px 0">'
+     + key
+     + '</div>'
+      + '<div class="col-sm-5" style = "padding: 5px 0">'
+      // + Array.isArray(prev[key]) ? prev[key].join(";") : prev[key]
+      + prev[key]
+      + '</div>'
+      + '<div class="col-sm-5" style = "padding: 5px 0">'
+      + cur[key]
+      + '</div>'
+      +'</div>'
+    }
+  }
+  res += '<div class="row">'
+        +'<div class="btn-group" style = "float: right;" role="group" aria-label="Basic example">'
+          + '<button type="button" id="dst_approve" class="btn btn-secondary btn-success"  ng-click="dst_approve()">Approve</button>'
+          + '<button type="button" id="dst_deny" class="btn btn-secondary btn-danger"  ng-click="dst_deny()">Decline</button>'
+        + '</div>'
+        + '</div>'
+  return res;
+}
+gen_request_html = function(type, data, id){
+  var res = '';
+  if(type == 'add'){
+    res = '<div class="container-fluid" style = "border-bottom-width:2px; border-bottom-color:Grey; border-bottom-style: solid; width:95%">'
+     + '<div class="row">'
+     + '<div class="col-sm-2" style = "padding: 5px 0">'
+     + 'First Name:'
+     + '</div>'
+      + '<div class="col-sm-2" style = "padding: 5px 0">'
+      + data['firstname']
+      + '</div>'
+      + '<div class="col-sm-2" style = "padding: 5px 0">'
+        + 'Last Name:'
+      + '</div>'
+      + '<div class="col-sm-2" style = "padding: 5px 0">'
+        +data['lastname']
+      +'</div>'
+      + '<div class="col-sm-4" style = "padding: 5px 0">'
+      + '<div class="btn-group" style = "float: right;" role="group" aria-label="Basic example">'
+          + '<button type="button" class="btn btn-secondary btn-success" id ="add_approve_' + data['id'] + '" ng-click="approve(\'add\','+data['id'] +')\">Approve</button>'
+          + '<button type="button" class="btn btn-secondary btn-danger" id ="add_deny_' + data['id'] + '" ng-click="deny(\'add\','+data['id'] +')\">Decline</button>'
+        + '</div>'
+      + '</div>'
+    + '</div>'
+    + '<div class="row">'
+      + '<div class="col-sm-2" style = "padding: 5px 0">'
+        + 'Email:'
+      + '</div>'
+      + '<div class="col-sm-10" style = "padding: 5px 0">'
+        + data['email']
+      + '</div>'
+    + '</div>'
+    + '<div class="row">'
+      + '<div class="col-sm-2" style = "padding: 5px 0">'
+        + 'Dataset Name:'
+      + '</div>'
+      + '<div class="col-sm-10" style = "padding: 5px 0">'
+        + data['dataset_name']
+      + '</div>'
+    + '</div>'
+    + '<div class="row">'
+      + '<div class="col-sm-2" style = "padding: 5px 0">'
+        + 'Url:'
+      + '</div>'
+      + '<div class="col-sm-10" style = "padding: 5px 0">'
+        + '<a href="'+ data['url'] + '">' +data['url'] +'</a>'
+      + '</div>'
+    + '</div>'
+    + '<div class="row">'
+      + '<div class="col-sm-2" style = "padding: 5px 0">'
+        + 'Description:'
+      + '</div>'
+      + '<div class="col-sm-10" style = "padding: 5px 0">'
+        + '<p>' + data['intro'] + '</p>'
+      + '</div>'
+    + '</div>'
+  }
+  else if(type == 'edit'){
+    res = '<div class="container-fluid" style = "border-bottom-width:2px; border-bottom-color:Grey; border-bottom-style: solid; width:95%">'
+     + '<div class="row">'
+     + '<div class="col-sm-2" style = "padding: 5px 0">'
+     + 'First Name:'
+     + '</div>'
+      + '<div class="col-sm-2" style = "padding: 5px 0">'
+      + data['firstname']
+      + '</div>'
+      + '<div class="col-sm-2" style = "padding: 5px 0">'
+        + 'Last Name:'
+      + '</div>'
+      + '<div class="col-sm-2" style = "padding: 5px 0">'
+        +data['lastname']
+      +'</div>'
+      + '<div class="col-sm-4" style = "padding: 5px 0">'
+      + '<div class="btn-group" style = "float: right;" role="group" aria-label="Basic example">'
+          + '<button type="button" class="btn btn-secondary btn-success" id ="edit_approve_' + data['id'] + '" ng-click="approve(\'edit\','+data['id'] +')\">Approve</button>'
+          + '<button type="button" class="btn btn-secondary btn-danger" id ="edit_deny_' + data['id'] + '" ng-click="deny(\'edit\','+data['id'] +')\">Decline</button>'
+        + '</div>'
+      + '</div>'
+    + '</div>'
+    + '<div class="row">'
+      + '<div class="col-sm-2" style = "padding: 5px 0">'
+        + 'Email:'
+      + '</div>'
+      + '<div class="col-sm-10" style = "padding: 5px 0">'
+        + data['email']
+      + '</div>'
+    + '</div>'
+    + '<div class="row">'
+      + '<div class="col-sm-2" style = "padding: 5px 0">'
+        + 'Dataset Name:'
+      + '</div>'
+      + '<div class="col-sm-10" style = "padding: 5px 0">'
+        + data['dataset_name']
+      + '</div>'
+    + '</div>'
+  }
+  else if(type == 'delete'){
+    res = '<div class="container-fluid" style = "border-bottom-width:2px; border-bottom-color:Grey; border-bottom-style: solid; width:95%">'
+     + '<div class="row">'
+     + '<div class="col-sm-2" style = "padding: 5px 0">'
+     + 'First Name:'
+     + '</div>'
+      + '<div class="col-sm-2" style = "padding: 5px 0">'
+      + data['firstname']
+      + '</div>'
+      + '<div class="col-sm-2" style = "padding: 5px 0">'
+        + 'Last Name:'
+      + '</div>'
+      + '<div class="col-sm-2" style = "padding: 5px 0">'
+        +data['lastname']
+      +'</div>'
+      + '<div class="col-sm-4" style = "padding: 5px 0">'
+      + '<div class="btn-group" style = "float: right;" role="group" aria-label="Basic example">'
+          + '<button type="button" class="btn btn-secondary btn-success" id ="delete_approve_' + data['id'] + '" ng-click="approve(\'delete\','+data['id'] +')\">Approve</button>'
+          + '<button type="button" class="btn btn-secondary btn-danger" id ="delete_deny_' + data['id'] + '" ng-click="deny(\'delete\','+data['id'] +')\">Decline</button>'
+        + '</div>'
+      + '</div>'
+    + '</div>'
+    + '<div class="row">'
+      + '<div class="col-sm-2" style = "padding: 5px 0">'
+        + 'Email:'
+      + '</div>'
+      + '<div class="col-sm-10" style = "padding: 5px 0">'
+        + data['email']
+      + '</div>'
+    + '</div>'
+    + '<div class="row">'
+      + '<div class="col-sm-2" style = "padding: 5px 0">'
+        + 'Dataset Name:'
+      + '</div>'
+      + '<div class="col-sm-10" style = "padding: 5px 0">'
+        + data['dataset_name']
+      + '</div>'
+    + '</div>'
+    + '<div class="row">'
+      + '<div class="col-sm-2" style = "padding: 5px 0">'
+        + 'Reason:'
+      + '</div>'
+      + '<div class="col-sm-10" style = "padding: 5px 0">'
+        + data['reason']
+      + '</div>'
+    + '</div>'
+  }
+  return res;
+}
+
 show_dataset_submit = function(){
   $('#dst_submit').modal('show');
   $("#email-address").val('');
   $("#first-name").val('');
   $("#last-name").val('');
+  $("#dst-name").val('');
+  $("#dst-url").val('');
+  $("#intro").val('');
+  $("#send_submission_request").attr("disabled", false);
+  $("#messagegoeshere").empty();
+  return false;
+}
+show_dataset_edit = function(){
+  $('#dst_edit').modal('show');
+  $("#email-address").val('');
+  $("#first-name").val('');
+  $("#last-name").val('');
+  $("#send_submission_request").attr("disabled", false);
+  $("#messagegoeshere").empty();
+  return false;
+}
+show_dataset_delete = function(){
+  $('#dst_delete').modal('show');
+  $("#email-address").val('');
+  $("#first-name").val('');
+  $("#last-name").val('');
+  $("#delete-reason").val('');
   $("#send_submission_request").attr("disabled", false);
   $("#messagegoeshere").empty();
   return false;

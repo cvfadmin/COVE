@@ -1,4 +1,4 @@
-cove.controller('BrowseCtrl', function ($scope, $route, $http, $window, $compile, $rootScope, $routeParams) {
+cove.controller('BrowseCtrl', function ($scope, $route, $http, $window, $location, $routeParams, $compile, $rootScope, $routeParams) {
     $scope.search_type = "Text";
     $scope.ret_num = 10;
     $scope.browse_list_by_dataset = [];
@@ -12,6 +12,312 @@ cove.controller('BrowseCtrl', function ($scope, $route, $http, $window, $compile
     $scope.is_advance = false;
     $scope.search_datasample = $route.current.$$route.search_datasample;
     $scope.search_text = "";
+    
+    $scope.tasks = [];
+    $scope.topics = [];
+    $scope.types = [];
+    $http.get(HOME_URL).then(function(results) {
+        $scope.tasks = results.data.tasks;
+        $scope.topics = results.data.topics;
+        $scope.types = results.data.types;
+    }) 
+
+    $scope.resultsURL = '';
+    
+    $scope.searchSubmit = function() {
+        var tasksUrl = '';
+        var topicsUrl = '';
+        var typesUrl = '';
+        var pubUrl = '';
+        var minyrUrl = '';
+        var maxyrUrl = '';
+        var searchUrl = '';            
+            
+    		var tasks = [];
+    		var topics = [];
+    		var types = [];
+    		var publication = null;
+    		
+    		var $checkbox = $('input:checkbox');
+    		$checkbox.each(function(){
+    			if (this.checked){
+    				var name = this.name;
+    			}
+    			switch(name){
+    				case 'dataset_task[]':
+                    tasksUrl += '&task='+this.id.replace('task_','');
+
+    					//tasks.push(this.id.replace('task_',''));
+    					break;
+    				case 'dataset_topic[]':
+                    topicsUrl += '&topic='+this.id.replace('topic_','');                    
+    					//topics.push(this.id.replace('topic_',''));
+    					break;
+    				case 'dataset_datatype[]':
+                    typesUrl += '&type='+this.id.replace('type_','');                    
+    					//types.push(this.id.replace('type_',''));
+    					break;
+    				case 'publication':
+                    pubUrl += '&publication=true';
+    					//publication = (this.id);
+    					break;
+    			}
+    		});
+
+        if (document.getElementById('minyear').value != ''){
+            minyrUrl += '&minyear=' + document.getElementById('minyear').value;
+        }
+        if (document.getElementById('maxyear').value != ''){
+            maxyrUrl += '&maxyear=' + document.getElementById('maxyear').value;
+        }
+        if (document.getElementById('search').value != ''){
+            searchUrl += '&search=' + document.getElementById('search').value;
+        }
+            $scope.resultsURL = '?pn=1';
+            $scope.resultsURL += tasksUrl;
+            $scope.resultsURL += topicsUrl;           
+            $scope.resultsURL += typesUrl;  
+            $scope.resultsURL += pubUrl;  
+            $scope.resultsURL += minyrUrl;  
+            $scope.resultsURL += maxyrUrl;  
+            $scope.resultsURL += searchUrl;                    
+    }                
+
+    $(document).ready(function(){			
+    	$('#filter').click(function() {
+    		$('#filters').slideToggle('slow');
+    	});
+    });
+
+
+    $(document).ready(function(){			
+    	$('#filter').click(function() {
+    		$('#filters').slideToggle('slow');
+    	});
+    });
+
+    function replaceUrlParam(url, paramName, paramValue) {
+        if (paramValue == null) {
+            paramValue = '';
+        }
+        var pattern = new RegExp('\\b('+paramName+'=).*?(&|$)');
+        if (url.search(pattern)>=0) {
+            return url.replace(pattern,'$1' + paramValue + '$2');
+        }
+        url = url.replace(/\?$/,'');
+        return url + (url.indexOf('?')>0 ? '&' : '?') + paramName + '=' + paramValue;
+    }
+   
+    var queryParams = $location.url().split('?')[1];
+    
+    
+    var resultsURL = RESULTS_URL + '?' + queryParams;
+
+    $http.get(resultsURL).then(function(results) {
+        console.log(results.data);
+        var numTotalResults = results.data.length;
+        
+        // pagination 
+        // page number of last page
+        var last = Math.ceil(numTotalResults/TOTAL_DISP);
+                
+        // last cannot be less than 1
+        if (last < 1) {
+            last = 1;    
+        }
+        
+        if ($routeParams.pn){
+            var pn = parseInt($routeParams.pn);             
+        } else {
+            var pn = 1;        
+        }
+        
+        if (pn < 1){
+            pn = 1;        
+        } else if (pn > last) {
+            pn = last;
+        }
+        
+        var limStart = (pn - 1) * TOTAL_DISP;
+        var limEnd = limStart + TOTAL_DISP;
+        
+        var datasets = results.data.slice(limStart,limEnd);          
+        console.log(datasets);
+        
+        var paginationCtrls = '';
+        
+        // if more than 1 pg worth of results
+        if (last != 1) {
+            if (pn > 1){
+                var previous = pn - 1;
+                newURL = replaceUrlParam('/#'+$location.url(), 'pn', previous);
+                paginationCtrls += "<span style='font-size:22px'><a href='" + newURL + "'>&#171;</a></span> &nbsp; &nbsp; ";
+			
+            // Render clickable number links that should appear on the left of the target page number
+    			for( var i = pn-4; i < pn; i++){
+    				if (i > 0){
+                    newURL = replaceUrlParam('/#'+$location.url(), 'pn', i);
+                    paginationCtrls += "<a href=" + newURL + ">" + i + "</a> &nbsp; ";
+    				}
+    		    }
+    	    }
+    		// Render the target page number, but without it being a link
+    		paginationCtrls += "<span>" + pn + " &nbsp;</span>";
+    		// Render clickable number links that should appear on the right of the target page number
+    		for(var i = pn+1; i <= last; i++){
+                newURL = replaceUrlParam('/#'+$location.url(), 'pn', i);
+                paginationCtrls += " <a href=" + newURL + ">" + i + "</a> &nbsp; ";
+                if(i >= pn+4){
+                    break;
+                }
+    		}
+    		// This does the same as above, only checking if we are on the last page, and then generating the "Next"
+    	    if (pn != last) {
+                var next = pn + 1;
+                newURL = replaceUrlParam('/#'+$location.url(), 'pn', next);
+                paginationCtrls += " &nbsp; &nbsp; <span style='font-size:22px'><a href=" + newURL + ">&#187;</a></span> ";
+    	    }
+    	}
+    
+    	else {
+    		paginationCtrls += "1";
+    	}        
+                    
+        var count = datasets.length; //mysqli_num_rows($result);
+        
+        var fullRow = Math.floor(count/NUM_COL);
+        	
+        var rem = count % NUM_COL;
+        	
+        //var resultArray = mysqli_fetch_all($result,MYSQLI_ASSOC);
+        var index = 0;
+        	
+        var lgSize = 12/NUM_COL;
+        var mdSize = 12/(NUM_COL*0.75);
+        var smSize = 12/(NUM_COL*0.5);
+            
+            var disp = ''
+        	
+        	disp += "<div class='container'>";
+        	disp += "<div class='row'>";
+        	disp += "<div class='col-xs-12 col-sm-12 col-md-12 col-lg-12'>";
+        	
+        	for (var i = 0; i < fullRow; i++){
+        		disp += "<div class='row'>";
+        		for (var j = 0; j < NUM_COL; j++) {
+        			disp += "<div class='col-xs-12 col-sm-" + smSize + " col-md-" + mdSize + " col-lg-" + lgSize + "'>";
+        			var dataset = datasets[index];
+                    
+                    var conferencesList = dataset['conferences'];
+                    var tasksList = dataset['tasks'];
+                    var topicsList = dataset['topics'];
+                    var typesList = dataset['types'];
+        			
+        			disp += "<a href='dataset?id=" + dataset['id_num'] + "' style='color:inherit;text-decoration:none;cursor:pointer;'>";
+        			disp += "<div class='panel'>";
+        			disp += "<div class='panel-heading'>";
+        			if (dataset['thumbnail'] != ''){
+        				disp += "<img style='height: 100%; width: 100%; object-fit: fill' src=" + dataset['thumbnail'] + ">";
+        			}
+        			else{
+        				disp += "<img style='height: 100%; width: 100%; object-fit: fill' src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcREQJS9o-zBiR5KQfRpospuMPr-OI6y8c6NtLB_zNy_sbYDFQR8qQ'>";
+        			}
+        			disp += "</div>";				
+        			disp += "<div class='panel-body'>";
+        			disp += "<div><span id='yr_conf'>" + dataset['year'] + "</span>";
+        			if (dataset['conferences'] != ''){
+        				disp +=  "<span id='yr_conf'>&nbsp;&nbsp;&#9679;&nbsp;&nbsp;" + conferencesList + "</span></div>";				
+        			}
+        			else {
+        				disp += "</div>";
+        			}		
+        			disp += "<div><span id='name'>"+ dataset['name'] + "</span></div>";
+        			disp += "</div>";
+        			
+        			disp += "<div class='panel-details'>";
+        			disp += "<div id='metalabel'>Tasks:</div>";
+        			disp += "<div id='metainfo'>" + tasksList + "</div>";
+        			disp += "<div id='metalabel'>Topics:</div>";
+        			disp += "<div id='metainfo'>" + topicsList + "</div>";
+        			disp += "<div id='metalabel'>Data Types:</div>";
+        			disp += "<div id='metainfo'>" + typesList + "</div>";
+        			disp += "</div>";
+        			
+        			
+        			disp += "<div class='panel-footer'>";
+        			disp += "<span id='link'><a href=" + dataset['url'] + " target='_blank'><i class='fas fa-link'></i></a></span>";
+        			disp += "</div>";
+        										
+        			disp += "</div>";
+        			disp += "</div>";
+        			disp += "</a>";
+        			index += 1;
+        		}
+        		disp += "</div>";
+        	}
+        	if (rem > 0){
+        		var blankCol = NUM_COL - rem;
+        		disp += "<div class='row'>";
+        		for (var j = 0; j < rem; j++){
+        			disp += "<div class='col-xs-12 col-sm-" + smSize + " col-md-" + mdSize + " col-lg-" + lgSize + "'>";
+        			var dataset = datasets[index];
+        				
+                    var conferencesList = dataset['conferences'];
+                    var tasksList = dataset['tasks'];
+                    var topicsList = dataset['topics'];
+                    var typesList = dataset['types'];
+        			
+        			disp += "<a href='dataset?id=" + dataset['id_num'] + "' style='color:inherit;text-decoration:none;cursor:pointer;'>";
+        			disp += "<div class='panel'>";
+        			disp += "<div class='panel-heading'>";
+        			if (dataset['thumbnail'] != ''){
+        				disp += "<img style='height: 100%; width: 100%; object-fit: fill' src=" + dataset['thumbnail'] + ">";
+        			}
+        			else{
+        				disp += "<img style='height: 100%; width: 100%; object-fit: fill' src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcREQJS9o-zBiR5KQfRpospuMPr-OI6y8c6NtLB_zNy_sbYDFQR8qQ'>";
+        			}
+        			disp += "</div>";				
+        			disp += "<div class='panel-body'>";
+        			disp += "<div><span id='yr_conf'>" + dataset['year'] + "</span>";
+        			if (dataset['conferences'] != ''){
+        				disp +=  "<span id='yr_conf'>&nbsp;&nbsp;&#9679;&nbsp;&nbsp;" + conferencesList + "</span></div>";				
+        			}
+        			else {
+        				disp += "</div>";
+        			}		
+        			disp += "<div><span id='name'>"+ dataset['name'] + "</span></div>";
+        			disp += "</div>";
+        			
+        			disp += "<div class='panel-details'>";
+        			disp += "<div id='metalabel'>Tasks:</div>";
+        			disp += "<div id='metainfo'>" + tasksList + "</div>";
+        			disp += "<div id='metalabel'>Topics:</div>";
+        			disp += "<div id='metainfo'>" + topicsList + "</div>";
+        			disp += "<div id='metalabel'>Data Types:</div>";
+        			disp += "<div id='metainfo'>" + typesList + "</div>";
+        			disp += "</div>";
+        			
+        			
+        			disp += "<div class='panel-footer'>";
+        			disp += "<span id='link'><a href=" + dataset['url'] + " target='_blank'><i class='fas fa-link'></i></a></span>";
+        			disp += "</div>";
+        										
+        			disp += "</div>";
+        			disp += "</div>";
+        			disp += "</a>";
+        			index += 1;
+        		}
+        		disp += "</div>";		
+        	}
+        	disp += "</div>";
+        	disp += "</div>";
+        	disp += "</div>";
+
+        $(disp).appendTo("#dataset-display");
+        $(paginationCtrls).appendTo("#pagination");
+    });
+
+
 
     $scope.$on('$viewContentLoaded', function(event){
         if($routeParams.query_type){

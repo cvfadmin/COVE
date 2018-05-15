@@ -3,7 +3,7 @@
 
 from sqlalchemy.orm.mapper import configure_mappers
 
-from application import application, db
+from application import app, db
 from application.constants import CATEGORY_LIST
 from application.models import Base
 from application.models.dataset import Dataset
@@ -18,7 +18,7 @@ from application.utils.dbmanage.coco_insert import CocoInsert
 from application.utils.dbmanage.caltech_insert import CaltechInsert
 from datetime import datetime
 
-with application.test_request_context():
+with app.test_request_context():
     # rootCat = ModelInsert.insertCat("", None, db.session)
     # imageCat = ModelInsert.insertCat("image", rootCat, db.session)
     # videoCat = ModelInsert.insertCat("video", rootCat, db.session)
@@ -30,9 +30,5 @@ with application.test_request_context():
     # testBBox = ModelInsert.insertBoundingBox([20,20,20,20], testsample, imageCat, db.session)
     # cinsert = CocoInsert("coco/", "val2014", -1, -1, db.session)
     # cinsert.insertAll(imageCat)
-    calinsert = CaltechInsert("caltech256/", "Caltech 256", db.session)
-    calinsert.insertAll()
-    calinsert2 = CaltechInsert("caltech101/", "Caltech 101", db.session)
-    calinsert2.insertAll()
     db.session.commit()
 

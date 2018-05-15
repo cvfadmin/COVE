@@ -8,16 +8,31 @@
         <meta name="author" content="">
         <!--link rel="icon" href="../../favicon.ico"-->
 
-        <title>COVE Project</title>
+        <title>COVE</title>
+        
 
-        <!-- Bootstrap core CSS -->
-        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.2/css/bootstrap.min.css" rel="stylesheet">
-        <link rel="stylesheet" href="js/dist/themes/default/style.min.css"/>
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/octicons/3.3.0/octicons.css" rel="stylesheet">
-        <!-- Custom styles for this template -->
-        <link href="css/index.css" rel="stylesheet">
-        <link href="css/jquery.bxslider.css" rel="stylesheet">
-        <link href="css/dataset_frontpage.css" rel="stylesheet">
+        
+        <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css" integrity="sha384-nn4HPE8lTHyVtfCBi5yW9d20FjT8BJwUXyWZT9InLYax14RDjBj46LmSztkmNP9w" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+        <link rel="stylesheet" href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
+        <script defer src="https://use.fontawesome.com/releases/v5.0.8/js/all.js" integrity="sha384-SlE991lGASHoBfWbelyBPLsUlwY1GwNDJo3jSJO04KZ33K2bwfV9YBauFfnzvynJ" crossorigin="anonymous"></script>
+        <script src="http://code.jquery.com/jquery-latest.js"></script> 
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+        <link href="css/style.css" rel="stylesheet">
+        <link href="css/flexboxgrid.css" rel="stylesheet">
+
+        <script defer src="https://use.fontawesome.com/releases/v5.0.8/js/all.js" integrity="sha384-SlE991lGASHoBfWbelyBPLsUlwY1GwNDJo3jSJO04KZ33K2bwfV9YBauFfnzvynJ" crossorigin="anonymous"></script>
+        <script src="http://code.jquery.com/jquery-latest.js"></script> 
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/holder/2.9.0/holder.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.1.1/js/tether.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular-route.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular-cookies.js"></script>
+    
     </head>
 
     <body ng-app="CoveFront">
@@ -25,24 +40,18 @@
         <div ng-view></div>
         <div ng-include="'/templates/footer.html'"></div>
     </body>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/holder/2.9.0/holder.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.1.1/js/tether.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.2/js/bootstrap.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular-route.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular-cookies.js"></script>
-
 
     <script src="js/dist/jstree.min.js"></script>
     <script src="js/support/jquery.easing.1.3.js"></script>
     <script src="js/support/jquery.fitvids.js"></script>
     <script src="js/support/jquery.bsPhotoGallery.js"></script>
     <script type="text/javascript" src="js/cove.js"></script>
+    <script type="text/javascript" src="js/cove_home.js"></script>
     <script type="text/javascript" src="js/cove_browse.js"></script>
-    <script type="text/javascript" src="js/cove_download.js"></script>
     <script type="text/javascript" src="js/cove_dataset.js"></script>
+    <script type="text/javascript" src="js/cove_download.js"></script>
     <script type="text/javascript" src="js/cove_admin.js"></script>
+    <script type="text/javascript" src="js/pending_dataset.js"></script>
     <script type="text/javascript" src="js/cove_add_dst.js"></script>
     <script type="text/javascript" src="js/card.js"></script>
     <script type="text/javascript" src="js/util.js"></script>

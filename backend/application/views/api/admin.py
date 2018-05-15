@@ -4,7 +4,8 @@ from flask.ext.mail import Message
 from datetime import datetime
 from application.views import mail
 from application.models import db
-from application.models.user import User, Request
+from application.models.user import User, AddRequest, DeleteRequest, EditRequest
+from application.models.dataset import Dataset, Pending_Dataset
 from application.utils.dbmanage.model_insert import ModelInsert
 from application.utils.dbmanage.model_query import ModelQuery
 from flask_httpauth import HTTPBasicAuth
@@ -26,8 +27,12 @@ def verify_password(username_or_token, password):
     g.user = user
     return True
 
-def verify_email(mail, hashed_str):
-    usr = db.session.query(Request).filter_by(email=mail).first()
+def verify_email(mail, hashed_str, r_type):
+    usr = None
+    if r_type == "add":
+        usr = db.session.query(AddRequest).filter_by(email=mail).first()
+    elif r_type == "edit":
+        usr = db.session.query(EditRequest).filter_by(email=mail).first()
     if not usr:
         return False
     else:
@@ -42,39 +47,175 @@ def verify_email(mail, hashed_str):
             else:
                 return True
 
-class ProcessRequest(MethodView):
+class NewRequest(MethodView):
     def post(self):
         email = request.json.get('email')
         firstname = request.json.get('firstname')
         lastname = request.json.get('lastname')
-        ModelInsert.insertRequest(email, firstname, lastname, db.session)
+        target_id = request.json.get('target_id')
+        dataset_name = request.json.get('dataset_name')
+        if target_id:
+            target_id = int(target_id)
+            dataset_name = ModelQuery.getDatasetById(target_id, db.session).name
+        intro = request.json.get('intro')
+        reason = request.json.get('reason')
+        r_type = request.json.get('r_type')
+        url = request.json.get('url')
+        msg, rqst = ModelInsert.insertRequest(email, firstname, lastname, r_type, target_id, dataset_name, intro, reason, url, db.session)
         db.session.commit()
-        return jsonify({"message":'Request sent, we\'ll send a link to your email.'}), 200
+        return jsonify({"message":msg}), 200
 
+class ProcessRequest(MethodView):
     @auth.login_required
-    def put(self, request_id):
-        rqst = db.session.query(Request).filter_by(id=request_id).first()
-        if rqst is not None and rqst.salt is None:
-            salt = uuid.uuid4().hex
-            rqst.salt = salt
-            m = hashlib.new('sha512')
-            m.update(salt + rqst.email)
-            url_suffix = m.hexdigest()
-            url = "localhost:8000/#/new_dataset/" + url_suffix
-            subject = "Invitation from COVE" 
-            message = "You can use the following link to submit your dataset to COVE: \n" + url
-            msg = Message(subject, sender="coveproj@gmail.com", recipients=[rqst.email])
-            print "message sent"
-            msg.body = message
-            mail.send(msg)
+    def post(self):
+        r_type = request.json.get('type')
+        rqst_id = int(request.json.get('id'))
+        approved = request.json.get('approved')
+        if r_type == "add":
+            rqst = db.session.query(AddRequest).filter_by(id=rqst_id).first()
+            if approved:
+                print("message sent")
+                salt = uuid.uuid4().hex
+                rqst.salt = salt
+                m = hashlib.new('sha512')
+                m.update(salt + rqst.email)
+                url_suffix = m.hexdigest()
+                url = "localhost:8000/#/add_dataset/" + url_suffix
+                subject = "Invitation from COVE"
+                message = "You can use the following link to submit your dataset to COVE: \n" + url
+                msg = Message(subject, sender="coveproj@gmail.com", recipients=[rqst.email])
+                msg.body = message
+                mail.send(msg)
+            else:
+                db.session.delete(rqst)
+        elif r_type == "edit":
+            rqst = db.session.query(EditRequest).filter_by(id=rqst_id).first()
+            if approved:
+                salt = uuid.uuid4().hex
+                rqst.salt = salt
+                m = hashlib.new('sha512')
+                m.update(salt + rqst.email)
+                url_suffix = m.hexdigest()
+                url = "localhost:8000/#/edit_dataset/" + str(rqst.target_id) + "$" + url_suffix
+                subject = "Invitation from COVE"
+                message = "You can use the following link to edit your dataset: \n" + url
+                msg = Message(subject, sender="coveproj@gmail.com", recipients=[rqst.email])
+                print("message sent")
+                msg.body = message
+                mail.send(msg)
+            else:
+                db.session.delete(rqst)
+        elif r_type == "delete":
+            rqst = db.session.query(DeleteRequest).filter_by(id=rqst_id).first()
+            if approved:
+                dst_id = rqst.target_id
+                dst = db.session.query(Dataset).filter_by(id_=dst_id).first()
+                dst_name = dst.name
+                db.session.delete(dst)
+                subject = "Update from COVE"
+                message = "Your request to delete the Dataset \"" + dst_name +"\" has been proved. The dataset are now removed from COVE."
+                msg = Message(subject, sender="coveproj@gmail.com", recipients=[rqst.email])
+                print("message sent")
+                msg.body = message
+                mail.send(msg)
+            else:
+                db.session.delete(rqst)
         db.session.commit()
-        return jsonify({"message":"Invitation sent!"}), 200
+        return jsonify({"message":"Request Processed!"}), 200
 
-class New_dataset(MethodView):
+
+        # if rqst is not None and rqst.salt is None:
+        #     salt = uuid.uuid4().hex
+        #     rqst.salt = salt
+        #     m = hashlib.new('sha512')
+        #     m.update(salt + rqst.email)
+        #     url_suffix = m.hexdigest()
+        #     url = "localhost:8000/#/new_dataset/" + url_suffix
+        #     subject = "Invitation from COVE" 
+        #     message = "You can use the following link to submit your dataset to COVE: \n" + url
+        #     msg = Message(subject, sender="coveproj@gmail.com", recipients=[rqst.email])
+        #     print "message sent"
+        #     msg.body = message
+        #     mail.send(msg)
+        # db.session.commit()
+        # return jsonify({"message":"Invitation sent!"}), 200
+class ViewNewDST(MethodView):
+    @auth.login_required
+    def get(self):
+        cur_id = int(request.args.get("cur"))
+        target_id = request.args.get("prev")
+        data = []
+        dst_1 = db.session.query(Pending_Dataset).filter_by(id_ = cur_id).first()
+        data.append(dst_1.serialize([]))       
+        if target_id:
+            target_id = int(target_id)
+            dst_1 = db.session.query(Dataset).filter_by(id_ = target_id).first()
+            data.append(dst_1.serialize([]))
+        else:
+            data.append(None)
+        response = jsonify({"value":data})
+        response.status_code = 200 
+        return response
+    @auth.login_required
+    def post(self):
+        cur_id = request.json.get('id')
+        target_id = request.json.get('target_id')
+        approved = request.json.get('approved')
+        if approved:
+            # dst = db.session.query(Pending_Dataset).filter_by(id_ = cur_id).first()
+            # new_dst = ModelInsert.insertDataset(dst.name, True, None, dst.url, dst.thumbnail, dst.description, dst.license, False, dst.creator, dst.year, dst.size,\
+            # dst.contact_name, dst.contact_email, dst.notes, dst.related_paper, dst.citations, dst.conferences, dst.keywords, \
+            # dst.tasks, dst.datatypes, dst.topics, dst.annotation_types, dst.institutions, db.session)
+            # db.session.delete(dst)
+            # db.session.add(new_dst)
+            if target_id:
+                dst = db.session.query(Dataset).filter_by(id_ = target_id).first()
+                new_dst = db.session.query(Pending_Dataset).filter_by(id_ = cur_id).first()
+                rqst = db.session.query(EditRequest).filter_by(email = new_dst.contact_email).first()
+                db.session.delete(rqst)
+                dst.name = new_dst.name
+                dst.url = new_dst.url
+                dst.thumbnail = new_dst.thumbnail
+                dst.description = new_dst.description
+                dst.creator = new_dst.creator
+                dst.year = new_dst.year
+                dst.size = new_dst.size
+                dst.num_cat = new_dst.num_cat
+                dst.contact_name = new_dst.contact_name
+                dst.contact_email = new_dst.contact_email
+                db.session.add(new_dst)
+                db.session.commit()
+            else:
+                dst = db.session.query(Pending_Dataset).filter_by(id_ = cur_id).first()
+                ModelInsert.insertDataset(dst.name, True, None, dst.url, dst.thumbnail, dst.description, dst.license, False, dst.creator, dst.year, dst.size,\
+                                dst.num_cat, dst.contact_name, dst.contact_email, dst.notes, dst.related_paper, dst.citations, dst.conferences, dst.keywords, \
+                                dst.tasks, dst.datatypes, dst.topics, dst.annotation_types, dst.institutions, db.session)
+                rqst = db.session.query(AddRequest).filter_by(email = dst.contact_email).first()
+                db.session.delete(rqst)
+                db.session.delete(dst)
+                db.session.commit()
+        else:
+            if target_id:
+                new_dst = db.session.query(Pending_Dataset).filter_by(id_ = cur_id).first()
+                rqst = db.session.query(EditRequest).filter_by(email = new_dst.contact_email).first()
+                db.session.delete(rqst)
+                db.session.delete(dst)
+            else:
+                dst = db.session.query(Pending_Dataset).filter_by(id_ = cur_id).first()
+                rqst = db.session.query(EditRequest).filter_by(email = dst.contact_email).first()
+                db.session.delete(rqst)
+                db.session.delete(dst)
+            db.session.commit()
+        return jsonify({"message":"Request Processed!"}), 200
+
+
+
+class NewDataset(MethodView):
     def get(self):
         mail = request.args.get("email")
+        r_type = request.args.get("action")
         hashed_str = request.args.get("suffix")
-        flag = verify_email(mail, hashed_str)
+        flag = verify_email(mail, hashed_str, r_type)
         if flag:
             return jsonify({"message":"Authorized"}), 200
         else:
@@ -83,37 +224,40 @@ class New_dataset(MethodView):
     def post(self):
         mail = request.json.get('email')
         hashed_str = request.json.get('suffix')
-        flag = verify_email(mail, hashed_str)
+        r_type = request.json.get('action')
+        flag = verify_email(mail, hashed_str, r_type)
         if not flag:
             return jsonify({"error":"Not Authorized"}), 401  
         dst = ModelQuery.getDatasetByName(request.json.get('name'), db.session())
-        if dst:
+        if dst and r_type == "add":
             return jsonify({"error":"Dataset name confliction"}), 401
         year = request.json.get('year');
-        size = request.json.get('size');
         if not year:
             year = 0
-        if not size:
-            size = 0
         dst = ModelInsert.insertDataset(
                 request.json.get('name'), \
+                False,
+                request.json.get('target_id'),
                 request.json.get('url'), \
+                request.json.get('thumbnail'),\
                 request.json.get('description'), \
                 "",\
                 False,\
-                request.json.get('author'),\
+                request.json.get('creator'),\
                 year,\
-                size,\
+                request.json.get('size'),\
+                request.json.get('num_cat'), \
                 "",\
+                request.json.get('contact_email'), \
                 "",\
-                "",\
-                request.json.get('paper'), \
-                request.json.get('conferences'), \
+                request.json.get('related_paper'), \
+                request.json.get('citations').split(';'), \
+                request.json.get('conferences').split(';'), \
+                request.json.get('keywords').split(';'), \
                 request.json.get('tasks').split(';'),\
                 request.json.get('datatypes').split(';'), \
-                "", \
+                request.json.get('topics').split(';'), \
                 request.json.get('annotations').split(';'), \
-                request.json.get('thumbnails').split(';'), \
                 request.json.get('institutions').split(';'),\
                 db.session)
         if dst:
@@ -127,9 +271,26 @@ class Administration(MethodView):
     @auth.login_required
     def get(self):
         value = []
-        pendings = db.session.query(Request).filter_by(salt=None).all();
+        add_request = []
+        pendings = db.session.query(AddRequest).filter_by(salt=None).all()
         for rqst in pendings:
-            value.append(rqst.serialize())
+            add_request.append(rqst.serialize())
+        value.append(add_request)
+        delete_request = []
+        pendings = db.session.query(EditRequest).filter_by(salt=None).all()
+        for rqst in pendings:
+            delete_request.append(rqst.serialize())
+        value.append(delete_request)
+        edit_request = []
+        pendings = db.session.query(DeleteRequest).filter_by(salt=None).all()
+        for rqst in pendings:
+            edit_request.append(rqst.serialize())
+        value.append(edit_request)
+        pending_datasets = []
+        pendings = db.session.query(Pending_Dataset).all()
+        for rqst in pendings:
+            pending_datasets.append([rqst.name, rqst.id_, rqst.edit_id])
+        value.append(pending_datasets)
         response = jsonify(pending_requests=value)
         response.status_code = 200 
         return response
@@ -148,3 +309,7 @@ class Administration(MethodView):
             }
             return jsonify(dic),422
 
+class Logout(MethodView):
+    @auth.login_required
+    def post(self):
+        return true
