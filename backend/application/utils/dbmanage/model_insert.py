@@ -37,15 +37,15 @@ class ModelInsert():
             if not rqst:
                 rqst = AddRequest(firstname, lastname, email, dataset_name, intro, url)
                 session.add(rqst)
-            message = "Request sent, we will send a link to your email shortly. Thanks for your support."
+            message = "Request sent, we will send a link to your email shortly. Thank you for your support."
         elif r_type == "delete":
             rqst = DeleteRequest(firstname, lastname, email, target_id, dataset_name, reason)
             session.add(rqst)
-            message = "We will review your request, and let you know once decision made."
+            message = "We will review your request. Thank you for your support."
         elif r_type == "edit":
             rqst = EditRequest(firstname, lastname, email, target_id, dataset_name)
             session.add(rqst)
-            message = "Request sent, we will send a link to your email shortly. Thanks for your support."
+            message = "Request sent, we will send a link to your email shortly. Thank you for your support."
         return message, rqst
 
     @staticmethod
@@ -79,12 +79,14 @@ class ModelInsert():
             ds_insti = Dataset_Institution(institution = val, dataset = dst)
             session.add(ds_insti)
         for val in conferences:
+            print(val)
             ds_conf = Dataset_Conference(conference = val, dataset = dst)
             session.add(ds_conf)
         for val in citations:
             ds_cit = Dataset_Citation(citation = val, dataset = dst)
             session.add(ds_cit)
         session.add(dst)
+        session.commit()
         # with session.no_autoflush:
         #     dst = session.query(Dataset).filter_by(name=name).first()
         return dst

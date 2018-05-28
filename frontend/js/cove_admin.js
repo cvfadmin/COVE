@@ -1,6 +1,11 @@
 cove.controller('AdminCtrl', function ($scope, $http, $compile, $rootScope, $cookieStore) {
     $scope.$on('$viewContentLoaded', function(event){
-        $scope.load_page();
+        if ($cookieStore.get('token')) {
+            $scope.load_page();        
+        }
+        else {
+            $('#login-form').modal('show');            
+        }
     });
 
     $scope.load_page = function(){
@@ -9,6 +14,7 @@ cove.controller('AdminCtrl', function ($scope, $http, $compile, $rootScope, $coo
         $('#delete_request').empty();
         $('#new_datasets').empty();
         $('#modified_datasets').empty();
+        $cookieStore.remove('token');
         var token = $cookieStore.get('token');
         var auth = btoa(token + ":")
         $http({
@@ -39,6 +45,7 @@ cove.controller('AdminCtrl', function ($scope, $http, $compile, $rootScope, $coo
                                      'target':'_blank'});
                         ele.text(result[3][i][0]);
                         $("#modified_datasets").append(ele);
+                        $("#modified_datasets").append($("<br/>"));
                     }
                     else{
                         var ele = $("<a/>").attr({"href":"#/pending_datasets?cur=" + result[3][i][1],
@@ -72,6 +79,7 @@ cove.controller('AdminCtrl', function ($scope, $http, $compile, $rootScope, $coo
                 var tmp2 = '#' + type + '_deny_' + id;
                 $(tmp1).attr("disabled", true);
                 $(tmp2).attr("disabled", true);
+                window.location.href=('#/admin');
             }).error(function(error){
                 $('#login-form').modal('show');
             })
@@ -97,6 +105,7 @@ cove.controller('AdminCtrl', function ($scope, $http, $compile, $rootScope, $coo
                 var tmp2 = '#' + type + '_deny_' + id;
                 $(tmp1).attr("disabled", true);
                 $(tmp2).attr("disabled", true);
+                window.location.href=('#/admin');
             }).error(function(error){
                 $('#login-form').modal('show');
             })
@@ -117,39 +126,4 @@ cove.controller('AdminCtrl', function ($scope, $http, $compile, $rootScope, $coo
                 $("#invite_button_" + id).html('invited');
             })
     };
-
-    $scope.login = function(){
-        $("#messagegoeshere_login").empty();
-        var username = $("#username").val();
-        if(!username){
-            $("<p>Please provide a username.</p>"
-                        ).addClass("text-warning").appendTo("#messagegoeshere_login");
-            return;
-        }
-        var password = $("#password").val();
-        if(!password){
-            $("<p>Please provide a password.</p>"
-                        ).addClass("text-warning").appendTo("#messagegoeshere_login");
-            return;
-        }
-        var dict = {
-            "username" : username,
-            "password" : password
-        };
-        $http({
-            url : ADMIN_URL,
-            method : "POST",
-            data : JSON.stringify(dict),
-            headers: {'Content-Type':'application/json; charset=UTF-8'}
-        }).success(function(data){
-            console.log("logged in");
-            $cookieStore.put('token',data['token']);
-            $('#login-form').modal('hide');
-            $scope.load_page();
-        }).error(function(error){
-            $("<p>Invalid username or password.</p>"
-                        ).addClass("text-warning").appendTo("#messagegoeshere_login");
-            return;
-        })
-    }
-})
+})     

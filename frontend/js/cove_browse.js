@@ -13,15 +13,36 @@ cove.controller('BrowseCtrl', function ($scope, $route, $http, $window, $locatio
     $scope.search_datasample = $route.current.$$route.search_datasample;
     $scope.search_text = "";
     
-    $scope.tasks = [];
-    $scope.topics = [];
-    $scope.types = [];
+//    $scope.tasks = [];
+//    $scope.topics = [];
+//    $scope.types = [];
     $http.get(HOME_URL).then(function(results) {
         $scope.tasks = results.data.tasks;
         $scope.topics = results.data.topics;
         $scope.types = results.data.types;
     }) 
 
+
+    $(document).on('click', '#filter', function(){
+            $('#filters').slideToggle();
+        }
+    )
+    
+    $(document).on('mouseenter', '.panel', function(){
+            var heading = angular.element((event.target).querySelector('.panel-heading'));
+            var details = angular.element((event.target).querySelector('.panel-details'));
+            heading.slideUp();
+            details.slideDown();
+        }
+    )
+
+    $(document).on('mouseleave', '.panel', function(){
+            var heading = angular.element((event.target).querySelector('.panel-heading'));
+            var details = angular.element((event.target).querySelector('.panel-details'));
+            heading.slideDown();
+            details.slideUp();
+        }
+    )
     $scope.resultsURL = '';
     
     $scope.searchSubmit = function() {
@@ -81,21 +102,8 @@ cove.controller('BrowseCtrl', function ($scope, $route, $http, $window, $locatio
             $scope.resultsURL += minyrUrl;  
             $scope.resultsURL += maxyrUrl;  
             $scope.resultsURL += searchUrl;                    
-    }                
-
-    $(document).ready(function(){			
-    	$('#filter').click(function() {
-    		$('#filters').slideToggle('slow');
-    	});
-    });
-
-
-    $(document).ready(function(){			
-    	$('#filter').click(function() {
-    		$('#filters').slideToggle('slow');
-    	});
-    });
-
+    }
+        
     function replaceUrlParam(url, paramName, paramValue) {
         if (paramValue == null) {
             paramValue = '';
@@ -112,9 +120,8 @@ cove.controller('BrowseCtrl', function ($scope, $route, $http, $window, $locatio
     
     
     var resultsURL = RESULTS_URL + '?' + queryParams;
-
+    
     $http.get(resultsURL).then(function(results) {
-        console.log(results.data);
         var numTotalResults = results.data.length;
         
         // pagination 
@@ -142,8 +149,7 @@ cove.controller('BrowseCtrl', function ($scope, $route, $http, $window, $locatio
         var limEnd = limStart + TOTAL_DISP;
         
         var datasets = results.data.slice(limStart,limEnd);          
-        console.log(datasets);
-        
+       
         var paginationCtrls = '';
         
         // if more than 1 pg worth of results
@@ -196,124 +202,125 @@ cove.controller('BrowseCtrl', function ($scope, $route, $http, $window, $locatio
         var mdSize = 12/(NUM_COL*0.75);
         var smSize = 12/(NUM_COL*0.5);
             
-            var disp = ''
-        	
-        	disp += "<div class='container'>";
-        	disp += "<div class='row'>";
-        	disp += "<div class='col-xs-12 col-sm-12 col-md-12 col-lg-12'>";
-        	
-        	for (var i = 0; i < fullRow; i++){
-        		disp += "<div class='row'>";
-        		for (var j = 0; j < NUM_COL; j++) {
-        			disp += "<div class='col-xs-12 col-sm-" + smSize + " col-md-" + mdSize + " col-lg-" + lgSize + "'>";
-        			var dataset = datasets[index];
-                    
-                    var conferencesList = dataset['conferences'];
-                    var tasksList = dataset['tasks'];
-                    var topicsList = dataset['topics'];
-                    var typesList = dataset['types'];
-        			
-        			disp += "<a href='dataset?id=" + dataset['id_num'] + "' style='color:inherit;text-decoration:none;cursor:pointer;'>";
-        			disp += "<div class='panel'>";
-        			disp += "<div class='panel-heading'>";
-        			if (dataset['thumbnail'] != ''){
-        				disp += "<img style='height: 100%; width: 100%; object-fit: fill' src=" + dataset['thumbnail'] + ">";
-        			}
-        			else{
-        				disp += "<img style='height: 100%; width: 100%; object-fit: fill' src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcREQJS9o-zBiR5KQfRpospuMPr-OI6y8c6NtLB_zNy_sbYDFQR8qQ'>";
-        			}
-        			disp += "</div>";				
-        			disp += "<div class='panel-body'>";
-        			disp += "<div><span id='yr_conf'>" + dataset['year'] + "</span>";
-        			if (dataset['conferences'] != ''){
-        				disp +=  "<span id='yr_conf'>&nbsp;&nbsp;&#9679;&nbsp;&nbsp;" + conferencesList + "</span></div>";				
-        			}
-        			else {
-        				disp += "</div>";
-        			}		
-        			disp += "<div><span id='name'>"+ dataset['name'] + "</span></div>";
-        			disp += "</div>";
-        			
-        			disp += "<div class='panel-details'>";
-        			disp += "<div id='metalabel'>Tasks:</div>";
-        			disp += "<div id='metainfo'>" + tasksList + "</div>";
-        			disp += "<div id='metalabel'>Topics:</div>";
-        			disp += "<div id='metainfo'>" + topicsList + "</div>";
-        			disp += "<div id='metalabel'>Data Types:</div>";
-        			disp += "<div id='metainfo'>" + typesList + "</div>";
-        			disp += "</div>";
-        			
-        			
-        			disp += "<div class='panel-footer'>";
-        			disp += "<span id='link'><a href=" + dataset['url'] + " target='_blank'><i class='fas fa-link'></i></a></span>";
-        			disp += "</div>";
-        										
-        			disp += "</div>";
-        			disp += "</div>";
-        			disp += "</a>";
-        			index += 1;
-        		}
-        		disp += "</div>";
-        	}
-        	if (rem > 0){
-        		var blankCol = NUM_COL - rem;
-        		disp += "<div class='row'>";
-        		for (var j = 0; j < rem; j++){
-        			disp += "<div class='col-xs-12 col-sm-" + smSize + " col-md-" + mdSize + " col-lg-" + lgSize + "'>";
-        			var dataset = datasets[index];
-        				
-                    var conferencesList = dataset['conferences'];
-                    var tasksList = dataset['tasks'];
-                    var topicsList = dataset['topics'];
-                    var typesList = dataset['types'];
-        			
-        			disp += "<a href='dataset?id=" + dataset['id_num'] + "' style='color:inherit;text-decoration:none;cursor:pointer;'>";
-        			disp += "<div class='panel'>";
-        			disp += "<div class='panel-heading'>";
-        			if (dataset['thumbnail'] != ''){
-        				disp += "<img style='height: 100%; width: 100%; object-fit: fill' src=" + dataset['thumbnail'] + ">";
-        			}
-        			else{
-        				disp += "<img style='height: 100%; width: 100%; object-fit: fill' src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcREQJS9o-zBiR5KQfRpospuMPr-OI6y8c6NtLB_zNy_sbYDFQR8qQ'>";
-        			}
-        			disp += "</div>";				
-        			disp += "<div class='panel-body'>";
-        			disp += "<div><span id='yr_conf'>" + dataset['year'] + "</span>";
-        			if (dataset['conferences'] != ''){
-        				disp +=  "<span id='yr_conf'>&nbsp;&nbsp;&#9679;&nbsp;&nbsp;" + conferencesList + "</span></div>";				
-        			}
-        			else {
-        				disp += "</div>";
-        			}		
-        			disp += "<div><span id='name'>"+ dataset['name'] + "</span></div>";
-        			disp += "</div>";
-        			
-        			disp += "<div class='panel-details'>";
-        			disp += "<div id='metalabel'>Tasks:</div>";
-        			disp += "<div id='metainfo'>" + tasksList + "</div>";
-        			disp += "<div id='metalabel'>Topics:</div>";
-        			disp += "<div id='metainfo'>" + topicsList + "</div>";
-        			disp += "<div id='metalabel'>Data Types:</div>";
-        			disp += "<div id='metainfo'>" + typesList + "</div>";
-        			disp += "</div>";
-        			
-        			
-        			disp += "<div class='panel-footer'>";
-        			disp += "<span id='link'><a href=" + dataset['url'] + " target='_blank'><i class='fas fa-link'></i></a></span>";
-        			disp += "</div>";
-        										
-        			disp += "</div>";
-        			disp += "</div>";
-        			disp += "</a>";
-        			index += 1;
-        		}
-        		disp += "</div>";		
-        	}
-        	disp += "</div>";
-        	disp += "</div>";
-        	disp += "</div>";
-
-        $(disp).appendTo("#dataset-display");
+        var disp = ''
+    	
+    	disp += "<div class='container'>";
+    	disp += "<div class='row'>";
+    	disp += "<div class='col-xs-12 col-sm-12 col-md-12 col-lg-12'>";
+    	
+    	for (var i = 0; i < fullRow; i++){
+    		disp += "<div class='row'>";
+    		for (var j = 0; j < NUM_COL; j++) {
+    			disp += "<div class='col-xs-12 col-sm-" + smSize + " col-md-" + mdSize + " col-lg-" + lgSize + "'>";
+    			var dataset = datasets[index];
+                
+                var conferencesList = dataset['conferences'];
+                var tasksList = dataset['tasks'];
+                var topicsList = dataset['topics'];
+                var typesList = dataset['types'];
+    			
+    			disp += "<a href='#/dataset?id=" + dataset['id'] + "' style='color:inherit;text-decoration:none;cursor:pointer;'>";
+    			disp += "<div class='panel'>";
+    			disp += "<div class='panel-heading'>";
+    			if (dataset['thumbnail'] != ''){
+    				disp += "<img style='height: 100%; width: 100%; object-fit: fill' src=" + dataset['thumbnail'] + " altSrc='img/grey-background.jpg' onerror='this.src= $(this).attr(&#039;altSrc&#039;)'>";
+    			}
+    			else{
+    				disp += "<img style='height: 100%; width: 100%; object-fit: fill' src='img/grey-background.jpg'>";
+    			}
+    			disp += "</div>";				
+    			disp += "<div class='panel-body'>";
+    			disp += "<div><span id='yr_conf'>" + dataset['year'] + "</span>";
+    			if (dataset['conferences'] != ''){
+    				disp +=  "<span id='yr_conf'>&nbsp;&nbsp;&#9679;&nbsp;&nbsp;" + conferencesList + "</span></div>";				
+    			}
+    			else {
+    				disp += "</div>";
+    			}		
+    			disp += "<div><span id='name'>"+ dataset['name'] + "</span></div>";
+    			disp += "</div>";
+    			
+    			disp += "<div class='panel-details'>";
+    			disp += "<div id='metalabel'>Tasks:</div>";
+    			disp += "<div id='metainfo'>" + tasksList + "</div>";
+    			disp += "<div id='metalabel'>Topics:</div>";
+    			disp += "<div id='metainfo'>" + topicsList + "</div>";
+    			disp += "<div id='metalabel'>Data Types:</div>";
+    			disp += "<div id='metainfo'>" + typesList + "</div>";
+    			disp += "</div>";
+    			
+    			
+    			disp += "<div class='panel-footer'>";
+    			disp += "<span id='link'><a href=" + dataset['url'] + " target='_blank'><i class='fas fa-link'></i></a></span>";
+    			disp += "</div>";
+    										
+    			disp += "</div>";
+    			disp += "</div>";
+    			disp += "</a>";
+    			index += 1;
+    		}
+    		disp += "</div>";
+    	}
+    	if (rem > 0){
+    		var blankCol = NUM_COL - rem;
+    		disp += "<div class='row'>";
+    		for (var j = 0; j < rem; j++){
+    			disp += "<div class='col-xs-12 col-sm-" + smSize + " col-md-" + mdSize + " col-lg-" + lgSize + "'>";
+    			var dataset = datasets[index];
+    				
+                var conferencesList = dataset['conferences'];
+                var tasksList = dataset['tasks'];
+                var topicsList = dataset['topics'];
+                var typesList = dataset['types'];
+    			
+    			disp += "<a href='#/dataset?id=" + dataset['id'] + "' style='color:inherit;text-decoration:none;cursor:pointer;'>";
+    			disp += "<div class='panel'>";
+    			disp += "<div class='panel-heading'>";
+    			if (dataset['thumbnail'] != ''){
+    				disp += "<img style='height: 100%; width: 100%; object-fit: fill' src=" + dataset['thumbnail'] + ">";
+    			}
+    			else{
+    				disp += "<img style='height: 100%; width: 100%; object-fit: fill' src=" + dataset['thumbnail'] + " altSrc='img/grey-background.jpg' onerror='this.src= $(this).attr(&#039;altSrc&#039;)'>";
+    			}
+    			disp += "</div>";				
+    			disp += "<div class='panel-body'>";
+    			disp += "<div><span id='yr_conf'>" + dataset['year'] + "</span>";
+    			if (dataset['conferences'] != ''){
+    				disp +=  "<span id='yr_conf'>&nbsp;&nbsp;&#9679;&nbsp;&nbsp;" + conferencesList + "</span></div>";				
+    			}
+    			else {
+    				disp += "</div>";
+    			}		
+    			disp += "<div><span id='name'>"+ dataset['name'] + "</span></div>";
+    			disp += "</div>";
+    			
+    			disp += "<div class='panel-details'>";
+    			disp += "<div id='metalabel'>Tasks:</div>";
+    			disp += "<div id='metainfo'>" + tasksList + "</div>";
+    			disp += "<div id='metalabel'>Topics:</div>";
+    			disp += "<div id='metainfo'>" + topicsList + "</div>";
+    			disp += "<div id='metalabel'>Data Types:</div>";
+    			disp += "<div id='metainfo'>" + typesList + "</div>";
+    			disp += "</div>";
+    			
+    			
+    			disp += "<div class='panel-footer'>";
+    			disp += "<span id='link'><a href=" + dataset['url'] + " target='_blank'><i class='fas fa-link'></i></a></span>";
+    			disp += "</div>";
+    										
+    			disp += "</div>";
+    			disp += "</div>";
+    			disp += "</a>";
+    			index += 1;
+    		}
+    		disp += "</div>";		
+    	}
+    	disp += "</div>";
+    	disp += "</div>";
+    	disp += "</div>";
+        
+      angular.element(document.getElementById('dataset-display')).append($compile(disp)($scope))
+      //(disp).appendTo("#dataset-display");
         $(paginationCtrls).appendTo("#pagination");
     });
 

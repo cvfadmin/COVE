@@ -1,4 +1,4 @@
-<div class="container-fluid" id="new_dst_form" role="main" style="padding-top: 60px; padding-bottom: 5rem; display: none">
+<div class="container" id="new_dst_form" role="main" style="padding-top: 60px; padding-bottom: 5rem; display: none">
   <form>
       <div class="form-group">
         <label for="exampleInputEmail1">Contact Email *</label>
@@ -6,88 +6,231 @@
       </div>
       <div class="form-group">
         <label>Dataset Name *</label>
-        <input type="text" class="form-control" id="dst_name" >
+        <input type="text" ng-value="name" class="form-control" id="dst_name" >
       </div>
       <div class="form-group">
         <label>Url *</label>
-        <input type="text" class="form-control" id="dst_url" >
+        <input type="text" ng-value="url" class="form-control" id="dst_url" >
       </div>
       <div class="form-group">
         <label>Description *</label>
-        <textarea class="form-control" id="dst_description" rows="3"></textarea>
-      </div>
-      <div class="form-group">
-        <label>Year Created</label>
-        <input type="text" class="form-control" id="dst_year" >
+        <textarea class="form-control" id="dst_description" rows="5">{{description}}</textarea>
       </div>
       <div class="form-group">
         <label>Authors</label>
-        <!--<small class="form-text text-muted">split with semicolon and only with semicolon</small>-->
-        <input type="text" class="form-control" id="dst_author" >
+        <input type="text" ng-value="creator"  class="form-control" id="dst_author" >
       </div>
-      <div class="form-group">
-        <label>Tasks</label>
-        <small class="form-text text-muted">split with semicolon and only with semicolon</small>
-        <input type="text" class="form-control" id="dst_task" >
+      <div class="form-group row">
+        <div class="col-xs-3">
+            <label>Year Created *</label>
+            <input type="number" ng-value="year" class="form-control" id="dst_year" >
+        </div>
       </div>
-      <div class="form-group">
-        <label>Topics</label>
-        <small class="form-text text-muted">split with semicolon and only with semicolon</small>
-        <input type="text" class="form-control" id="dst_topic" >
+      <small class="form-text text-muted">Please make sure that no identical attribute exists before adding a new one!</small>
+      <div class="row start-xs start-sm start-md start-lg">
+          <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+              <div class="form-group">
+                <label>Tasks</label>
+                    <div id = "filterlist">
+                        <div ng-repeat = "task in allTasks">
+                            <label for=task_{{task.Element}} class="checkcontainer">
+                                <input type="checkbox" id=task_{{task.Element}} ng-model="task.Selected" name="dataset_task[]">
+                                {{task.Element}}
+                                <span class="checkmark"></span>
+                            </label>
+                        </div>
+                        <div class="input-group" style="width:70%">
+                            <input type="text" class="form-control" placeholder="New Task" id="new_task" ng-model="newTask">
+                            <span class="input-group-btn">
+                                <button class="btn" ng-click="add(allTasks, newTask, 'new_task')"><img src="https://png.icons8.com/material/22/269CCC/plus-math.png"></button>
+                            </span>
+                        </div>
+                        <span style="font-size:16px" id = "messagegoeshere_new_task"></span>
+                    </div>
+              </div>
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+              <div class="form-group">
+                <label>Topics</label>
+                    <div id = "filterlist">
+                        <div ng-repeat = "topic in allTopics">
+                            <label for=topic_{{topic.Element}} class="checkcontainer">
+                                {{topic.Element}}
+                                <input type="checkbox" id=topic_{{topic.Element}} ng-model="topic.Selected" name="dataset_topic[]">
+                                <span class="checkmark"></span>
+                            </label>
+                        </div>
+                        <div class="input-group" style="width:70%">
+                            <input type="text" class="form-control" placeholder="New Topic" id="new_topic" ng-model="newTopic">
+                            <span class="input-group-btn">
+                                <button class="btn" ng-click="add(allTopics, newTopic, 'new_topic')"><img src="https://png.icons8.com/material/22/269CCC/plus-math.png"></button>
+                            </span>
+                        </div>
+                        <span style="font-size:16px" id = "messagegoeshere_new_topic"></span>
+                    </div>
+              </div>
+          </div>
       </div>
+      <small class="form-text text-muted">Please make sure that no identical attribute exists before adding a new one!</small>
+      <div class="row start-xs start-sm start-md start-lg">
+          <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">     
+              <div class="form-group">
+                <label>Data Types</label>
+                    <div id = "filterlist">
+                        <div ng-repeat = "type in allTypes">
+                            <label for=type_{{type.Element}} class="checkcontainer">
+                                {{type.Element}}
+                                <input type="checkbox" id=type_{{type.Element}} ng-model="type.Selected" name="dataset_datatype[]">
+                                <span class="checkmark"></span>
+                            </label>
+                        </div>
+                        <div class="input-group" style="width:70%">
+                            <input type="text" class="form-control" placeholder="New Data Type" id="new_type" ng-model="newType">
+                            <span class="input-group-btn">
+                                <button class="btn" ng-click="add(allTypes, newType, 'new_type')"><img src="https://png.icons8.com/material/22/269CCC/plus-math.png"></button>                        
+                            </span>
+                        </div> 
+                        <span style="font-size:16px" id = "messagegoeshere_new_type"></span>
+                   </div>
+              </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6"> 
+              <div class="form-group">
+                <label>Annotations</label>
+                    <div id = "filterlist">
+                        <div ng-repeat = "annotation in allAnnotations">
+                            <label for=annotation_{{annotation.Element}} class="checkcontainer">
+                                {{annotation.Element}}
+                                <input type="checkbox" id=annotation_{{annotation.Element}} ng-model="annotation.Selected" name="dataset_annotation[]">
+                                <span class="checkmark"></span>
+                            </label>
+                        </div>
+                        <div class="input-group" style="width:70%">
+                            <input type="text" class="form-control" placeholder="New Annotation" id="new_annot" ng-model="newAnnotation">
+                            <span class="input-group-btn">
+                                <button class="btn" ng-click="add(allAnnotations, newAnnotation, 'new_annot')"><img src="https://png.icons8.com/material/22/269CCC/plus-math.png"></button>                        
+                            </span>
+                        </div>
+                        <span style="font-size:16px" id = "messagegoeshere_new_annot"></span>
+                    </div>
+              </div>
+        </div>
+     </div>
       <div class="form-group">
         <label>Keywords</label>
-        <small class="form-text text-muted">split with semicolon and only with semicolon</small>
-        <input type="text" class="form-control" id="dst_keyword" >
+        <div>
+            <div ng-repeat = "keyword in keywords">
+                <div class="input-group" style="width:30%">
+                    <input type="text" class="form-control" readonly ng-value="keyword" id="keyword-{{$index}}" name="dataset_keyword[]">
+                    <span class="input-group-btn">
+                        <button class="btn" ng-click="del(keywords, $index)"><img src="https://png.icons8.com/material/20/269CCC/delete-sign.png"></button>
+                    </span>
+                </div>
+            </div>
+            <div class="input-group" style="width:30%">
+                <input type="text" class="form-control" placeholder="New Keyword" id="new_kwd" ng-model="newKeyword" ng-init="newKeyword=''">
+                <span class="input-group-btn">
+                    <button class="btn" ng-click="add(keywords, newKeyword, 'new_kwd')"><img src="https://png.icons8.com/material/22/269CCC/plus-math.png"></button>
+                </span>
+            </div>
+            <span style="font-size:16px" id = "messagegoeshere_new_kwd"></span>        
+        </div>
       </div>
-      <div class="form-group">
-        <label>Data Types</label>
-        <small class="form-text text-muted">split with semicolon and only with semicolon</small>
-        <input type="text" class="form-control" id="dst_type" >
-      </div>
-      <div class="form-group">
-        <label>Annotations</label>
-        <small class="form-text text-muted">split with semicolon and only with semicolon</small>
-        <input type="text" class="form-control" id="dst_annotation" >
-      </div>
+      
       <div class="form-group">
         <label>Size</label>
-        <input type="text" class="form-control" id="dst_size" >
+        <div class="form-group row">
+            <div class="col-xs-3">
+                <input type="text" ng-value="size"  class="form-control" id="dst_size" >
+            </div>
+        </div>
       </div>
       <div class="form-group">
         <label>Number of Categories</label>
-        <input type="text" class="form-control" id="dst_numcat" >
+        <div class="form-group row">
+            <div class="col-xs-3">
+                <input type="text" ng-value="num_cat" class="form-control" id="dst_numcat" >
+            </div>
+        </div>
       </div>
 
       <div class="form-group">
-        <label>Thumbnail (Dataset Cover) Link</label>
-        <input type="text" class="form-control" id="dst_thumbnail" >
+        <label>Thumbnail (Image) Link</label>
+        <input type="text" ng-value="thumbnail" class="form-control" id="dst_thumbnail" >
       </div>
       <div class="form-group">
         <label>Paper (Where the dataset comes from)</label>
-        <input type="text" class="form-control" id="dst_paper" >
+        <input type="text" ng-value="paper" class="form-control" id="dst_paper" >
       </div>
       <div class="form-group">
         <label>Citations</label>
-        <small class="form-text text-muted">split with semicolon</small>
-        <input type="text" class="form-control" id="dst_citation" >
-      </div>
+        <div>
+            <div ng-repeat = "citation in citations">
+                <div class="input-group" style="width:90%">
+                    <textarea class="form-control" readonly id="citation-{{$index}}" name="dataset_citation[]" rows=3>{{citation}}</textarea>
+                    <span class="input-group-btn">
+                        <button class="btn" ng-click="del(citations, $index)"><img src="https://png.icons8.com/material/20/269CCC/delete-sign.png"></button>
+                    </span>
+                </div>
+            </div>
+            <div class="input-group" style="width:90%">
+                <input type="text" class="form-control" placeholder="New Citation" id="new_cit" ng-model="newCitation" ng-init="newCitation=''">
+                <span class="input-group-btn">
+                    <button class="btn" ng-click="add(citations, newCitation, 'new_cit')"><img src="https://png.icons8.com/material/22/269CCC/plus-math.png"></button>            
+                </span>
+            </div>
+            <span style="font-size:16px" id = "messagegoeshere_new_cit"></span>        
+        </div>
+    </div>
+
       <div class="form-group">
         <label>Conferences</label>
-        <small class="form-text text-muted">split with semicolon</small>
-        <input type="text" class="form-control" id="dst_conference" >
+        <div>
+            <div style="margin-top:-12px;margin-bottom:10px"><small class="form-text text-muted">Format as [Conference] [Year] (e.g. &quotCVPR 2015&quot)</small></div>
+            <div ng-repeat="conference in conferences">       
+                <div class="input-group" style="width:30%">
+                    <input type="text" class="form-control" readonly ng-value="conference" id="conference-{{$index}}" name="dataset_conference[]">
+                    <span class="input-group-btn">
+                        <button class="btn" ng-click="del(conferences, $index)"><img src="https://png.icons8.com/material/20/269CCC/delete-sign.png"></button>
+                    </span>
+                </div>
+            </div>
+            <div class="input-group" style="width:30%">
+                <input type="text" class="form-control" placeholder="New Conference" id="new_conf" ng-model="newConference" ng-init="newConference=''">
+                <span class="input-group-btn">
+                    <button class="btn" ng-click="add(conferences, newConference, 'new_conf')"><img src="https://png.icons8.com/material/22/269CCC/plus-math.png"></button>               
+                </span>
+            </div>
+            <span style="font-size:16px" id = "messagegoeshere_new_conf"></span>
+        </div>
       </div>
+      
       <div class="form-group">
         <label>Institutions</label>
-        <small class="form-text text-muted">split with semicolon</small>
-        <input type="text" class="form-control" id="dst_institution" >
+        <div>
+            <div ng-repeat="institution in institutions">  
+                <div class="input-group" style="width:30%">
+                    <input type="text" class="form-control" readonly ng-value="institution" id="institution-{{$index}}" name="dataset_institution[]">      
+                    <span class="input-group-btn">
+                        <button class="btn" ng-click="del(institutions, $index)"><img src="https://png.icons8.com/material/20/269CCC/delete-sign.png"></button>
+                    </span>
+                </div>
+            </div>
+            <div class="input-group" style="width:30%">
+                <input type="text" class="form-control" placeholder="New Institution" id="new_inst" ng-model="newInstitution" ng-init="newInstitution=''">
+                <span class="input-group-btn">
+                    <button class="btn" ng-click="add(institutions, newInstitution, 'new_inst')"><img src="https://png.icons8.com/material/22/269CCC/plus-math.png"></button>
+                </span>
+            </div>
+            <span style="font-size:16px" id = "messagegoeshere_new_inst"></span>            
+        </div>
       </div>
   </form>
   <div id = "messagegoeshere_submit">
   </div>
   <div class = "col-sm-4" style="padding : 0 1rem; margin:0 auto; vertical-align: middle; float: none">
         <div class="btn-toolbar" id = "send_submission_request" role="group" style="text-align:middle; padding: 0px 0px">
-            <button type="button" class="btn btn-info" style="width:100%; margin:0 0" ng-click="submit_new_dst()"> Submit </button>
+            <button type="button" class="btn" style="backtround-color:#269CCC;width:100%; margin:0 0" ng-click="submit_new_dst()"> Submit </button>
         </div>
    </div>
 </div>

@@ -4,7 +4,6 @@ cove.controller('DatasetCtrl',function ($scope, $http, $window, $location, $comp
         if($routeParams.id){
             var id_num = $routeParams.id;
             $http.get(DATASET_URL+'?id='+id_num).then(function(results) {
-                console.log(results);
                 $scope.id = results.data.id;
                 $scope.name = results.data.name;
                 $scope.url = results.data.url;
@@ -24,30 +23,30 @@ cove.controller('DatasetCtrl',function ($scope, $http, $window, $location, $comp
                 $scope.institutions = results.data.institutions;
                 
                 
-                $scope.thumbnailTrue = 'true';
-                $scope.sizeTrue = 'true';        
-                $scope.num_catTrue = 'true';            
-                $scope.conferencesTrue = 'true';               
-                $scope.annotationsTrue = 'true';              
-                $scope.citationsTrue = 'true';
-                
-                if($scope.thumbnail == ''){
-                     $scope.thumbnailTrue = 'false';
-                }
+                $scope.sizeTrue = true;        
+                $scope.num_catTrue = true;        
+                $scope.keywordsTrue = true;
+                $scope.conferencesTrue = true;               
+                $scope.annotationsTrue = true;              
+                $scope.citationsTrue = true;
+
                 if($scope.size == ''){
-                     $scope.thumbnailTrue = 'false';
+                     $scope.sizeTrue = false;
                 }
                 if($scope.num_cat == ''){
-                     $scope.num_catTrue = 'false';
+                     $scope.num_catTrue = false;
+                }
+                if($scope.keywords == ''){
+                     $scope.keywordsTrue = false;
                 }
                 if($scope.conferences == ''){
-                     $scope.conferencesTrue = 'false';
+                     $scope.conferencesTrue = false;
                 }
                 if($scope.annotations == ''){
-                     $scope.annotationsTrue = 'false';
+                     $scope.annotationsTrue = false;
                 }
-                if($scope.citations == ''){
-                     $scope.citationsTrue = 'false';
+                if($scope.citations == []){
+                     $scope.citationsTrue = false;
                 }      
             }) 
         }
@@ -58,7 +57,7 @@ cove.controller('DatasetCtrl',function ($scope, $http, $window, $location, $comp
         var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
         var email = $("#d-email-address").val();
         var bool = re.test(String(email).toLowerCase());
-        var id = $routeParams.dataset_id;
+        var id = $routeParams.id;
         var reason = $("#delete-reason").val();
         if(!email || !reason){
             $("<p>Please enter all required fields.</p>"
@@ -78,7 +77,7 @@ cove.controller('DatasetCtrl',function ($scope, $http, $window, $location, $comp
                 "reason" : reason
             };
             $http({
-                url : MODIFY_RQST_URL, 
+                url :  NEW_REQUEST_URL, 
                 method : "POST",
                 data : JSON.stringify(dict),
                 headers: {'Content-Type':'application/json; charset=UTF-8'}
@@ -95,7 +94,7 @@ cove.controller('DatasetCtrl',function ($scope, $http, $window, $location, $comp
         var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
         var email = $("#e-email-address").val();
         var bool = re.test(String(email).toLowerCase());
-        var id = $routeParams.dataset_id;
+        var id = $routeParams.id;
         if(!email){
             $("<p>Please fill out all required fields.</p>"
                             ).addClass("text-warning").appendTo("#e-messagegoeshere");
@@ -113,7 +112,7 @@ cove.controller('DatasetCtrl',function ($scope, $http, $window, $location, $comp
                 "target_id" : id
             };
             $http({
-                url : MODIFY_RQST_URL, 
+                url : NEW_REQUEST_URL, 
                 method : "POST",
                 data : JSON.stringify(dict),
                 headers: {'Content-Type':'application/json; charset=UTF-8'}
@@ -145,7 +144,7 @@ cove.controller('DatasetCtrl',function ($scope, $http, $window, $location, $comp
     };
 
     $scope.load_page = function(id){
-        request_url = REQUEST_DST_URL + "id?dataset_id=" + id;
+        request_url = "DATASET_URL+'?id=" + id;
         $http.get(request_url)
                 .success(function(data){
                     if(data.value != null){

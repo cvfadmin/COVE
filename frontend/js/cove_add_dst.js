@@ -1,4 +1,4 @@
-cove.controller('Modify_dataset', function ($scope, $http, $compile, $rootScope, $routeParams) {
+cove.controller('Add_dataset', function ($scope, $http, $compile, $rootScope, $routeParams) {
     $scope.r_type = '';
     $scope.suffix = '';
     $scope.target_id;
@@ -121,16 +121,18 @@ cove.controller('Modify_dataset', function ($scope, $http, $compile, $rootScope,
             data : JSON.stringify(dict),
             headers: {'Content-Type':'application/json; charset=UTF-8'}
         }).success(function(data){
-            $("<p>Successfully submit dataset. We will review it and add it to COVE.</p>"
+            $("<p>Your dataset has been successfully submitted. We will review it and add it to COVE. Thank you!</p>"
                         ).addClass("text-success").appendTo("#messagegoeshere_submit");
             $('#dst_description').val('');
             $('input[id^="dst_"]').each(function(){
                 $(this).val('');
             })
+            $('#send_new_dst').attr("disabled", true);
 
         }).error(function(error){
             $("<p>" + error['error'] +"</p>"
                         ).addClass("text-warning").appendTo("#messagegoeshere_submit");
         })
+        $('#send_new_dst').attr("disabled", true);
     };
 })

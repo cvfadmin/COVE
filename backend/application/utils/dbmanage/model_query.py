@@ -9,7 +9,7 @@ from application.models.dataset import Dataset, Pending_Dataset
 from application.models.relation import DatasetAnnCatAssoc, Dataset_Institution, Dataset_Task, Dataset_Datatype, Dataset_Topic, Dataset_Annotation,  Dataset_Keyword, Dataset_Conference, Dataset_Citation
 
 
-def getList(session, item, table, id_num):
+def getArray(session, item, table, id_num):
     elems = []
     query = "SELECT " 
     query += item
@@ -26,7 +26,30 @@ def getList(session, item, table, id_num):
     for elem in session.execute(text(query)):
         elems.append(getattr(elem, item))
     
-    return (', '.join(elems))
+    return (elems)
+
+def getList(session, item, table, id_num, asList=False):
+    elems = []
+    query = "SELECT " 
+    query += item
+    query += " FROM "
+    query += table
+    query += " WHERE "
+    query += table
+    query += ".set_id = "
+    query += str(id_num)
+    query += " ORDER BY "
+    query += item
+    query += " ASC"
+
+    for elem in session.execute(text(query)):
+        elems.append(getattr(elem, item))
+    
+    if asList:
+        return elems
+    
+    else:
+        return (', '.join(elems))
     
 def datasetDetails(session, id_num):
     for dataset in session.query(Dataset).filter((getattr(Dataset, 'id_') == id_num)):
@@ -39,18 +62,19 @@ def datasetDetails(session, id_num):
         num_cat = getattr(dataset, 'num_cat')
         url = getattr(dataset, 'url')
         thumbnail = getattr(dataset, 'thumbnail')
+        paper = getattr(dataset, 'related_paper')
         conferences = getList(session, 'conference', 'Dataset_Conference', id_num)
         tasks = getList(session, 'task', 'Dataset_Task', id_num)
         topics = getList(session, 'topic','Dataset_Topic', id_num)
         types = getList(session, 'data_type', 'Dataset_Datatype', id_num)
         annotations = getList(session, 'annotation_type', 'Dataset_Annotation', id_num)
         keywords = getList(session, 'keyword', 'Dataset_Keyword', id_num)
-        citations = getList(session, 'citation', 'Dataset_Citation', id_num)
+        citations = getList(session, 'citation', 'Dataset_Citation', id_num, True)
         institutions = getList(session, 'institution', 'Dataset_Institution', id_num)
-        
+                
         return {"id":id_num,"name":name, "url":url,"thumbnail":thumbnail,"year":year,"creator":creator,
                 "description":description,"size":size, "num_cat":num_cat, "keywords":keywords,
-                "conferences":conferences, "tasks":tasks,"topics":topics,"types":types,
+                "paper":paper, "conferences":conferences, "tasks":tasks,"topics":topics,"types":types,
                 "annotations":annotations, "citations":citations, "institutions":institutions}
         
 class ModelQuery():

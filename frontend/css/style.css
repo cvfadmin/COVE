@@ -1,25 +1,16 @@
-<link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css" integrity="sha384-nn4HPE8lTHyVtfCBi5yW9d20FjT8BJwUXyWZT9InLYax14RDjBj46LmSztkmNP9w" crossorigin="anonymous">
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-<link rel="stylesheet" href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
-<script defer src="https://use.fontawesome.com/releases/v5.0.8/js/all.js" integrity="sha384-SlE991lGASHoBfWbelyBPLsUlwY1GwNDJo3jSJO04KZ33K2bwfV9YBauFfnzvynJ" crossorigin="anonymous"></script>
-<script src="http://code.jquery.com/jquery-latest.js"></script> 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-
 <style>
 
 html {
-	height:100%;
+    position: relative;
+    min-height: 100%;
 }
 
 body {
 	font-family: Maison Neue,Helvetica Neue,Helvetica,Arial,Lucida Grande,sans-serif;
     font-size: 20px;
     font-weight: 400;
-    margin:0;
     padding:0;
     background-color:#F5F6FA;
-    display:flex;
-    flex-direction: column; 
 }
 	
 .container {
@@ -62,6 +53,7 @@ header .subheading {
 
 header a {
 	text-decoration: none;
+   touch-action: none;
 }
 header a:link{
 	color:#269CCC;
@@ -76,6 +68,11 @@ header a:hover{
 	color:#269CCC;
 }
 
+header a:click{
+	text-decoration:none;
+	color:#269CCC;
+}
+
 #navbar {
 	text-transform:uppercase;
 }
@@ -85,8 +82,8 @@ header a:hover{
 	float:left;
 	display:inline;
 	padding-left:20px;
-	padding-bottom:10px;
-	list-style:none;	
+	padding-bottom:10;
+   line-height: 54px
 }
 
 #navbar a{
@@ -129,20 +126,11 @@ header a:hover{
 }
 
 #left-logo {
-	display:inline;
-	float:left;
-	margin-top:-25px;
-	padding-right:50px;
-	padding-bottom:100px;
+    height:50px;
 }
 
 #right-logo {
-	display:inline;
-	float:right;
-	margin-top:-25px;
-	padding-left:50px;
-	padding-bottom:100px;
-	padding-top:20px;
+    height:40px;
 }
 
 /* CONTROLS */
@@ -200,8 +188,7 @@ header a:hover{
 }
 
 #filternav #add {
-	margin-left:40%;
-	
+	float:right;
 }
 
 #filternav img{
@@ -471,7 +458,6 @@ header a:hover{
 #main-panel{
 	margin-top: 40px;
 	padding-right: 80px;
-
 }
 
 
@@ -544,6 +530,7 @@ header a:hover{
 
 .thumbnail {
 	display: block;
+    margin-top:20px;
     margin-left: auto;
     margin-right: auto;
     margin-bottom: 20px;
@@ -551,34 +538,58 @@ header a:hover{
     max-width: 100%;
 }
 
-
 #buttons img:hover{
 	-webkit-filter: brightness(0) invert(1);
 	filter: brightness(0) invert(1);
 }
 
 #edit-button {
+   cursor:pointer; 
 	position: absolute;
-	bottom: 20px;
-	left: 20px;
+	bottom: 13px;
+	left: 10px;
 }
 
 #report-button {
+   cursor:pointer; 
 	position: absolute;
-	bottom: 10px;
+	bottom: 5px;
 	right: 20px;
 }
 
+/* NEW DATASET */
+
+textarea:focus, input:focus, input[type]:focus { 
+    border-color:#269CCC;
+}
+
+.btn:focus{
+    outline:none;
+}
+
+#new_dst_form button:hover{
+    background-color:#A9A9A9;            
+}
+
+#new_dst_form button:hover > img{
+	-webkit-filter: brightness(0) invert(1);
+	filter: brightness(0) invert(1);
+}
+
+
+
 /* FOOTER */
 footer {
-	flex-shrink:0;
-    left: 0;
-    bottom: 0;
-    width: 100%;
+    padding-top:20px;
+    padding-bottom:20px;
     background-color: #170B3B;
     color: white;
     text-align: center;
-	font-size: 12px;
+	 font-size: 12px;
+}
+
+footer p {
+    margin-bottom:-1px;        
 }
 
 

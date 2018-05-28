@@ -13,7 +13,7 @@ class Dataset(Base):
     __tablename__ = "dataset"
     id_ = sa.Column(sa.Integer, nullable=False, primary_key=True, autoincrement=True)
     is_approved = sa.Column(sa.Boolean)
-    name = sa.Column(sa.String(1000), unique=True, nullable=False)
+    name = sa.Column(sa.String(1000), nullable=False)
     url = sa.Column(sa.String(1000), nullable=False)
     thumbnail = sa.Column(sa.String(1000), nullable=False)
     description = sa.Column(sa.Text, nullable=False)

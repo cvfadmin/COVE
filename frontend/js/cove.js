@@ -4,16 +4,32 @@ var RESULTS_URL = 'http://127.0.0.1:5000/api/results';
 var DATASET_URL = 'http://127.0.0.1:5000/api/dataset';
 var REQUEST_DST_URL = 'http://127.0.0.1:5000/api/search_dataset/';
 //var NEW_DATASET_SUBMISSION_URL = 'http://127.0.0.1:5000/api/request';
-var MODIFY_RQST_URL = 'http://127.0.0.1:5000/api/add_request';
 var PROCESS_REQUEST_URL = 'http://127.0.0.1:5000/api/process_request';
+var NEW_REQUEST_URL = 'http://127.0.0.1:5000/api/new_request';
 var ADMIN_URL = 'http://127.0.0.1:5000/api/admin';
 var NEW_DATASET_URL = 'http://127.0.0.1:5000/api/new_dataset';
+
 
 var NUM_ROWS = 2;
 var NUM_COL = 4;
 var TOTAL_DISP = NUM_ROWS * NUM_COL;
 
-cove.run(function($rootScope, $compile, $http){
+
+cove.controller('NavCtrl', function($scope, $http, $cookieStore, $rootScope) {
+    var token = $cookieStore.get('token');
+    var auth = btoa(token + ":")
+    $http({
+            url : ADMIN_URL,
+            method : "GET",
+            headers : {"Authorization" : 'Basic ' + auth}
+        }).success(function(data){
+           // window.alert('success'); 
+        }).error(function(error){
+           // window.alert('error');
+        })
+});
+
+cove.run(function($rootScope, $compile, $http, $cookieStore){
     $rootScope.download_list = new Set();
     $rootScope.browse_list = [];
     $rootScope.expand = function(id){
@@ -69,6 +85,62 @@ cove.run(function($rootScope, $compile, $http){
             }
         }
     };
+                
+    $rootScope.showLogin = function(){
+        if ($cookieStore.get('token')) {
+            window.location.href='#/admin';      
+        }
+        else {
+            $('#login-form').modal('show');            
+        }            
+    }
+                
+    $rootScope.login = function(){
+        $("#messagegoeshere_login").empty();
+        var username = $("#username").val();
+        if(!username){
+            $("<p>Please provide a username.</p>"
+                        ).addClass("text-warning").appendTo("#messagegoeshere_login");
+            return;
+        }
+        var password = $("#password").val();
+        if(!password){
+            $("<p>Please provide a password.</p>"
+                        ).addClass("text-warning").appendTo("#messagegoeshere_login");
+            return;
+        }
+        var dict = {
+            "username" : username,
+            "password" : password
+        };
+        $http({
+            url : ADMIN_URL,
+            method : "POST",
+            data : JSON.stringify(dict),
+            headers: {'Content-Type':'application/json; charset=UTF-8'}
+        }).success(function(data){
+            console.log("logged in");
+            $cookieStore.put('token',data['token']);
+            $('#login-form').modal('hide');
+            $('#login_button').hide();
+            $('#logout_button').show();
+            window.location.href='#/admin';
+        }).error(function(error){
+            $("<p>Invalid username or password.</p>"
+                        ).addClass("text-warning").appendTo("#messagegoeshere_login");
+            return;
+        })
+    }
+
+    $rootScope.logout = function(){
+            $cookieStore.remove('token');
+            console.log("logged out");
+            $('#logout_button').hide();
+            $('#login_button').show();
+            window.location.href='#/';
+
+
+    }   
 
    $rootScope.send_submission_request = function(){
         $("#messagegoeshere").empty();
@@ -97,8 +169,9 @@ cove.run(function($rootScope, $compile, $http){
                 "intro" : intro,
                 "url" : url
             };
+            console.log(dict);
             $http({
-                url : MODIFY_RQST_URL, 
+                url : NEW_REQUEST_URL, 
                 method : "POST",
                 data : JSON.stringify(dict),
                 headers: {'Content-Type':'application/json; charset=UTF-8'}
@@ -176,7 +249,10 @@ cove.config(['$routeProvider', function ($routeProvider) {
         .when("/", {templateUrl: "partials/home.html", controller: "HomeCtrl", search_datasample : true})
         .when("/results", {templateUrl: "partials/search_results.html", controller: "BrowseCtrl", search_datasample : true})
         .when("/dataset", {templateUrl: "partials/dataset.html", controller: "DatasetCtrl", search_datasample : true})
-      
+        .when("/admin", {templateUrl : "partials/admin.html", controller: "AdminCtrl"})
+        .when("/add_dataset/:identifier", {templateUrl: "partials/new_dataset_submit.html", controller: "New_dataset"})
+        .when("/edit_dataset/:identifier", {templateUrl: "partials/new_dataset_submit.html", controller: "New_dataset"})
+        .when("/pending_datasets", {templateUrl: "partials/pending_datasets.html", controller: "PendingDST"})      
         .when("/search/:query_type", {templateUrl: "partials/home.html", controller: "BrowseCtrl", search_datasample : true})
         .when("/search_dataset/:query_type", {templateUrl: "partials/home.html", controller: "BrowseCtrl", search_datasample : false})
         // Download
@@ -189,9 +265,6 @@ cove.config(['$routeProvider', function ($routeProvider) {
         //     },
         //     controller: "Dataset_intro"
         // });
-        .when("/dataset/:dataset_id", {templateUrl: "partials/dataset_frontpage/1.html", controller: "Dataset_intro"})
-        .when("/admin", {templateUrl : "partials/admin.html", controller: "AdminCtrl"})
-        .when("/add_dataset/:identifier", {templateUrl: "partials/new_dataset_submit.html", controller: "Modify_dataset"})
-        .when("/edit_dataset/:identifier", {templateUrl: "partials/new_dataset_submit.html", controller: "Modify_dataset"})
-        .when("/pending_datasets", {templateUrl: "partials/pending_datasets.html", controller: "PendingDST"});
+        .when("/dataset/:dataset_id", {templateUrl: "partials/dataset_frontpage/1.html", controller: "Dataset_intro"});
+
 }]);

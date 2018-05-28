@@ -22,8 +22,8 @@ app.config["SECRET_KEY"] = "cove is good"
 app.config["MAIL_SERVER"] = "smtp.gmail.com"
 app.config["MAIL_PORT"] = 465
 app.config["MAIL_USE_SSL"] = True
-app.config["MAIL_USERNAME"] = 'coveproj@gmail.com'
-app.config["MAIL_PASSWORD"] = 'covecovecove'
+app.config["MAIL_USERNAME"] = 'coveproj1@gmail.com'
+app.config["MAIL_PASSWORD"] = 'coveadmin1'
 mail.init_app(app)
 
 db.init_app(app)

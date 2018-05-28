@@ -1,4 +1,4 @@
-cove.controller('PendingDST',function ($scope, $http, $window, $cookieStore, $compile, $routeParams){
+cove.controller('PendingDST',function ($scope, $http, $window, $location, $cookieStore, $compile, $routeParams){
     $scope.$on('$viewContentLoaded', function(event){
         $("#pending_dst_display").empty();
         var cur_dst, prev_dst;
@@ -47,6 +47,7 @@ cove.controller('PendingDST',function ($scope, $http, $window, $cookieStore, $co
             }).success(function(data){
                 $("#dst_approve").attr("disabled", true);
                 $("#dst_deny").attr("disabled", true);
+                window.location.href=('#/admin');
             }).error(function(error){
                 console.log("here");
                 $('#login-form').modal('show');
@@ -55,6 +56,7 @@ cove.controller('PendingDST',function ($scope, $http, $window, $cookieStore, $co
     };
 
     $scope.dst_approve = function(){
+        console.log('here');
         var token = $cookieStore.get('token');
         var auth = btoa(token + ":")
         var r = confirm("Please confirm your decision.");
@@ -62,8 +64,9 @@ cove.controller('PendingDST',function ($scope, $http, $window, $cookieStore, $co
             dict = {
                 "id": $routeParams.cur,
                 "target_id" :$routeParams.prev,
-                "approved": false
+                "approved": true
             }
+            console.log(dict);
             var request_url = 'http://127.0.0.1:5000/api/view_pending_dst'
             $http({
                 url : request_url,
@@ -73,34 +76,10 @@ cove.controller('PendingDST',function ($scope, $http, $window, $cookieStore, $co
             }).success(function(data){
                 $("#dst_approve").attr("disabled", true);
                 $("#dst_deny").attr("disabled", true);
+                window.location.href=('#/admin');
             }).error(function(error){
                 $('#login-form').modal('show');
             })
         }
     };
-$scope.approve = function(type, id){
-        var token = $cookieStore.get('token');
-        var auth = btoa(token + ":")
-        var r = confirm("Please confirm your decision.");
-        if(r){
-            dict = {
-                "type": type,
-                "id": id,
-                "approved": true
-            }
-            $http({
-                url : PROCESS_REQUEST_URL,
-                method : "POST",
-                data : JSON.stringify(dict),
-                headers : {"Authorization" : 'Basic ' + auth}
-            }).success(function(data){
-                var tmp1 = '#' + type + '_approve_' + id;
-                var tmp2 = '#' + type + '_deny_' + id;
-                $(tmp1).attr("disabled", true);
-                $(tmp2).attr("disabled", true);
-            }).error(function(error){
-                $('#login-form').modal('show');
-            })
-        }
-    }
 })
