@@ -512,6 +512,7 @@ header a:click{
 }
 
 #info-panel #info-heading{
+    margin-top:16px;
 	font-size:18px;
 	font-weight:600;
 	text-transform:uppercase;	

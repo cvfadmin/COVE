@@ -68,8 +68,7 @@ cove.controller('New_dataset', function ($scope, $http, $compile, $rootScope, $r
         $scope.citations = [];
         $scope.conferences = [];
         $scope.annotations = [];
-        $scope.institutions = [];
-        
+        $scope.institutions = [];   
         
         if($scope.r_type == 'edit') {        
             $http.get(DATASET_URL+'?id='+$scope.target_id).
@@ -116,26 +115,17 @@ cove.controller('New_dataset', function ($scope, $http, $compile, $rootScope, $r
                     if (results.data.institutions != '') {
                          $scope.institutions = results.data.institutions.split(', ');                       
                     }
-
-                    getallAttributes().then(function(results) {
-                        $scope.allTasks = $scope.initializeObj($scope.allTasksList, $scope.tasks);
-                        $scope.allTopics = $scope.initializeObj($scope.allTopicsList, $scope.topics);
-                        $scope.allTypes = $scope.initializeObj($scope.allTypesList, $scope.types);
-                        $scope.allAnnotations = $scope.initializeObj($scope.allAnnotationsList, $scope.annotations);
-                    })
-                
-                $scope.setChecked = function (attr, entry) {
-                    if (attr.indexOf(entry) == -1) {
-                        return false;    
-                    }    
-                    else{
-                        return true;    
-                    }
-                }                           
+                   
             })
 
         }
-        else{}
+        
+        getallAttributes().then(function(results) {
+            $scope.allTasks = $scope.initializeObj($scope.allTasksList, $scope.tasks);
+            $scope.allTopics = $scope.initializeObj($scope.allTopicsList, $scope.topics);
+            $scope.allTypes = $scope.initializeObj($scope.allTypesList, $scope.types);
+            $scope.allAnnotations = $scope.initializeObj($scope.allAnnotationsList, $scope.annotations);
+        })          
                                
         $scope.add = function (attr, entry, id) {  
             var flag = false;
