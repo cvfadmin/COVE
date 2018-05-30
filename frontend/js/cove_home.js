@@ -1,6 +1,7 @@
 cove.controller('HomeCtrl', function ($scope, $route, $http, $location, $window, $compile, $rootScope, $routeParams) {
-
-    $(document).ready(function(){			
+    $(document).ready(function(){		
+        $('#logout_button').hide();
+        $('#login_button').show();
     	$('#filter').click(function() {
     		$('#filters').slideToggle('slow');
     	});
@@ -14,6 +15,19 @@ cove.controller('HomeCtrl', function ($scope, $route, $http, $location, $window,
 
     $scope.resultsURL = '';
     
+    $scope.show_dataset_submit = function(){
+        $('#dst_submit').modal('show');
+        $("#email-address").val('');
+        $("#first-name").val('');
+        $("#last-name").val('');
+        $("#dst-name").val('');
+        $("#dst-url").val('');
+        $("#intro").val('');
+        $("#send_submission_request").attr("disabled", false);
+        $("#messagegoeshere").empty();
+        return false;
+    };
+
     $scope.searchSubmit = function() {
         var tasksUrl = '';
         var topicsUrl = '';

@@ -1,10 +1,10 @@
 <header>
 	<div class="container">
 		<div class="row center-xs start-sm start-md start-lg bottom-xs bottom-sm bottom-md bottom-lg">
-			<div class="col-xs-12 col-sm-9 col-md-9 col-lg-9">
+			<div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
 				<h1><span class="primary-text"><a href="#/" style="text-decoration:none">COVE</a></span><span class="subheading">Computer Vision Exchange</span></h1>
 			</div>
-       		<div class="col-xs-12 col-sm-3 col-md-3 col-lg-3">
+       		<div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
     			<nav id="navbar">
     				<ul>
 						<li><a href="https://nsf.gov/awardsearch/showAward?AWD_ID=1463102" target="_blank">About</a></li>
@@ -18,30 +18,31 @@
     			</nav>
     		</div>
     	</div>
-	</div>    	
+	</div>
 
-<div class="modal fade" id="login-form" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="myModalLabel">Administrator Login</h4>
-            </div>
-            <div class="modal-body">
-               <div class="input-group input-group-sm">
-                    <span class="input-group-addon" id="sizing-addon3">Username</span>
-                    <input id="username" type="text" class="form-control" aria-describedby="sizing-addon3">
-               </div>
-               <div class="input-group input-group-sm">
-                    <span class="input-group-addon" id="sizing-addon3">Password</span>
-                    <input id="password" type="password" class="form-control" aria-describedby="sizing-addon3">
-               </div>
-               <div id = "messagegoeshere_login">
-               </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button id="send_submission_request" type="button" class="btn btn-primary" ng-click="login()">Login</button>
+    <div class="modal fade" id="login-form" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Administrator Login</h4>
+                </div>
+                <div class="modal-body">
+                   <div class="input-group input-group-sm">
+                        <span class="input-group-addon" id="sizing-addon3">Username</span>
+                        <input id="username" type="text" class="form-control" aria-describedby="sizing-addon3">
+                   </div>
+                   <div class="input-group input-group-sm">
+                        <span class="input-group-addon" id="sizing-addon3">Password</span>
+                        <input id="password" type="password" class="form-control" aria-describedby="sizing-addon3">
+                   </div>
+                   <div id = "messagegoeshere_login">
+                   </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button id="send_add_request" type="button" class="btn btn-primary" ng-click="login()">Login</button>
+                </div>
             </div>
         </div>
     </div>

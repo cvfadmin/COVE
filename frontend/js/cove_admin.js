@@ -8,13 +8,14 @@ cove.controller('AdminCtrl', function ($scope, $http, $compile, $rootScope, $coo
         }
     });
 
-    $scope.load_page = function(){
+    $scope.load_page = function(){       
+        $('#login_button').hide();
+        $('#logout_button').show();
         $('#edit_request').empty();
         $('#add_request').empty();
         $('#delete_request').empty();
         $('#new_datasets').empty();
         $('#modified_datasets').empty();
-        $cookieStore.remove('token');
         var token = $cookieStore.get('token');
         var auth = btoa(token + ":")
         $http({
@@ -52,6 +53,7 @@ cove.controller('AdminCtrl', function ($scope, $http, $compile, $rootScope, $coo
                                      "target":"_blank"});
                         ele.text(result[3][i][0]);
                         $("#new_datasets").append(ele);
+                        $("#new_datasets").append($("<br/>"));
                     }
                 }
             }).error(function(error){

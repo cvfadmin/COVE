@@ -52,6 +52,28 @@ cove.controller('DatasetCtrl',function ($scope, $http, $window, $location, $comp
         }
 	});
 
+    $scope.show_dataset_edit = function(){
+        console.log('here');
+        $('#dst_edit').modal('show');
+        $("#e-email-address").val('');
+        $("#e-first-name").val('');
+        $("#e-last-name").val('');
+        $("#send_edit_request").attr("disabled", false);
+        $("#e-messagegoeshere").empty();
+        return false;
+    };
+
+    $scope.show_dataset_delete = function(){
+        $('#dst_delete').modal('show');
+        $("#d-email-address").val('');
+        $("#d-first-name").val('');
+        $("#d-last-name").val('');
+        $("#delete-reason").val('');
+        $("#send_delete_request").attr("disabled", false);
+        $("#d-messagegoeshere").empty();
+        return false;
+    };
+
     $scope.send_delete_request = function(){
         $("#d-messagegoeshere").empty();
         var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -119,6 +141,10 @@ cove.controller('DatasetCtrl',function ($scope, $http, $window, $location, $comp
             }).success(function(data){
                 $("<p>" + data['message'] + "</p>"
                         ).addClass("text-success").appendTo("#e-messagegoeshere");
+                $("#send_edit_request").attr("disabled", true);
+            }).error(function(error){
+                $("<p>" + error['message'] + "</p>"
+                        ).addClass("text-warning").appendTo("#e-messagegoeshere");
                 $("#send_edit_request").attr("disabled", true);
             })
         }

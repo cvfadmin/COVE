@@ -1,30 +1,33 @@
-cove.controller('Add_dataset', function ($scope, $http, $compile, $rootScope, $routeParams) {
+cove.controller('New_dataset', function ($scope, $http, $compile, $rootScope, $routeParams) {
     $scope.r_type = '';
     $scope.suffix = '';
     $scope.target_id;
     $scope.$on('$viewContentLoaded', function(event){
         if($routeParams.identifier){
+            console.log('here');
             $("#email_valid").modal('show');
         }
     });
 
     $scope.validate = function(){
+        console.log('here');
         $("#messagegoeshere_validate").empty();
         var email = $('#email').val();
         var hashed_str = $routeParams.identifier.split("$");
-        var target_url;
-        if(hashed_str.length == 2){
-            $scope.target_id = hashed_str[0];
-            $scope.suffix = hashed_str[1];
-            $scope.r_type = 'edit';
-            target_url = NEW_DATASET_URL + '?email=' + email + '&action=edit'+'&suffix=' + $scope.suffix;
-        }
-        else{
-            $scope.suffix = hashed_str[0];
-            $scope.r_type = 'add';
-            target_url = NEW_DATASET_URL + '?email=' + email + '&action=add'+'&suffix=' + $scope.suffix;
-        }
-         
+        // if(hashed_str.length == 2){
+        //     $scope.target_id = hashed_str[0];
+        //     $scope.suffix = hashed_str[1];
+        //     $scope.r_type = 'edit';
+        //     target_url = NEW_DATASET_URL + '?email=' + email + '&action=edit'+'&suffix=' + $scope.suffix;
+        // }
+        // else{
+        //     $scope.suffix = hashed_str[0];
+        //     $scope.r_type = 'add';
+        //     target_url = NEW_DATASET_URL + '?email=' + email + '&action=add'+'&suffix=' + $scope.suffix;
+        // }
+        $scope.target_id = hashed_str[0];
+        $scope.suffix = hashed_str[1];
+        var target_url = NEW_DATASET_URL + '?email=' + email + '&rqst_id=' + target_id +'&suffix=' + $scope.suffix;
         $http.get(target_url)
                 .success(function(data){
                     $('#email_input').val(email);
@@ -42,7 +45,6 @@ cove.controller('Add_dataset', function ($scope, $http, $compile, $rootScope, $r
         if(target_id){
             //request_url = REQUEST_DST_URL + "id?dataset_id=" + target_id;
             request_url = DATASET_URL + '?id=' + target_id;
-            console.log(request_url);
             $http.get(request_url)
                 .success(function(data){
                     if(data.value != null){
