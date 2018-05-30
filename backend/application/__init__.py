@@ -15,8 +15,7 @@ CORS(api, resources={r"/api/*": {"origins": "*"}})
 
 app.config.from_object(__name__)
 #app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://johndickinson:@localhost/test3"
-app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://cove:password@localhost:5432/cove"
-#app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://haohuanw:890922hh@141.213.15.143:5432/testdb1"
+app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://cove:password@localhost:5432/postgres"
 
 app.config["SECRET_KEY"] = "cove is good"
 app.config["MAIL_SERVER"] = "smtp.gmail.com"

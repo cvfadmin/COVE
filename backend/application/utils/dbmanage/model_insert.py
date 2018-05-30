@@ -32,21 +32,30 @@ class ModelInsert():
     def insertRequest(email, firstname, lastname, r_type, target_id, dataset_name, intro, reason, url, session):
         rqst = None
         message = ""
+        err = 0
         if r_type == "add":
-            rqst = session.query(AddRequest).filter_by(email = email).first()
+            rqst = session.query(AddRequest).filter_by(email = email, dataset_name = dataset_name).first()
             if not rqst:
                 rqst = AddRequest(firstname, lastname, email, dataset_name, intro, url)
                 session.add(rqst)
-            message = "Request sent, we will send a link to your email shortly. Thank you for your support."
+                message = "Request sent, we will send a link to your email shortly. Thank you for your support."
+            else:
+                message = "You have a pending add request same as this one, please wait for our response."
+                err = 1
         elif r_type == "delete":
             rqst = DeleteRequest(firstname, lastname, email, target_id, dataset_name, reason)
             session.add(rqst)
             message = "We will review your request. Thank you for your support."
         elif r_type == "edit":
-            rqst = EditRequest(firstname, lastname, email, target_id, dataset_name)
-            session.add(rqst)
-            message = "Request sent, we will send a link to your email shortly. Thank you for your support."
-        return message, rqst
+            rqst = session.query(EditRequest).filter_by(email = email, target_id = target_id).first()
+            if not rqst:
+                rqst = EditRequest(firstname, lastname, email, target_id, dataset_name)
+                session.add(rqst)
+                message = "Request sent, we will send a link to your email shortly. Thank you for your support."
+            else:
+                message = "You have a pending edit request on this dataset, please wait for our response."
+                err = 1
+        return err, message, rqst
 
     @staticmethod
     def insertDataset(name, is_approved, edit_id, url, thumbnail, description, license, is_local, creator, year, size,\

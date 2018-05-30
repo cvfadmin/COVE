@@ -28,25 +28,52 @@ def verify_password(username_or_token, password):
     g.user = user
     return True
 
-def verify_email(mail, hashed_str, r_type):
-    usr = None
-    if r_type == "add":
-        usr = db.session.query(AddRequest).filter_by(email=mail).first()
-    elif r_type == "edit":
-        usr = db.session.query(EditRequest).filter_by(email=mail).first()
-    if not usr:
-        return False
+def verify_email(mail, rqst_id, hashed_str):
+    if rqst_id:
+        rqst_id = int(rqst_id)
     else:
-        if usr.salt is None:
-            return False
+        rqst_id = None
+    usr = None
+    # if r_type == "add":
+    #     usr = db.session.query(AddRequest).filter_by(email=mail).first()
+    # elif r_type == "edit":
+    #     usr = db.session.query(EditRequest).filter_by(email=mail).first()
+    rqst = db.session.query(AddRequest).filter_by(id = rqst_id).first()
+    if rqst:
+        if rqst.salt is None:
+            return False, True, {}
         else:
             m = hashlib.new('sha512')
-            m.update((usr.salt + mail).encode('utf-8'))
+            m.update((rqst.salt + mail).encode('utf-8'))
             url_suffix = m.hexdigest()
             if url_suffix != hashed_str:
-                return False
+                return False, True, {}
             else:
-                return True
+                data = {
+                "id":None,"name":rqst.dataset_name, 
+                "url":rqst.url,"thumbnail":"",
+                "year":"","creator":"",
+                "description":rqst.intro,
+                "size":"", "num_cat":"", "keywords":"",
+                "paper":"", "conferences":"", "tasks":"","topics":"","types":"",
+                "annotations":"", "citations":"", "institutions":""}
+                return True, True, data
+    else:
+        rqst = db.session.query(EditRequest).filter_by(id = rqst_id).first()
+        if rqst is None:
+            return False, {}
+        if rqst.salt is None:
+            return False, False, {}
+        else:
+            m = hashlib.new('sha512')
+            m.update((rqst.salt + mail).encode('utf-8'))
+            url_suffix = m.hexdigest()
+            if url_suffix != hashed_str:
+                return False, False, {}
+            else:
+                dst_id = rqst.target_id
+                data = ModelQuery.getDatasetDetails(db.session, dst_id)
+                return True, False, data
 
 class NewRequest(MethodView):
     def post(self):
@@ -62,18 +89,21 @@ class NewRequest(MethodView):
         reason = request.json.get('reason')
         r_type = request.json.get('r_type')
         url = request.json.get('url')
-        msg, rqst = ModelInsert.insertRequest(email, firstname, lastname, r_type, target_id, dataset_name, intro, reason, url, db.session)
+        err, msg, rqst = ModelInsert.insertRequest(email, firstname, lastname, r_type, target_id, dataset_name, intro, reason, url, db.session)
         db.session.commit()
-        return jsonify({"message":msg}), 200
+        if err == 1:
+            return jsonify({"message":msg}), 400
+        else:
+            return jsonify({"message":msg}), 200
 
 class NewDataset(MethodView):
     def get(self):
         mail = request.args.get("email")
-        r_type = request.args.get("action")
+        rqst_id = request.args.get("rqst_id")
         hashed_str = request.args.get("suffix")
-        flag = verify_email(mail, hashed_str, r_type)
+        flag, is_add, val = verify_email(mail, rqst_id, hashed_str)
         if flag:
-            return jsonify({"message":"Authorized"}), 200
+            return jsonify({"data": val}), 200
         else:
             return jsonify({"error":"Not Authorized"}), 401 
         
@@ -81,18 +111,20 @@ class NewDataset(MethodView):
         mail = request.json.get('email')
         hashed_str = request.json.get('suffix')
         r_type = request.json.get('action')
-        print(r_type)
-        flag = verify_email(mail, hashed_str, r_type)
+        rqst_id = request.json.get('target_id')
+        dst_name = request.json.get('name')
+        flag, is_add, val = verify_email(mail, rqst_id, hashed_str)
         if not flag:
             return jsonify({"error":"Not Authorized"}), 401  
-        dst = ModelQuery.getDatasetByName(request.json.get('name'), db.session())
-        if dst and r_type == "add":
-            return jsonify({"error":"Dataset name conflict."}), 401
+        if is_add:
+            dst = db.session.query(Dataset).filter_by(name = dst_name, is_approved = True).first()
+            if dst:
+                return jsonify({"error":"Dataset name conflict."}), 401
 
         dst = ModelInsert.insertDataset(
                 request.json.get('name'), \
                 False,
-                request.json.get('target_id'),
+                request.json.get('dst_id'),
                 request.json.get('url'), \
                 request.json.get('thumbnail'),\
                 request.json.get('description'), \
@@ -116,6 +148,12 @@ class NewDataset(MethodView):
                 request.json.get('institutions'),\
                 db.session)
         if dst:
+            rqst = db.session.query(EditRequest).filter_by(id = rqst_id).first()
+            if rqst:
+                db.session.delete(rqst)
+            else:
+                rqst = db.session.query(AddRequest).filter_by(id = rqst_id).first()
+                db.session.delete(rqst)
             db.session.commit()
             return jsonify({"message":"Succeed"}), 200
         else:
@@ -130,13 +168,12 @@ class ProcessRequest(MethodView):
         if r_type == "add":
             rqst = db.session.query(AddRequest).filter_by(id=rqst_id).first()
             if approved:
-                print("message sent")
                 salt = uuid.uuid4().hex
                 rqst.salt = salt
                 m = hashlib.new('sha512')
                 m.update((salt + rqst.email).encode('utf-8'))
                 url_suffix = m.hexdigest()
-                url = "localhost:8000/#/add_dataset/" + url_suffix
+                url = "localhost:8000/#/add_dataset/" + str(rqst_id) + "$" + url_suffix
                 subject = "Invitation from COVE"
                 message = "You can use the following link to submit your dataset to COVE: \n" + url
                 msg = Message(subject, sender="coveproj1@gmail.com", recipients=[rqst.email])
@@ -152,7 +189,7 @@ class ProcessRequest(MethodView):
                 m = hashlib.new('sha512')
                 m.update((salt + rqst.email).encode('utf-8'))
                 url_suffix = m.hexdigest()
-                url = "localhost:8000/#/edit_dataset/" + str(rqst.target_id) + "$" + url_suffix
+                url = "localhost:8000/#/edit_dataset/" + str(rqst_id) + "$" + url_suffix
                 subject = "Invitation from COVE"
                 message = "You can use the following link to edit your dataset: \n" + url
                 msg = Message(subject, sender="coveproj1@gmail.com", recipients=[rqst.email])
