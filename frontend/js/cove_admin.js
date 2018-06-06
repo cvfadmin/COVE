@@ -8,13 +8,15 @@ cove.controller('AdminCtrl', function ($scope, $http, $compile, $rootScope, $coo
         }
     });
 
-    $scope.load_page = function(){
+    $scope.load_page = function(){      
+        $('#request_headers').show();
+        $('#login_button').hide();
+        $('#logout_button').show();
         $('#edit_request').empty();
         $('#add_request').empty();
         $('#delete_request').empty();
         $('#new_datasets').empty();
         $('#modified_datasets').empty();
-        $cookieStore.remove('token');
         var token = $cookieStore.get('token');
         var auth = btoa(token + ":")
         $http({
@@ -39,7 +41,6 @@ cove.controller('AdminCtrl', function ($scope, $http, $compile, $rootScope, $coo
                 }
                 $compile($('#delete_request'))($scope);
                 for(var i = 0; i < result[3].length; i++){
-                    console.log("here");
                     if(result[3][i][2]){
                         var ele = $("<a/>").attr({'href':'#/pending_datasets?cur=' + result[3][i][1] + '&prev=' + result[3][i][2],
                                      'target':'_blank'});
@@ -52,6 +53,7 @@ cove.controller('AdminCtrl', function ($scope, $http, $compile, $rootScope, $coo
                                      "target":"_blank"});
                         ele.text(result[3][i][0]);
                         $("#new_datasets").append(ele);
+                        $("#new_datasets").append($("<br/>"));
                     }
                 }
             }).error(function(error){
@@ -80,6 +82,7 @@ cove.controller('AdminCtrl', function ($scope, $http, $compile, $rootScope, $coo
                 $(tmp1).attr("disabled", true);
                 $(tmp2).attr("disabled", true);
                 window.location.href=('#/admin');
+                window.location.reload();
             }).error(function(error){
                 $('#login-form').modal('show');
             })
@@ -106,6 +109,7 @@ cove.controller('AdminCtrl', function ($scope, $http, $compile, $rootScope, $coo
                 $(tmp1).attr("disabled", true);
                 $(tmp2).attr("disabled", true);
                 window.location.href=('#/admin');
+                window.location.reload();
             }).error(function(error){
                 $('#login-form').modal('show');
             })

@@ -584,9 +584,14 @@ footer {
     padding-top:20px;
     padding-bottom:20px;
     background-color: #170B3B;
-    color: white;
+    color: #7B7F92;
     text-align: center;
 	 font-size: 12px;
+}
+
+footer a, footer a:link, footer a:hover, footer a:visited {
+    color: #F5F6FA; 
+    cursor:pointer;
 }
 
 footer p {

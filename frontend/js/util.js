@@ -258,37 +258,6 @@ gen_request_html = function(type, data, id){
   return res;
 }
 
-show_dataset_submit = function(){
-  $('#dst_submit').modal('show');
-  $("#email-address").val('');
-  $("#first-name").val('');
-  $("#last-name").val('');
-  $("#dst-name").val('');
-  $("#dst-url").val('');
-  $("#intro").val('');
-  $("#send_submission_request").attr("disabled", false);
-  $("#messagegoeshere").empty();
-  return false;
-}
-show_dataset_edit = function(){
-  $('#dst_edit').modal('show');
-  $("#email-address").val('');
-  $("#first-name").val('');
-  $("#last-name").val('');
-  $("#send_submission_request").attr("disabled", false);
-  $("#messagegoeshere").empty();
-  return false;
-}
-show_dataset_delete = function(){
-  $('#dst_delete').modal('show');
-  $("#email-address").val('');
-  $("#first-name").val('');
-  $("#last-name").val('');
-  $("#delete-reason").val('');
-  $("#send_submission_request").attr("disabled", false);
-  $("#messagegoeshere").empty();
-  return false;
-}
 gen_checkbox = function(dataset_name, annotation_list, count){
   var part = '<div class = "row" style="margin: 0 0">' +
                   '<div class = "col-sm-5" style="padding:0 0; vertical-align: middle">' +

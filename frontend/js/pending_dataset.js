@@ -6,23 +6,31 @@ cove.controller('PendingDST',function ($scope, $http, $window, $location, $cooki
         if($routeParams.prev){
             request_url += '&prev=' + $routeParams.prev;
         }
-        var token = $cookieStore.get('token');
-        var auth = btoa(token + ":")
-        $http({
-                url : request_url,
-                method : "GET",
-                headers : {"Authorization" : 'Basic ' + auth}
-            }).success(function(data){
-                cur_dst = data.value[0];
-                prev_dst = data.value[1];
-                $scope.load_data(cur_dst, prev_dst);
-            }).error(function(error){
-                $('#login-form').modal('show');
-            })
+        
+        if ($cookieStore.get('token')) {     
+            var token = $cookieStore.get('token');
+            var auth = btoa(token + ":")
+            $http({
+                    url : request_url,
+                    method : "GET",
+                    headers : {"Authorization" : 'Basic ' + auth}
+                }).success(function(data){
+                    cur_dst = data.value[0];
+                    prev_dst = data.value[1];
+                    $scope.load_data(cur_dst, prev_dst);
+                }).error(function(error){
+                    $('#login-form').modal('show');
+                })      
+        }
+        else {
+            $('#login-form').modal('show');            
+        }
+
     });
 
     $scope.load_data = function(cur, prev){
-        console.log(cur);
+        $('#login_button').hide();
+        $('#logout_button').show(); 
         var ele = gen_display_html(cur, prev);
         $("#pending_dst_display").append(ele);
         $compile($('#pending_dst_display'))($scope);
@@ -48,6 +56,7 @@ cove.controller('PendingDST',function ($scope, $http, $window, $location, $cooki
                 $("#dst_approve").attr("disabled", true);
                 $("#dst_deny").attr("disabled", true);
                 window.location.href=('#/admin');
+                window.location.reload();
             }).error(function(error){
                 console.log("here");
                 $('#login-form').modal('show');
@@ -77,6 +86,7 @@ cove.controller('PendingDST',function ($scope, $http, $window, $location, $cooki
                 $("#dst_approve").attr("disabled", true);
                 $("#dst_deny").attr("disabled", true);
                 window.location.href=('#/admin');
+                window.location.reload();
             }).error(function(error){
                 $('#login-form').modal('show');
             })

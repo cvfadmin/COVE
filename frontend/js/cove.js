@@ -92,7 +92,7 @@ cove.run(function($rootScope, $compile, $http, $cookieStore){
         }
         else {
             $('#login-form').modal('show');            
-        }            
+        }
     }
                 
     $rootScope.login = function(){
@@ -119,12 +119,10 @@ cove.run(function($rootScope, $compile, $http, $cookieStore){
             data : JSON.stringify(dict),
             headers: {'Content-Type':'application/json; charset=UTF-8'}
         }).success(function(data){
-            console.log("logged in");
             $cookieStore.put('token',data['token']);
             $('#login-form').modal('hide');
-            $('#login_button').hide();
-            $('#logout_button').show();
             window.location.href='#/admin';
+            window.location.reload();
         }).error(function(error){
             $("<p>Invalid username or password.</p>"
                         ).addClass("text-warning").appendTo("#messagegoeshere_login");
@@ -134,7 +132,6 @@ cove.run(function($rootScope, $compile, $http, $cookieStore){
 
     $rootScope.logout = function(){
             $cookieStore.remove('token');
-            console.log("logged out");
             $('#logout_button').hide();
             $('#login_button').show();
             window.location.href='#/';
@@ -179,6 +176,9 @@ cove.run(function($rootScope, $compile, $http, $cookieStore){
                 $("<p>" + data['message'] + "</p>"
                         ).addClass("text-success").appendTo("#messagegoeshere");
                 $("#send_submission_request").attr("disabled", true);
+            }).error(function(error){
+                $("<p>" + error['message'] + "</p>"
+                        ).addClass("text-warning").appendTo("#messagegoeshere");
             })
         }
     };

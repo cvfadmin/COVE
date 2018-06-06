@@ -17,7 +17,6 @@ class ModelInsert():
     # for different datasample format like videos, we need to define
     # def insertDatasampleVideo():
 
-
     @staticmethod
     def insertCat(name, supercat, session):
         with session.no_autoflush:
@@ -32,21 +31,30 @@ class ModelInsert():
     def insertRequest(email, firstname, lastname, r_type, target_id, dataset_name, intro, reason, url, session):
         rqst = None
         message = ""
+        err = 0
         if r_type == "add":
-            rqst = session.query(AddRequest).filter_by(email = email).first()
+            rqst = session.query(AddRequest).filter_by(email = email, dataset_name = dataset_name).first()
             if not rqst:
                 rqst = AddRequest(firstname, lastname, email, dataset_name, intro, url)
                 session.add(rqst)
-            message = "Request sent, we will send a link to your email shortly. Thank you for your support."
+                message = "Request sent, we will send a link to your email upon approval. Thank you for your support."
+            else:
+                message = "You have an existing request to add a dataset. Please wait for our response on the pending request before proceeding."
+                err = 1
         elif r_type == "delete":
             rqst = DeleteRequest(firstname, lastname, email, target_id, dataset_name, reason)
             session.add(rqst)
             message = "We will review your request. Thank you for your support."
         elif r_type == "edit":
-            rqst = EditRequest(firstname, lastname, email, target_id, dataset_name)
-            session.add(rqst)
-            message = "Request sent, we will send a link to your email shortly. Thank you for your support."
-        return message, rqst
+            rqst = session.query(EditRequest).filter_by(email = email, target_id = target_id).first()
+            if not rqst:
+                rqst = EditRequest(firstname, lastname, email, target_id, dataset_name)
+                session.add(rqst)
+                message = "Request sent, we will send a link to your email upon approval. Thank you for your support."
+            else:
+                message = "You have an existing request to edit a dataset. Please wait for our response on the pending request before proceeding."
+                err = 1
+        return err, message, rqst
 
     @staticmethod
     def insertDataset(name, is_approved, edit_id, url, thumbnail, description, license, is_local, creator, year, size,\
@@ -79,7 +87,6 @@ class ModelInsert():
             ds_insti = Dataset_Institution(institution = val, dataset = dst)
             session.add(ds_insti)
         for val in conferences:
-            print(val)
             ds_conf = Dataset_Conference(conference = val, dataset = dst)
             session.add(ds_conf)
         for val in citations:
@@ -87,86 +94,4 @@ class ModelInsert():
             session.add(ds_cit)
         session.add(dst)
         session.commit()
-        # with session.no_autoflush:
-        #     dst = session.query(Dataset).filter_by(name=name).first()
         return dst
-#
-#    @staticmethod
-#    def insertDatasampleImage(path, format_, size, comment, width, height, ds, session):
-#        dsi = DatasampleImage(path, format_, size, comment, width, height)
-#        ds.datasamples.append(dsi)
-#        session.add(dsi)
-#        return dsi
-#
-#    @staticmethod
-#    def insertBoundingBox(xywh, datasample_id, category, session):
-#        ann = BoundingBox(xywh, datasample_id, category.id_)
-#        session.add(ann)
-#        return ann
-#
-#    @staticmethod
-#    def insertImageCat(datasample_id, category, session):
-#        ann = Image_cat(datasample_id.id_, category.id_)
-#        session.add(ann)
-#        return ann
-#
-#    @staticmethod
-#    def insertDatasetAnnCatAssoc(dst, cat, typename, session):
-#        a = DatasetAnnCatAssoc(set_id=dst.id_, cat_id=cat.id_, anntype=typename)
-#        with session.no_autoflush:
-#            dst.assoc.append(a)
-#            cat.assoc.append(a)
-#        session.add(a)
-#        return a
-#
-#class CategoryManage():
-#
-#    def __init__(self, session):
-#        self.to_insert = [] 
-#        self.session = session
-#        self.top = ModelQuery.getCategoryByName("", session)
-#
-#    def addInsertList(self, category_to_insert):
-#        if isinstance(category_to_insert, list):
-#            self.to_insert = category_to_insert
-#
-#    def printTree(self):
-#        print "==================================="
-#        print "The Current Category Tree Structure"
-#        print self.top.print_children()
-#        print "==================================="
-#
-#    def keyboardInput(self, catname):
-#        supercatname = None
-#        supercat = None
-#        while True:
-#            supercatname = raw_input("Please type the supercategory of the inserting category %s." % catname)
-#            if supercatname  == "x":
-#                print "Skip this Category"
-#                return None
-#            else:
-#                print "Insert this category to %s" % supercatname
-#                supercat = ModelQuery.getCategoryByName(supercatname, self.session)
-#                if supercat is not None:
-#                    return supercat
-#
-#    def run(self):
-#        for c in self.to_insert:
-#            with self.session.no_autoflush:
-#                check = ModelQuery.getCategoryByName(c, self.session)
-#            # check = ModelQuery.getCategoryByName(c, self.session)
-#            if check is not None:
-#                continue
-#            # self.printTree()
-#            #  Require us to insert supercat previous to the subcats
-#            # supercat = self.keyboardInput(c)
-#            supercat = None
-#            if c not in CAT_SUB:
-#                supercat = self.keyboardInput(c)
-#                CAT_SUB[c] = supercat.type_name
-#            else:
-#                supercat = ModelQuery.getCategoryByName(CAT_SUB[c], self.session)
-#            print supercat
-#            if supercat is not None:
-#                ModelInsert.insertCat(unicode(c), supercat, self.session)
-

@@ -25,7 +25,7 @@
 <!--							<li id="sort"><img src="https://png.icons8.com/ios/40/170B3B/sort-filled.png">Sort</li>
 								<li id="results">#</li>
 -->
-								<li id="add" onclick="show_dataset_submit(); return false;"><img src="https://png.icons8.com/windows/50/170B3B/add.png">Add Dataset</li></li>
+								<li id="add" ng-click="show_dataset_submit()"><img src="https://png.icons8.com/windows/50/170B3B/add.png">Add Dataset</li></li>
 
 							</ul>
 						</nav>	
@@ -146,7 +146,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button id="send_submission_request" type="button" class="btn" ng-click="send_submission_request()">Send Request</button>
+                <button id="send_submission_request" type="button" class="btn btn-primary" ng-click="send_submission_request()">Send Request</button>
             </div>
         </div>
     </div>
