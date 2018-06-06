@@ -28,7 +28,7 @@ with app.test_request_context():
     # db.session.commit()
     #ret = db.session.query(Dataset).join(Dataset_Topic).join(Dataset_Datatype)filter(Dataset.year == 2017).first()
     
-    with open('./cove_clean_subset.csv', 'rU') as f:
+    with open('./cove_clean_subset.csv', 'r', encoding='latin-1') as f:
         reader = csv.reader(f)
         attributes = next(reader)
         for dataset in reader:
