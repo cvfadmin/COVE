@@ -327,7 +327,6 @@ cove.controller('New_dataset', function ($scope, $http, $compile, $rootScope, $r
             "institutions" : $scope.institutions
         };
         var displayMessage = '';
-        console.log($scope.r_type)
         if ($scope.r_type == 'add'){
             console.log('here1');
             displayMessage += "<p>Your dataset has been successfully submitted. We will review it and add it to COVE. Thank you!</p>";
