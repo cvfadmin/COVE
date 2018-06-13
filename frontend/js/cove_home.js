@@ -1,7 +1,5 @@
-cove.controller('HomeCtrl', function ($scope, $route, $http, $location, $window, $compile, $rootScope, $routeParams) {
+cove.controller('HomeCtrl', function ($scope, $route, $http, $location, $window, $compile, $cookieStore, $rootScope, $routeParams) {
     $(document).ready(function(){		
-        $('#logout_button').hide();
-        $('#login_button').show();
     	$('#filter').click(function() {
     		$('#filters').slideToggle('slow');
     	});

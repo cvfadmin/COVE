@@ -82,7 +82,6 @@ header a:click{
 	float:left;
 	display:inline;
 	padding-left:20px;
-	padding-bottom:10;
    line-height: 54px
 }
 
@@ -504,6 +503,8 @@ header a:click{
 	font-size:16px;
 	border-radius: 2px;
 	margin-top: 40px;
+   margin-bottom:40px;
+   padding:20px;
 	min-height: 400px;
 	width: -webkit-fit-content;
 	max-height: -webkit-fit-content;
@@ -531,7 +532,6 @@ header a:click{
 
 .thumbnail {
 	display: block;
-    margin-top:20px;
     margin-left: auto;
     margin-right: auto;
     margin-bottom: 20px;
@@ -539,7 +539,11 @@ header a:click{
     max-width: 100%;
 }
 
-#buttons img:hover{
+#info-footer{
+    padding:20px;        
+}
+
+#edit-button img:hover, #delete-button img:hover{
 	-webkit-filter: brightness(0) invert(1);
 	filter: brightness(0) invert(1);
 }
@@ -547,15 +551,16 @@ header a:click{
 #edit-button {
    cursor:pointer; 
 	position: absolute;
-	bottom: 13px;
-	left: 10px;
+   padding: 20px;
+	bottom: 6px;
 }
 
-#report-button {
+#delete-button {
    cursor:pointer; 
 	position: absolute;
 	bottom: 5px;
-	right: 20px;
+	right: 0px;
+   padding:20px;
 }
 
 /* NEW DATASET */
@@ -576,7 +581,6 @@ textarea:focus, input:focus, input[type]:focus {
 	-webkit-filter: brightness(0) invert(1);
 	filter: brightness(0) invert(1);
 }
-
 
 
 /* FOOTER */

@@ -2,7 +2,7 @@
 	<div class="container">
 		<div class="row center-xs center-sm center-md center-lg middle-xs middle-sm middle-md middle-lg">
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-				<h1><img id="left-logo" src="img/nsf.png"></img></span>Welcome to <span class="primary-text">COVE</span><img id="right-logo" src="img/cvf.png"></h1>
+				<h1>Welcome to <span class="primary-text">COVE</span></h1>
 				<p>COVE is an online repository for computer vision datasets and tools. It is intended to aid the computer vision research community and serve as a centralized reference for all datasets in the field. If you are a researcher with a dataset not currently in COVE, please help make this site as comprehensive a resource as possible for the community and add it to the database!</p> 
 			</div>
 		</div>
@@ -23,7 +23,7 @@
 							<ul>
 								<li id="filter"><img src="https://png.icons8.com/windows/40/170B3B/sorting-options.png">Filter</li>
 <!--							<li id="sort"><img src="https://png.icons8.com/ios/40/170B3B/sort-filled.png">Sort</li>
-								<li id="results">#</li>
+								<li id="results">#</li> 
 -->
 								<li id="add" onclick="show_dataset_submit(); return false;"><img src="https://png.icons8.com/windows/50/170B3B/add.png">Add Dataset</li></li>
 
@@ -45,16 +45,16 @@
                     <label><img style="height:60%" src="https://png.icons8.com/metro/40/170B3B/search.png"></label>
                 </div>
                 <div class="row start-xs start-sm start-md start-lg" id="searchbar">
-                    <input placeholder="Search Term" name="search" id="search">
+                    <input placeholder="Search Term" ng-value="searchTerm" name="search" id="search">
                 </div>
 					<div class="row start-xs start-sm start-md start-lg" id="year">
 						<label>Year</label>
 					</div>
 					<div class="row start-xs start-sm start-md start-lg" id="yearrange">
 						<div class="range">
-							<input placeholder="Min" type="number" name="minyear" id='minyear' inputmode="numeric" pattern="[0-9]*">
+							<input placeholder="Min" type="number" ng-value="minYear" name="minyear" id="minyear" inputmode="numeric" pattern="[0-9]*">
 							<span style="color:#c9c9c9">-</span>
-							<input placeholder="Max" type="number" name="maxyear" id='maxyear' inputmode="numeric" pattern="[0-9]*">
+							<input placeholder="Max" type="number" ng-value="maxYear" name="maxyear" id="maxyear" inputmode="numeric" pattern="[0-9]*">
 						</div>								
 					</div>
 					
@@ -67,8 +67,12 @@
 			<div class="col-xs-12 col-sm-3 col-md-3 col-lg-3">
 				<label>Tasks</label>
                 <div id = "filterlist">
-                    <div ng-repeat = "task in tasks">
-                        <label for=task_{{task}} class="checkcontainer">{{task}}<input type="checkbox" id=task_{{task}} name="dataset_task[]"><span class="checkmark"></span></label>
+                    <div ng-repeat = "task in allTasks">
+                        <label for=task_{{task.Element}} class="checkcontainer">
+                            <input type="checkbox" id=task_{{task.Element}} ng-model="task.Selected" name="dataset_task[]">
+                            {{task.Element}}
+                            <span class="checkmark"></span>
+                        </label>
                     </div>
                 </div>
 			</div>
@@ -76,8 +80,12 @@
 			<div class="col-xs-12 col-sm-3 col-md-3 col-lg-3">
 				<label>Topics</label>
                 <div id = "filterlist">
-                    <div ng-repeat = "topic in topics">
-                        <label for=topic_{{topic}} class="checkcontainer">{{topic}}<input type="checkbox" id=topic_{{topic}} name="dataset_topic[]"><span class="checkmark"></span></label>
+                    <div ng-repeat = "topic in allTopics">
+                        <label for=topic_{{topic.Element}} class="checkcontainer">
+                            <input type="checkbox" id=topic_{{topic.Element}} ng-model="topic.Selected" name="dataset_topic[]">
+                            {{topic.Element}}                            
+                            <span class="checkmark"></span>
+                        </label>
                     </div>
                 </div>
 			</div>
@@ -85,8 +93,12 @@
 			<div class="col-xs-12 col-sm-3 col-md-3 col-lg-3"> 
 				<label>Data Types</label>
                 <div id = "filterlist">
-                    <div ng-repeat = "type in types">
-                        <label for=type_{{type}} class="checkcontainer">{{type}}<input type="checkbox" id=type_{{type}} name="dataset_datatype[]"><span class="checkmark"></span></label>
+                    <div ng-repeat = "type in allTypes">
+                        <label for=type_{{type.Element}} class="checkcontainer">
+                            <input type="checkbox" id=type_{{type.Element}} ng-model="type.Selected" name="dataset_datatype[]">
+                            {{type.Element}}
+                            <span class="checkmark"></span>
+                        </label>
                     </div>
                 </div>
 			</div>

@@ -23,6 +23,7 @@ cove.controller('New_dataset', function ($scope, $http, $compile, $rootScope, $r
     $scope.conferences = [];
     $scope.annotations = [];
     $scope.institutions = [];
+    
     $scope.$on('$viewContentLoaded', function(event){
         if($routeParams.identifier){
             $("#email_valid").modal('show');
@@ -50,24 +51,6 @@ cove.controller('New_dataset', function ($scope, $http, $compile, $rootScope, $r
         }
         return attrObj;
     }
-
-    $scope.name = '';
-    $scope.url = '';
-    $scope.thumbnail = '';
-    $scope.year = '';
-    $scope.creator = '';
-    $scope.description = '';
-    $scope.size = '';
-    $scope.num_cat = '';
-    $scope.paper = '';               
-    $scope.keywords = [];
-    $scope.topics = [];
-    $scope.tasks = [];
-    $scope.types = [];
-    $scope.citations = [];
-    $scope.conferences = [];
-    $scope.annotations = [];
-    $scope.institutions = [];   
     
     if($scope.r_type == 'edit') {        
         $http.get(DATASET_URL+'?id='+$scope.target_id).

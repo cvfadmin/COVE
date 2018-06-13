@@ -1,7 +1,7 @@
 cove.controller('AdminCtrl', function ($scope, $http, $compile, $rootScope, $cookieStore) {
     $scope.$on('$viewContentLoaded', function(event){
         if ($cookieStore.get('token')) {
-            $scope.load_page();        
+            $scope.load_page();    
         }
         else {
             $('#login-form').modal('show');            

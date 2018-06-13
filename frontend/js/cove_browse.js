@@ -11,17 +11,62 @@ cove.controller('BrowseCtrl', function ($scope, $route, $http, $window, $locatio
     $scope.is_loading = false;
     $scope.is_advance = false;
     $scope.search_datasample = $route.current.$$route.search_datasample;
-    $scope.search_text = "";
+    $scope.searchTerm = '';
+    $scope.minYear = '';
+    $scope.maxYear = '';
+    if ($routeParams.search){
+        $scope.searchTerm = $routeParams.search;
+    }
+    if ($routeParams.minyear){
+        $scope.minYear = $routeParams.minyear;    
+    }
+    if ($routeParams.maxyear){
+        $scope.maxYear = $routeParams.maxyear;        
+    }  
     
-//    $scope.tasks = [];
-//    $scope.topics = [];
-//    $scope.types = [];
-    $http.get(HOME_URL).then(function(results) {
-        $scope.tasks = results.data.tasks;
-        $scope.topics = results.data.topics;
-        $scope.types = results.data.types;
-    }) 
+    getallAttributes = function(){
+        return ($http.get(HOME_URL).then(function(results) {
+            $scope.allTasksList = results.data.tasks;
+            $scope.allTopicsList = results.data.topics;
+            $scope.allTypesList = results.data.types;
+            $scope.allAnnotationsList = results.data.annotations;
+        }))
+    }
 
+    $scope.initializeObj = function (allElems, selectedElems) {
+        attrObj = [];
+        for (var i = 0; i < allElems.length; i++){
+            if (selectedElems.indexOf(allElems[i]) != -1){
+                 attrObj.push({Element: allElems[i], Selected: true})   
+            }
+            else {
+                attrObj.push({Element: allElems[i], Selected: false})         
+            }                            
+        }
+        return attrObj;
+    }
+            
+    $scope.tasks = [];
+    $scope.topics = [];
+    $scope.types = [];
+    
+    if ($routeParams.task){
+        $scope.tasks = $routeParams.task;
+    }
+    
+    if ($routeParams.topic){
+        $scope.topics = $routeParams.topic;
+    }
+    
+    if ($routeParams.type){
+        $scope.types = $routeParams.type;
+    }
+    
+    getallAttributes().then(function(results) {
+        $scope.allTasks = $scope.initializeObj($scope.allTasksList, $scope.tasks);
+        $scope.allTopics = $scope.initializeObj($scope.allTopicsList, $scope.topics);
+        $scope.allTypes = $scope.initializeObj($scope.allTypesList, $scope.types);
+    })      
 
     $(document).on('click', '#filter', function(){
             $('#filters').slideToggle();
@@ -277,10 +322,10 @@ cove.controller('BrowseCtrl', function ($scope, $route, $http, $window, $locatio
     			disp += "<div class='panel'>";
     			disp += "<div class='panel-heading'>";
     			if (dataset['thumbnail'] != ''){
-    				disp += "<img style='height: 100%; width: 100%; object-fit: fill' src=" + dataset['thumbnail'] + ">";
+    				disp += "<img style='height: 100%; width: 100%; object-fit: fill' src=" + dataset['thumbnail'] + " altSrc='img/grey-background.jpg' onerror='this.src= $(this).attr(&#039;altSrc&#039;)'>";
     			}
     			else{
-    				disp += "<img style='height: 100%; width: 100%; object-fit: fill' src=" + dataset['thumbnail'] + " altSrc='img/grey-background.jpg' onerror='this.src= $(this).attr(&#039;altSrc&#039;)'>";
+    				disp += "<img style='height: 100%; width: 100%; object-fit: fill' src='img/grey-background.jpg'>";
     			}
     			disp += "</div>";				
     			disp += "<div class='panel-body'>";
@@ -507,7 +552,7 @@ cove.controller('BrowseCtrl', function ($scope, $route, $http, $window, $locatio
             }
         }
         else{
-            reminder += $scope.search_type + " = " + $scope.search_text + ($scope.search_datasample ? "," : ".");
+            reminder += $scope.search_type + " = " + $scope.ge + ($scope.search_datasample ? "," : ".");
         }
         if($scope.search_datasample){
             reminder += " you can group them by: ";

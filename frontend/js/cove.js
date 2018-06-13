@@ -85,6 +85,11 @@ cove.run(function($rootScope, $compile, $http, $cookieStore){
             }
         }
     };
+        
+    if ($cookieStore.get('token')) {
+        $('#login_button').hide();
+        $('#logout_button').show();  
+    }
                 
     $rootScope.showLogin = function(){
         if ($cookieStore.get('token')) {
