@@ -40,7 +40,7 @@ def searchResults():
     minyear = request.args.get('minyear') if 'minyear' in request.args else ''
     maxyear = request.args.get('maxyear') if 'maxyear' in request.args else ''
     publication = request.args.get('publication') if 'publication' in request.args else ''
-    search = request.args.get('search') if 'search' in request.args else ''  
+    search = request.args.get('search').split() if 'search' in request.args else []
     results = ModelQuery.searchDatasets(db.session, tasks, topics, types, minyear, maxyear, publication, search, '', '')
     
     return json.dumps(results)    

@@ -14,6 +14,8 @@ cove.controller('BrowseCtrl', function ($scope, $route, $http, $window, $locatio
     $scope.searchTerm = '';
     $scope.minYear = '';
     $scope.maxYear = '';
+    $scope.publication = false;
+    
     if ($routeParams.search){
         $scope.searchTerm = $routeParams.search;
     }
@@ -23,6 +25,9 @@ cove.controller('BrowseCtrl', function ($scope, $route, $http, $window, $locatio
     if ($routeParams.maxyear){
         $scope.maxYear = $routeParams.maxyear;        
     }  
+    if ($routeParams.publication){
+        $scope.publication = true;    
+    }
     
     getallAttributes = function(){
         return ($http.get(HOME_URL).then(function(results) {

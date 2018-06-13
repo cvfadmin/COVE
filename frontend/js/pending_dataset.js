@@ -65,7 +65,6 @@ cove.controller('PendingDST',function ($scope, $http, $window, $location, $cooki
     };
 
     $scope.dst_approve = function(){
-        console.log('here');
         var token = $cookieStore.get('token');
         var auth = btoa(token + ":")
         var r = confirm("Please confirm your decision.");

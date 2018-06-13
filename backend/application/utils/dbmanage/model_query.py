@@ -95,7 +95,7 @@ class ModelQuery():
 			   WHERE id_ IN (SELECT Dataset_Task.set_id
 			   FROM Dataset_Task 
 			   INNER JOIN Dataset_Topic 
-			   ON Dataset_Task.set_id = Dataset_Topic.set_id 
+			   ON Dataset_Task.set_id = Dataset_Topic.set_id
 			   INNER JOIN Dataset_Datatype 
 			   ON Dataset_Task.set_id = Dataset_Datatype.set_id 
              INNER JOIN Dataset_Keyword 
@@ -141,16 +141,19 @@ class ModelQuery():
         if publication != '':
             publicationTerm = " AND related_paper IS NOT NULL"
 
-        if search != '':
-            searchTerm = " AND (LOWER(name) LIKE LOWER('%" + search + "%') \
-                OR LOWER(creator) LIKE LOWER('%" + search + "%') \
-                OR LOWER(task) LIKE LOWER('%" + search + "%') \
-                OR LOWER(topic) LIKE LOWER('%" + search + "%') \
-                OR LOWER(data_type) LIKE LOWER('%" + search + "%') \
-                OR LOWER(annotation_type) LIKE LOWER('%" + search + "%') \
-                OR LOWER(keyword) LIKE LOWER('%" + search + "%') \
-                OR LOWER(conference) LIKE LOWER('%" + search + "%') \
-                OR LOWER(institution) LIKE LOWER('%" + search + "%'))"
+        if search != []:
+            searchTerm = ""
+            for term in search:
+                searchTerm += " AND (LOWER(name) LIKE LOWER('%" + term + "%') \
+                    OR LOWER(creator) LIKE LOWER('%" + term + "%') \
+                    OR year::varchar(4) LIKE LOWER('%" + term + "%') \
+                    OR LOWER(task) LIKE LOWER('%" + term + "%') \
+                    OR LOWER(topic) LIKE LOWER('%" + term + "%') \
+                    OR LOWER(data_type) LIKE LOWER('%" + term + "%') \
+                    OR LOWER(annotation_type) LIKE LOWER('%" + term + "%') \
+                    OR LOWER(keyword) LIKE LOWER('%" + term + "%') \
+                    OR LOWER(conference) LIKE LOWER('%" + term + "%') \
+                    OR LOWER(institution) LIKE LOWER('%" + term + "%'))"
         
         datasets = []    
         query = queryRoot + tasksTerm + topicsTerm + typesTerm + searchTerm + paren + minyearTerm + maxyearTerm + publicationTerm + limitTerm
