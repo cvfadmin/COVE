@@ -1,4 +1,12 @@
 cove.controller('BrowseCtrl', function ($scope, $route, $http, $window, $location, $routeParams, $compile, $rootScope, $routeParams) {
+    document.onreadystatechange = function () {
+      $scope.loaded=false;
+      var state = document.readyState
+      if (state == 'complete') {
+            $scope.loaded=true;
+      }
+    }
+        
     $scope.search_type = "Text";
     $scope.ret_num = 10;
     $scope.browse_list_by_dataset = [];
