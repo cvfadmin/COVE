@@ -1,8 +1,14 @@
 cove.controller('BrowseCtrl', function ($scope, $route, $http, $window, $location, $routeParams, $compile, $rootScope, $routeParams) {
-    document.onreadystatechange = function () {
+   
+   if (document.readyState == 'complete'){
+        $scope.loaded=true;
+    }
+        
+   document.onreadystatechange = function () {
       $scope.loaded=false;
       var state = document.readyState
-      if (state == 'complete') {
+      console.log(state);
+      if (state == 'interactive' || state == 'complete') {
             $scope.loaded=true;
       }
     }
@@ -81,6 +87,19 @@ cove.controller('BrowseCtrl', function ($scope, $route, $http, $window, $locatio
         $scope.allTypes = $scope.initializeObj($scope.allTypesList, $scope.types);
     })      
 
+    $scope.show_dataset_submit = function(){
+        $('#dst_submit').modal('show');
+        $("#email-address").val('');
+        $("#first-name").val('');
+        $("#last-name").val('');
+        $("#dst-name").val('');
+        $("#dst-url").val('');
+        $("#intro").val('');
+        $("#send_submission_request").attr("disabled", false);
+        $("#messagegoeshere").empty();
+        return false;
+    };
+
     $(document).on('click', '#filter', function(){
             $('#filters').slideToggle();
         }
@@ -152,14 +171,15 @@ cove.controller('BrowseCtrl', function ($scope, $route, $http, $window, $locatio
         if (document.getElementById('search').value != ''){
             searchUrl += '&search=' + document.getElementById('search').value;
         }
-            $scope.resultsURL = '?pn=1';
-            $scope.resultsURL += tasksUrl;
-            $scope.resultsURL += topicsUrl;           
-            $scope.resultsURL += typesUrl;  
-            $scope.resultsURL += pubUrl;  
-            $scope.resultsURL += minyrUrl;  
-            $scope.resultsURL += maxyrUrl;  
-            $scope.resultsURL += searchUrl;                    
+        
+        $scope.resultsURL = '?pn=1';
+        $scope.resultsURL += tasksUrl;
+        $scope.resultsURL += topicsUrl;           
+        $scope.resultsURL += typesUrl;  
+        $scope.resultsURL += pubUrl;  
+        $scope.resultsURL += minyrUrl;  
+        $scope.resultsURL += maxyrUrl;  
+        $scope.resultsURL += searchUrl;           
     }
         
     function replaceUrlParam(url, paramName, paramValue) {
