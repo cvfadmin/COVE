@@ -220,6 +220,11 @@ header a:click{
 	padding-bottom: 10px;
 }
 
+#filters input:focus { 
+    border-style: solid;
+    border-color:#269CCC;
+}
+
 #filterlist {
 	overflow:auto;
 	line-height:1;

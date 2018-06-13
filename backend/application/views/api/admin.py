@@ -48,7 +48,8 @@ def verify_email(mail, rqst_id, hashed_str):
                 data = {
                 "id":None,"name":rqst.dataset_name, 
                 "url":rqst.url,"thumbnail":"",
-                "year":"","creator":"",
+                "year":rqst.year,
+                "creator":"",
                 "description":rqst.intro,
                 "size":"", "num_cat":"", "keywords":"",
                 "paper":"", "conferences":"", "tasks":"","topics":"","types":"",
@@ -81,11 +82,12 @@ class NewRequest(MethodView):
         if target_id:
             target_id = int(target_id)
             dataset_name = ModelQuery.getDatasetById(target_id, db.session).name
+        year = request.json.get('year')
         intro = request.json.get('intro')
         reason = request.json.get('reason')
         r_type = request.json.get('r_type')
         url = request.json.get('url')
-        err, msg, rqst = ModelInsert.insertRequest(email, firstname, lastname, r_type, target_id, dataset_name, intro, reason, url, db.session)
+        err, msg, rqst = ModelInsert.insertRequest(email, firstname, lastname, r_type, target_id, dataset_name, year, intro, reason, url, db.session)
         db.session.commit()
         if err == 1:
             return jsonify({"message":msg}), 400

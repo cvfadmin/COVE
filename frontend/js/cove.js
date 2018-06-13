@@ -150,6 +150,7 @@ cove.run(function($rootScope, $compile, $http, $cookieStore){
         var email = $("#email-address").val();
         var bool = re.test(String(email).toLowerCase());
         var dst_name = $("#dst-name").val();
+        var year = $("#dst-year").val();
         var intro = $("#intro").val();
         var url = $("#dst-url").val();
         if(!dst_name || !intro || !email || !url){
@@ -168,6 +169,7 @@ cove.run(function($rootScope, $compile, $http, $cookieStore){
                 "lastname" : $("#last-name").val(),
                 "r_type" : "add",
                 "dataset_name" : dst_name,
+                "year" : year,
                 "intro" : intro,
                 "url" : url
             };

@@ -48,17 +48,19 @@ class Request(AbstractConcreteBase, Base):
 
 class AddRequest(Request):
     __tablename__ = 'add_request'
+    year = sa.Column(sa.Integer, nullable= False)
     intro = sa.Column(sa.Text, nullable=False)
     url = sa.Column(sa.String(1000), nullable=False)
     __mapper_args__ = {
                 'polymorphic_identity': 'add',
                 'concrete': True
     }
-    def __init__(self, firstname="",lastname="", email="", dataset_name="", intro="", url=""):
+    def __init__(self, firstname="",lastname="", email="", dataset_name="", year=9999, intro="", url=""):
         self.email = email
         self.firstname = firstname
         self.lastname = lastname
         self.dataset_name = dataset_name
+        self.year = year
         self.intro = intro
         self.url = url
 
@@ -69,6 +71,7 @@ class AddRequest(Request):
                 "firstname": self.firstname,
                 "lastname": self.lastname,
                 "dataset_name": self.dataset_name,
+                "year":self.year,
                 "intro" : self.intro,
                 "url" : self.url
                 }

@@ -28,14 +28,14 @@ class ModelInsert():
 
 
     @staticmethod
-    def insertRequest(email, firstname, lastname, r_type, target_id, dataset_name, intro, reason, url, session):
+    def insertRequest(email, firstname, lastname, r_type, target_id, dataset_name, year, intro, reason, url, session):
         rqst = None
         message = ""
         err = 0
         if r_type == "add":
             rqst = session.query(AddRequest).filter_by(email = email, dataset_name = dataset_name).first()
             if not rqst:
-                rqst = AddRequest(firstname, lastname, email, dataset_name, intro, url)
+                rqst = AddRequest(firstname, lastname, email, dataset_name, year, intro, url)
                 session.add(rqst)
                 message = "Request sent, we will send a link to your email upon approval. Thank you for your support."
             else:
