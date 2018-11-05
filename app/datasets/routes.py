@@ -1,8 +1,6 @@
-from app import api, db
-from flask import request
-from flask_restful import Resource
+from app import api
+from .utils import SingleResourceByIdView, ListResourceView
 from .models import Dataset, AddDatasetRequest, DeleteDatasetRequest
-from marshmallow import ValidationError
 
 from .schemas import (
     dataset_schema,
@@ -14,95 +12,40 @@ from .schemas import (
 )
 
 
-class SingleDatasetView(Resource):
-
-    def get(self, d_id):
-        dataset = Dataset.query.filter_by(id=d_id).first_or_404()
-        ds_json = dataset_schema.dump(dataset)
-        return {'dataset': ds_json}
+class SingleDatasetView(SingleResourceByIdView):
+    Model = Dataset
+    Schema = dataset_schema
 
 
-class SingleAddDatasetRequestView(Resource):
-
-    def get(self, r_id):
-        add_request = AddDatasetRequest.query.filter_by(id=r_id).first_or_404()
-        req_json = add_dataset_request_list_schema.dump(add_request)
-        return {'add_request': req_json}
+class SingleAddDatasetRequestView(SingleResourceByIdView):
+    Model = AddDatasetRequest
+    Schema = add_dataset_request_schema
 
 
-class SingleDeleteDatasetRequestView(Resource):
-
-    def get(self, r_id):
-        del_request = DeleteDatasetRequest.query.filter_by(id=r_id).first_or_404()
-        req_json = delete_dataset_request_list_schema.dump(del_request)
-        return {'delete_request': req_json}
+class SingleDeleteDatasetRequestView(SingleResourceByIdView):
+    Model = DeleteDatasetRequest
+    Schema = delete_dataset_request_schema
 
 
-class ListDatasetView(Resource):
-
-    def get(self):
-        # TODO: Add search functionality here
-        datasets = Dataset.query.all()
-        ds_json = dataset_list_schema.dump(datasets)
-        return {'datasets': ds_json}
-
-    def post(self):
-        req_body = request.get_json()
-
-        try:
-            new_dataset = dataset_schema.load(req_body)
-        except ValidationError as err:
-            return {'errors': err.messages}
-
-        db.session.add(new_dataset)
-        db.session.commit()
-
-        return {'message': 'Created Dataset'}
+class ListDatasetView(ListResourceView):
+    Model = Dataset
+    Schema = dataset_list_schema
 
 
-class ListAddDatasetRequestView(Resource):
-
-    def get(self):
-        requests = AddDatasetRequest.query.all()
-        reqs_json = add_dataset_request_list_schema.dump(requests)
-        return {'add_requests': reqs_json}
-
-    def post(self):
-        req_body = request.get_json()
-
-        try:
-            new_request = add_dataset_request_schema.load(req_body)
-        except ValidationError as err:
-            return {'errors': err.messages}
-
-        db.session.add(new_request)
-        db.session.commit()
-
-        return {'message': 'Request recorded'}
+class ListAddDatasetRequestView(ListResourceView):
+    Model = AddDatasetRequest
+    Schema = add_dataset_request_list_schema
 
 
-class ListDeleteDatasetRequestView(Resource):
+class ListDeleteDatasetRequestView(ListResourceView):
+    Model = DeleteDatasetRequest
+    Schema = delete_dataset_request_list_schema
 
-    def get(self):
-        requests = DeleteDatasetRequest.query.all()
-        reqs_json = delete_dataset_request_list_schema.dump(requests)
-        return {'delete_requests': reqs_json}
 
-    def post(self):
-        req_body = request.get_json()
-
-        try:
-            new_request = delete_dataset_request_schema.load(req_body)
-        except ValidationError as err:
-            return {'errors': err.messages}
-
-        db.session.add(new_request)
-        db.session.commit()
-
-        return {'message': 'Request recorded'}
-
+api.add_resource(SingleDatasetView, '/datasets/<_id>')
+api.add_resource(SingleAddDatasetRequestView, '/requests/add-dataset/<_id>')
+api.add_resource(SingleDeleteDatasetRequestView, '/requests/delete-dataset/<_id>')
 
 api.add_resource(ListDatasetView, '/datasets/')
-api.add_resource(SingleDatasetView, '/datasets/<d_id>')
-api.add_resource(ListAddDatasetRequestView, '/requests/datasets/add')
-api.add_resource(ListDeleteDatasetRequestView, '/requests/datasets/delete')
+api.add_resource(ListAddDatasetRequestView, '/requests/add-dataset')
+api.add_resource(ListDeleteDatasetRequestView, '/requests/delete-dataset')
