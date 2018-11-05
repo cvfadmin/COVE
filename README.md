@@ -9,7 +9,7 @@
 
 **To run:** `python manage.py run`
 
-**To update database: **
+**To update database:**
  1. `alembic revision --autogenerate -m "describe_your_model_changes_here"`
  2. `alembic upgrade head`
 
