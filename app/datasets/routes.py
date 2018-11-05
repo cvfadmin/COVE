@@ -1,7 +1,7 @@
 from app import api, db
 from flask import request
 from flask_restful import Resource
-from .models import Dataset, AddDatasetRequest
+from .models import Dataset, AddDatasetRequest, DeleteDatasetRequest
 from marshmallow import ValidationError
 
 from .schemas import (
@@ -14,15 +14,31 @@ from .schemas import (
 )
 
 
-class DatasetByIdView(Resource):
+class SingleDatasetView(Resource):
 
     def get(self, d_id):
-        dataset = Dataset.query.filter_by(id=d_id).first()
+        dataset = Dataset.query.filter_by(id=d_id).first_or_404()
         ds_json = dataset_schema.dump(dataset)
         return {'dataset': ds_json}
 
 
-class DatasetView(Resource):
+class SingleAddDatasetRequestView(Resource):
+
+    def get(self, r_id):
+        add_request = AddDatasetRequest.query.filter_by(id=r_id).first_or_404()
+        req_json = add_dataset_request_list_schema.dump(add_request)
+        return {'add_request': req_json}
+
+
+class SingleDeleteDatasetRequestView(Resource):
+
+    def get(self, r_id):
+        del_request = DeleteDatasetRequest.query.filter_by(id=r_id).first_or_404()
+        req_json = delete_dataset_request_list_schema.dump(del_request)
+        return {'delete_request': req_json}
+
+
+class ListDatasetView(Resource):
 
     def get(self):
         # TODO: Add search functionality here
@@ -44,7 +60,7 @@ class DatasetView(Resource):
         return {'message': 'Created Dataset'}
 
 
-class AddDatasetRequestView(Resource):
+class ListAddDatasetRequestView(Resource):
 
     def get(self):
         requests = AddDatasetRequest.query.all()
@@ -65,10 +81,10 @@ class AddDatasetRequestView(Resource):
         return {'message': 'Request recorded'}
 
 
-class DeleteDatasetRequestView(Resource):
+class ListDeleteDatasetRequestView(Resource):
 
     def get(self):
-        requests = AddDatasetRequest.query.all()
+        requests = DeleteDatasetRequest.query.all()
         reqs_json = delete_dataset_request_list_schema.dump(requests)
         return {'delete_requests': reqs_json}
 
@@ -86,7 +102,7 @@ class DeleteDatasetRequestView(Resource):
         return {'message': 'Request recorded'}
 
 
-api.add_resource(DatasetView, '/datasets/')
-api.add_resource(DatasetByIdView, '/datasets/<d_id>')
-api.add_resource(AddDatasetRequestView, '/requests/datasets/add')
-api.add_resource(DeleteDatasetRequestView, '/requests/datasets/delete')
+api.add_resource(ListDatasetView, '/datasets/')
+api.add_resource(SingleDatasetView, '/datasets/<d_id>')
+api.add_resource(ListAddDatasetRequestView, '/requests/datasets/add')
+api.add_resource(ListDeleteDatasetRequestView, '/requests/datasets/delete')
