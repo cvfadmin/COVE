@@ -13,4 +13,4 @@
  1. `alembic revision --autogenerate -m "describe_your_model_changes_here"`
  2. `alembic upgrade head`
 
-**Some documentation: ** https://documenter.getpostman.com/view/5085455/RzZ6JgVf
+**Some documentation:** https://documenter.getpostman.com/view/5085455/RzZ6JgVf
