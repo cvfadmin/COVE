@@ -3,7 +3,10 @@ from __future__ import with_statement
 from logging.config import fileConfig
 
 from alembic import context
+
 from app.auth.models import User
+from app.datasets.models import Dataset
+
 from sqlalchemy import engine_from_config, pool
 
 # this is the Alembic Config object, which provides
@@ -19,6 +22,7 @@ fileConfig(config.config_file_name)
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 target_metadata = [User.metadata]
+target_metadata = [Dataset.metadata]
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:

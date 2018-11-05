@@ -6,9 +6,11 @@ import datetime
 class User(db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
+    is_admin = db.Column(db.Boolean, nullable=False, default=False)
     username = db.Column(db.String)
     password_hash = db.Column(db.String)
     date_created = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+    last_updated = db.Column(db.DateTime, onupdate=datetime.datetime.utcnow)
 
     def verify_password(self, password):
         return pwd_context.verify(password, self.password_hash)

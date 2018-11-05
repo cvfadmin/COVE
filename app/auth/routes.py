@@ -51,7 +51,7 @@ class Login(Resource):
             return {'error': 'User does not exist'}
 
 
-class UserInfo(Resource):
+class UserView(Resource):
 
     @jwt_required
     def get(self):
@@ -61,4 +61,4 @@ class UserInfo(Resource):
 
 api.add_resource(Register, '/users/register')
 api.add_resource(Login, '/users/login')
-api.add_resource(UserInfo, '/users/me')
+api.add_resource(UserView, '/users/me')
