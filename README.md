@@ -6,3 +6,5 @@
 * Update to Python 3.6
 * Focus on RESTful principles
 * Modular code
+
+To run: `python manage.py run`
