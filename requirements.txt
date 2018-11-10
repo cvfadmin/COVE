@@ -1,4 +1,0 @@
-Flask-Script
-Flask-SQLAlchemy
-alembic
-flask-jwt-extended

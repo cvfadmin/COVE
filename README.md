@@ -1,16 +1,29 @@
-## COVE Backend update branch
+# cove-frontend
 
-**What this branch is working on:**
+## Project setup
+```
+npm install
+```
 
-* Keeping codebase within project scope (Users add database information and admins approve submission requests)
-* Update to Python 3.6
-* Focus on RESTful principles
-* Modular code
+### Compiles and hot-reloads for development
+```
+npm run serve
+```
 
-**To run:** `python manage.py run`
+### Compiles and minifies for production
+```
+npm run build
+```
 
-**To update database:**
- 1. `alembic revision --autogenerate -m "describe_your_model_changes_here"`
- 2. `alembic upgrade head`
+### Run your tests
+```
+npm run test
+```
 
-**Some documentation:** https://documenter.getpostman.com/view/5085455/RzZ6JgVf
+### Lints and fixes files
+```
+npm run lint
+```
+
+### Customize configuration
+See [Configuration Reference](https://cli.vuejs.org/config/).
