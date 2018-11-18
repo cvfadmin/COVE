@@ -10,3 +10,8 @@ class Config(object):
     SQLALCHEMY_DATABASE_URI = 'postgresql://localhost:5432/coveapi37_test'
     #os.environ.get('DATABASE_URL') or \
         #'sqlite:///' + os.path.join(basedir, 'app.db')
+    MAIL_SERVER = 'smtp.google.com'
+    MAIL_PORT = 465
+    MAIL_USERNAME = ''
+    MAIL_PASSWORD = ''
+    MAIL_USE_TLS = True
