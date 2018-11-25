@@ -1,7 +1,7 @@
 from app import api, db
 from flask import request
 from flask_restful import Resource
-from app.datasets.models import Dataset, AddDatasetRequest, DeleteDatasetRequest
+from app.datasets.models import Dataset, AddDatasetRequest, DeleteDatasetRequest, EditDatasetRequest
 from app.auth.permissions import AdminOnly
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from .models import CreateDatasetKey, create_key
@@ -13,6 +13,8 @@ from .mail import (
     send_add_ds_request_denial,
     send_delete_ds_request_approval,
     send_delete_ds_request_denial,
+    send_edit_ds_request_approval,
+    send_edit_ds_request_denial
 )
 
 
@@ -115,9 +117,9 @@ class AdminDeleteDatasetRequestView(Resource):
         is_approved = request.get_json().get('is_approved', None)
         if is_approved is None:
             return {
-                       'message': 'No "is_approved" attribute in request body',
-                       'status': 400
-                   }, 400
+                'message': 'No "is_approved" attribute in request body',
+                'status': 400
+            }, 400
 
         del_ds_request = DeleteDatasetRequest.query.filter_by(id=_id).first_or_404()
         del_ds_request.is_approved = is_approved
@@ -143,6 +145,42 @@ class AdminDeleteDatasetRequestView(Resource):
         }, 200
 
 
+class AdminEditDatasetRequestView(Resource):
+    # TODO: Make edit request more sophisticated - just sends email right now
+
+    @jwt_required
+    def put(self, _id):
+        if not AdminOnly.has_permission(get_jwt_identity()):
+            return {
+                'message': 'Unauthorized user',
+                'status': 401
+            }, 401
+
+        is_approved = request.get_json().get('is_approved', None)
+        if is_approved is None:
+            return {
+                'message': 'No "is_approved" attribute in request body',
+                'status': 400
+            }, 400
+
+        edit_ds_request = EditDatasetRequest.query.filter_by(id=_id).first_or_404()
+        edit_ds_request.is_approved = is_approved
+
+        if is_approved:
+            send_edit_ds_request_approval(edit_ds_request.email)
+        else:
+            send_edit_ds_request_denial(edit_ds_request.email)
+
+        db.session.delete(edit_ds_request)
+        # commit all changes
+        db.session.commit()
+
+        return {
+            'message': 'operation successful',
+            'status': 200
+        }, 200
+
+
 class CreateDatasetKeyExist(Resource):
     # TODO: Add protections against numerous requests from one IP address
     # Flask-Limiter - https://flask-limiter.readthedocs.io/en/stable/
@@ -158,5 +196,6 @@ class CreateDatasetKeyExist(Resource):
 api.add_resource(AdminDatasetView, '/admin/datasets/<_id>')
 api.add_resource(AdminAddDatasetRequestView, '/admin/requests/add-dataset/<_id>')
 api.add_resource(AdminDeleteDatasetRequestView, '/admin/requests/delete-dataset/<_id>')
+api.add_resource(AdminEditDatasetRequestView, '/admin/requests/edit-dataset/<_id>')
 
 api.add_resource(CreateDatasetKeyExist, '/admin/create-dataset-key/<_key>')
