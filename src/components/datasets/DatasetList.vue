@@ -1,7 +1,7 @@
 <template>
 	<ul class="dataset-list">
 		<li v-for="dataset in datasets" :key="dataset.id">
-			<DatasetPreview :dataset="{dataset}"></DatasetPreview>
+			<DatasetPreview :dataset="dataset"></DatasetPreview>
 		</li>
 	</ul>
 </template>
@@ -13,25 +13,34 @@ import DatasetPreview from '@/components/datasets/DatasetPreview'
 
 export default {
 	name: 'DatasetList',
+
 	components: {
 		DatasetPreview,
 	},
-
-	data () {
-		return {
-			datasets: [],
-		}
-	},
-
-	methods: {
-		async getDatasets () {
-			const response = await DatasetService.getDatasets()
-			this.datasets = response.data.results
+	
+	computed: {
+		datasets () {
+			return this.$store.state.datasets
 		}
 	},
 
 	beforeMount(){
-		this.getDatasets()
+
+		let params = {
+			query: this.$route.query.query, 
+			tasks: this.$route.query.tasks, 
+			topics: this.$route.query.topics, 
+			data_types: this.$route.query.data_types
+		}
+			
+		// Clean params object
+		for (const key of Object.keys(params)) {
+			if (params[key] == undefined) {
+				delete params[key]
+			} 
+		}
+
+		this.$store.dispatch('searchDatasets', params)
 	},
 }
 
@@ -40,10 +49,25 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
 	
-	.dataset-list {
+	ul.dataset-list {
+		display: flex;
+  	flex-flow: row wrap;
+		justify-content: space-between;
 		list-style: none;
 		padding: 0;
 		margin: 20px 0 0 0;
+
+		&::after {
+		  content: "";
+			width: calc(33% - 20px);
+		}
+
+		li {
+			margin: 0 0 20px 0;
+			align-items: flex-start;
+			width: calc(33% - 20px);
+    	box-sizing: border-box;
+		}
 	}
 
 </style>

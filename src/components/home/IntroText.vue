@@ -13,6 +13,11 @@ export default {
 <!-- Add "scoped" attribute to limit SCSS to this component only -->
 <style scoped lang="scss">
 
+section {
+	max-width: 1040px;
+	margin: 0 auto;
+}
+
 p {
 	line-height: 30px;
   font-size: 15px;

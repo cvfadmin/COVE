@@ -8,8 +8,10 @@
 			<nav id='nav'>
 				<ul>
 					<li><router-link tag="a" to="/">Home</router-link></li>
+					<li><router-link tag="a" to="/add-dataset">Add a Dataset</router-link></li>
 					<li><router-link tag="a" to="/about">About COVE</router-link></li>
-					<li><router-link tag="a" to="/contact">Contact</router-link></li>
+					<li v-if="this.isLoggedIn"><router-link tag="a" to="/admin">Admin Panel</router-link></li>
+					<li v-if="this.isLoggedIn"><router-link tag="a" to="/logout">Logout</router-link></li>
 				</ul>
 			</nav>
 		</div>
@@ -20,6 +22,12 @@
 
 export default {
 	name: 'PageHeader',
+	
+	computed: {
+		isLoggedIn () {
+			return this.$store.state.accessToken != ''
+		}
+	}
 }
 
 </script>
