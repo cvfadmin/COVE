@@ -9,11 +9,6 @@
 				<h4>{{dataset.name}}</h4>
 				<p>{{dataset.description | truncate(125)}}</p>
 			</div>
-			<div class="tags">
-				<div class="tag" v-for="tag in tags" :key="tag.id">
-					{{tag.name}}
-				</div>
-			</div>
 		</router-link>
 	</div>
 </template>
@@ -24,18 +19,6 @@ export default {
 	name: 'DatasetPreview',
 	props: {
 		dataset: Object,
-	},
-
-	computed: {
-		tags () {
-			let tags = []
-			for (let i = 0; i < this.$store.state.tags.length; i++) {
-				if (this.dataset.tags.includes(this.$store.state.tags[i].id)) {
-					tags.push(this.$store.state.tags[i])
-				}
-			}
-			return tags
-		}
 	},
 
 	filters: {
@@ -78,7 +61,7 @@ $card-radius: 3px;
 	
 
 	.info {
-		padding: 0 20px 0 20px;
+		padding: 0 20px 20px 20px;
 
 		h4 {
 			margin: 15px 0 5px 0;
@@ -92,23 +75,6 @@ $card-radius: 3px;
 		p {
 			margin: 0;
 			font-size: 12px;
-		}
-	}
-
-	.tags {
-		margin: 10px 20px;
-		display: flex;
-
-		.tag {
-			font-size: 11px;
-			font-weight: 700;
-			color: #ccc;
-			text-transform: lowercase;
-			margin-left: 5px;
-		}
-
-		.tag:first-child {
-			margin-left: 0;
 		}
 	}
 

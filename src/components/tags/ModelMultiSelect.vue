@@ -73,6 +73,8 @@ export default {
 		},
 		
 		searchModelsList() {
+			this.modelSearchString = this.modelSearchString.toLowerCase()
+
 			if (this.modelSearchString == '') { 
 				this.filteredModels = []
 			} else {
@@ -81,7 +83,7 @@ export default {
 		},
 
 		selectModelOrNew () {
-			var existingModel = this.models.find(model => { return model.name == this.modelSearchSting })
+			this.modelSearchString = this.modelSearchString.toLowerCase()
 
 			if (this.notSelectedModels.length == 0 && this.createNew) {
 				// Create new
@@ -96,7 +98,7 @@ export default {
 			} else {
 				// Select First value in unselected list
 				if (this.notSelectedModels[0] != undefined) {
-					this.selectModel()
+					this.selectModel(this.notSelectedModels[0])
 					// Clear text
 					this.modelSearchString = ''
 				}

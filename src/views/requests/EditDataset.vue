@@ -1,7 +1,7 @@
 <template>
 	<div class="add-dataset container">
 		<PageHeader></PageHeader>
-		<h2>Edit Request</h2>
+		<h2>Edit Request for {{dataset.name}}</h2>
 		<form v-on:submit.prevent="handleSubmit">
 			<div class="input-group">
 				
@@ -24,7 +24,7 @@
 				<input type="email" v-model="formData.email" >
 				
 				<div class="input-head">
-					<p>Reason*:</p>
+					<p>Please describe what should be edited and why*:</p>
 					<p class="error">{{errors.reason}}</p>
 				</div>
 				<textarea v-model="formData.reason"></textarea>
@@ -47,8 +47,13 @@ export default {
 		PageHeader,
 	},
 
+	props: {
+		datasetName: String,
+	},
+
 	data: function () {
 		return {
+			dataset: {},
 			formData: {},
 			errors: {
 				first_name: '',
@@ -92,13 +97,29 @@ export default {
 
 		async createEditDSRequest (data) {
 			return await DatasetService.createEditDSRequest(data)
-		}
+		},
+
+		async getDataset () {
+			// TODO: Check for dataset in store before sending another request
+			const response = await DatasetService.getDatasetById(this.$route.params.id)
+			this.dataset = response.data.result
+		},
+	},
+
+	beforeMount(){
+		this.getDataset()
 	},
 }
 </script>
 
 <!-- Add "scoped" attribute to limit SCSS to this component only -->
 <style scoped lang="scss">
+
+h2 {
+	font-family: 'Vollkorn', serif;
+	font-weight: 400;
+	font-size: 32px;
+}
 
 form {
 	margin-top: 25px;

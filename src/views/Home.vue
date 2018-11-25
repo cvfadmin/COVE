@@ -28,7 +28,7 @@
 				</div>
 
 				<div class="input-group submit-button">
-					<button type="submit">Submit</button>
+					<button type="submit" class="card-wrapper">Search</button>
 				</div>
 			</div>
 		</form>
@@ -183,7 +183,20 @@ export default {
 
 		.submit-button {
 			width: -webkit-fill-available;
-    	max-width: none;
+			max-width: none;
+			display: flex;
+			justify-content: flex-end;
+
+			button {
+				border-radius: 2px;
+				background: #525252;
+				color: #fff;
+				padding: 5px 10px;
+				border: none;
+				margin: 0;
+				text-transform: uppercase;
+				font-weight: 600;
+			}
 		}
 	}
 }
