@@ -1,9 +1,10 @@
-from app import api, db
+from app import api, db, blacklist
+import datetime
 from flask import request
 from flask_restful import Resource
 from .schemas import user_schema
 from .models import User
-from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
+from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity, get_raw_jwt, jwt_optional
 
 
 class Register(Resource):
@@ -43,8 +44,14 @@ class Login(Resource):
         if user is not None:
             if user.verify_password(password):
                 # Generate Token
-                access_token = create_access_token(identity=username)
-                return {'access_token': access_token}
+                expires = datetime.timedelta(days=1)
+                access_token = create_access_token(identity=username, expires_delta=expires)
+                return {
+                    'access_token': access_token,
+                    'permissions': {
+                        'is_admin': user.is_admin
+                    }
+                }
             else:
                 return {'error': 'Credentials provided are incorrect'}
         else:
@@ -59,6 +66,16 @@ class UserView(Resource):
         return {'current_user': current_user}
 
 
+class UserLogoutView(Resource):
+
+    @jwt_required
+    def post(self):
+        jti = get_raw_jwt()['jti']
+        blacklist.add(jti)
+        return {"message": "Successfully logged out"}, 200
+
+
 api.add_resource(Register, '/users/register')
 api.add_resource(Login, '/users/login')
+api.add_resource(UserLogoutView, '/users/logout')
 api.add_resource(UserView, '/users/me')

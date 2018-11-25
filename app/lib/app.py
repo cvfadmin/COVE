@@ -5,22 +5,16 @@ from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from flask_jwt_extended import JWTManager
-from app.lib.errors import errors
-from flask_whooshee import Whooshee
-from flask_mail import Mail
+from sqlalchemy_searchable import make_searchable
+from sqlalchemy.orm import configure_mappers
 
 db = SQLAlchemy()
 
 ma = Marshmallow()
 jwt = JWTManager()
-whooshee = Whooshee()
-mail = Mail()
-
-# TODO: Replace with model
-blacklist = set()
 
 api_bp = Blueprint('api', __name__)
-api = Api(api_bp, errors=errors)
+api = Api(api_bp)
 
 
 def create_app(config_class=Config):
@@ -31,13 +25,10 @@ def create_app(config_class=Config):
     db.init_app(app)
     ma.init_app(app)
     jwt.init_app(app)
-    whooshee.init_app(app)
-    mail.init_app(app)
 
-    @jwt.token_in_blacklist_loader
-    def check_if_token_in_blacklist(decrypted_token):
-        jti = decrypted_token['jti']
-        return jti in blacklist
+    # Flask Searchable Requirnments
+    make_searchable(db.metadata)
+    configure_mappers()
 
     # Register blueprints from modules here!
     app.register_blueprint(api_bp)
@@ -48,8 +39,4 @@ def create_app(config_class=Config):
     from app.datasets import bp as datasets_bp
     app.register_blueprint(datasets_bp)
 
-    from app.admin import bp as admin_bp
-    app.register_blueprint(admin_bp)
-
     return app
-

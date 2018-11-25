@@ -7,6 +7,18 @@ load_dotenv(os.path.join(basedir, '.env'))
 
 class Config(object):
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'you-will-never-guess'
-    SQLALCHEMY_DATABASE_URI = 'postgresql://localhost:5432/coveapi37_test'
-    #os.environ.get('DATABASE_URL') or \
-        #'sqlite:///' + os.path.join(basedir, 'app.db')
+    SQLALCHEMY_DATABASE_URI = 'postgresql://localhost:5432/coveapi_test'
+
+    JWT_SECRET_KEY = 'super-secret'
+    JWT_BLACKLIST_ENABLED = True
+    JWT_BLACKLIST_TOKEN_CHECKS = ['access', 'refresh']
+
+    MAIL_SERVER = 'smtp.gmail.com'
+    MAIL_PORT = 587
+    MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
+    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
+    MAIL_USE_TLS = True
+    MAIL_USE_SSL = False
+    MAIL_DEFAULT_SENDER = 'cove@thecvf.com'
+
+    BASE_URL = 'http://localhost:8080/'
