@@ -1,22 +1,16 @@
 from app import api, db
 from flask import request
 from marshmallow import ValidationError
-from ..lib.routes import SingleResourceByIdView, ListResourceView
-from .models import Dataset, AddDatasetRequest, DeleteDatasetRequest, Tag, EditDatasetRequest
+from app.lib.routes import SingleResourceByIdView, ListResourceView
+from app.auth.models import User
+from .models import Dataset, Tag
 from app.auth.permissions import AdminOnly
-from flask_jwt_extended import jwt_optional, get_jwt_identity
-from app.admin.models import CreateDatasetKey
+from flask_jwt_extended import jwt_optional, get_jwt_identity, jwt_required
 from .filter import dataset_tag_filter
 
 from .schemas import (
     dataset_schema,
-    add_dataset_request_schema,
-    delete_dataset_request_schema,
-    add_dataset_request_list_schema,
-    delete_dataset_request_list_schema,
     dataset_list_schema,
-    edit_dataset_request_schema,
-    edit_dataset_request_list_schema,
     tag_schema,
     tag_list_schema
 )
@@ -26,20 +20,30 @@ class SingleDatasetView(SingleResourceByIdView):
     Model = Dataset
     Schema = dataset_schema
 
+    def put(self, _id):
+        model_instance = self.Model.query.filter_by(id=_id).first_or_404()
+        req_body = request.get_json()
+        updated_tags = req_body.pop('tags', None)
 
-class SingleAddDatasetRequestView(SingleResourceByIdView):
-    Model = AddDatasetRequest
-    Schema = add_dataset_request_schema
+        try:
+            self.Schema.load(req_body, instance=model_instance)
+        except ValidationError as err:
+            return {'errors': err.messages}
 
+        # TODO: Clean this up
+        if updated_tags:
+            tag_instances = []
+            for tag_id in req_body['tags']:
+                tag_instances.append(Tag.query.filter_by(id=tag_id).first())
+            model_instance.tags = tag_instances
 
-class SingleDeleteDatasetRequestView(SingleResourceByIdView):
-    Model = DeleteDatasetRequest
-    Schema = delete_dataset_request_schema
+        db.session.query(self.Model).filter_by(id=_id).update(req_body)
+        db.session.commit()
 
-
-class SingleEditDatasetRequestView(SingleResourceByIdView):
-    Model = EditDatasetRequest
-    Schema = edit_dataset_request_schema
+        return {
+            'message': 'successfully created',
+            'updated': self.Schema.dump(model_instance)
+        }
 
 
 class ListDatasetView(ListResourceView):
@@ -70,52 +74,33 @@ class ListDatasetView(ListResourceView):
             query_list = Dataset.query.whooshee_search(search_param, order_by_relevance=-1).all()
 
         query_list = dataset_tag_filter(request, query_list)
-
         model_list_json = self.ListSchema.dump(query_list)
         return {
             'num_results': len(model_list_json),
             'results': model_list_json
         }, 200
 
+    @jwt_required
     def post(self):
         req_body = request.get_json()
-        print(req_body)
-        key = req_body.pop('key', None)
-        create_ds_key = CreateDatasetKey.query.filter_by(key=key).first()
 
-        if create_ds_key is not None:
-            try:
-                new = self.SingleSchema.load(req_body)
-            except ValidationError as err:
-                return {'errors': err.messages}
-            else:
-                db.session.add(new)
-                db.session.commit()
+        # Add owner to dataset object
+        # TODO: Store ID in JWT
+        user = User.query.filter_by(username=get_jwt_identity()).first()
+        req_body['owner'] = user.id
 
-            return {
-                'message': 'successfully created',
-                'new': self.SingleSchema.dump(new)
-            }
+        try:
+            new = self.SingleSchema.load(req_body)
+        except ValidationError as err:
+            return {'errors': err.messages}
         else:
-            return {'error': 'Key invalid'}, 401
+            db.session.add(new)
+            db.session.commit()
 
-
-class ListAddDatasetRequestView(ListResourceView):
-    Model = AddDatasetRequest
-    ListSchema = add_dataset_request_list_schema
-    SingleSchema = add_dataset_request_schema
-
-
-class ListDeleteDatasetRequestView(ListResourceView):
-    Model = DeleteDatasetRequest
-    ListSchema = delete_dataset_request_list_schema
-    SingleSchema = delete_dataset_request_schema
-
-
-class ListEditDatasetRequestView(ListResourceView):
-    Model = EditDatasetRequest
-    ListSchema = edit_dataset_request_list_schema
-    SingleSchema = edit_dataset_request_schema
+        return {
+            'message': 'successfully created',
+            'new': self.SingleSchema.dump(new)
+        }
 
 
 class ListTagView(ListResourceView):
@@ -133,7 +118,6 @@ class ListTagView(ListResourceView):
         schema_to_use = self.ListSchema
 
         for tag in req_body:
-            print(tag)
             if tag.get('category', '') not in ['tasks', 'topics', 'data_types']:
                 return {'errors': {"tags": ['Category must be in the list: ["tasks", "topics", "data_types"]']}}
 
@@ -157,12 +141,5 @@ class ListTagView(ListResourceView):
 
 
 api.add_resource(SingleDatasetView, '/datasets/<_id>')
-api.add_resource(SingleAddDatasetRequestView, '/requests/add-dataset/<_id>')
-api.add_resource(SingleEditDatasetRequestView, '/requests/edit-dataset/<_id>')
-api.add_resource(SingleDeleteDatasetRequestView, '/requests/delete-dataset/<_id>')
-
 api.add_resource(ListDatasetView, '/datasets/')
-api.add_resource(ListAddDatasetRequestView, '/requests/add-dataset')
-api.add_resource(ListEditDatasetRequestView, '/requests/edit-dataset')
-api.add_resource(ListDeleteDatasetRequestView, '/requests/delete-dataset')
 api.add_resource(ListTagView, '/tags/')

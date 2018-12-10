@@ -3,7 +3,6 @@ from sqlalchemy import and_
 
 
 def dataset_tag_filter(request, query):
-    print(query)
     topics = request.args.get('topics')
     tasks = request.args.get('tasks')
     data_types = request.args.get('data_types')

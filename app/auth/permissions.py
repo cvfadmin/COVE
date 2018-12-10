@@ -1,4 +1,4 @@
-from app.auth.models import User
+from .models import User
 
 
 class AdminOnly:

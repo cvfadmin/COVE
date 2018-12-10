@@ -9,6 +9,7 @@ from app.lib.errors import errors
 from flask_whooshee import Whooshee
 from flask_mail import Mail
 
+
 db = SQLAlchemy()
 
 ma = Marshmallow()

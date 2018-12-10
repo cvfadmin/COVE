@@ -7,7 +7,10 @@ class User(db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     is_admin = db.Column(db.Boolean, nullable=False, default=False)
+    first_name = db.Column(db.String(64), nullable=True)
+    last_name = db.Column(db.String(64), nullable=True)
     username = db.Column(db.String)
+    email = db.Column(db.String(256), index=True)
     password_hash = db.Column(db.String)
     date_created = db.Column(db.DateTime, default=datetime.datetime.utcnow)
     last_updated = db.Column(db.DateTime, onupdate=datetime.datetime.utcnow)

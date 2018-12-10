@@ -5,8 +5,6 @@ from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from flask_jwt_extended import JWTManager
-from sqlalchemy_searchable import make_searchable
-from sqlalchemy.orm import configure_mappers
 
 db = SQLAlchemy()
 
@@ -25,10 +23,6 @@ def create_app(config_class=Config):
     db.init_app(app)
     ma.init_app(app)
     jwt.init_app(app)
-
-    # Flask Searchable Requirnments
-    make_searchable(db.metadata)
-    configure_mappers()
 
     # Register blueprints from modules here!
     app.register_blueprint(api_bp)
