@@ -1,11 +1,30 @@
 <template>
 	<div id="app">
 		<router-view/>
+		<Footer></Footer>
 	</div>
 </template>
 
+<script>
+import Footer from '@/components/Footer.vue'
+
+export default {
+	components: {
+		Footer,
+	}
+}
+
+</script>
+
 <!-- Global App Styles -->
 <style lang="scss">
+
+#app {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	min-height: 100vh;
+}
 
 body {
 	padding: 0;
@@ -25,8 +44,8 @@ h2, h4, p, a, input, button {
 }
 
 .container {
-	max-width: 1040px;
-	margin: auto;
+	width: 1040px;
+	margin: 0 auto;
 }
 
 .card-wrapper {
@@ -46,13 +65,13 @@ form {
 		
 		button {
 			background: none;
-			border: 1px #000 solid;
+			border: 1px #525252 solid;
 			padding: 10px 0;
 			margin: 20px 0 50px 0;
 		}
 
 		button:hover {
-			background: #000;
+			background: #525252;
 			color: #fff;
 		}
 }

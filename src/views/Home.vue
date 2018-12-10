@@ -7,7 +7,10 @@
 			<div class="filter-bars">
 				<div class="input-group">
 					<p>Search Terms:</p>
-					<input v-model="searchInput" type="search" placeholder="ex. trees, cars, birds">
+					<div class="button-and-input card-wrapper">
+						<input v-model="searchInput" type="search" placeholder="ex. trees, cars, birds">
+						<button type="submit">Search</button>
+					</div>
 				</div>
 			</div>
 
@@ -27,9 +30,6 @@
 					<ModelMultiSelect :models="dataTypes" :category="'data_types'" :createNew="false"></ModelMultiSelect>
 				</div>
 
-				<div class="input-group submit-button">
-					<button type="submit" class="card-wrapper">Search</button>
-				</div>
 			</div>
 		</form>
 
@@ -41,7 +41,6 @@
 </template>
 
 <script>
-// @ is an alias to /src
 import PageHeader from '@/components/PageHeader.vue'
 import IntroText from '@/components/home/IntroText.vue'
 import DatasetList from '@/components/datasets/DatasetList.vue'
@@ -119,6 +118,10 @@ export default {
 
 	methods: {
 		search() {
+			if (this.searchInput.length < 3) {
+				alert('Search query must be at least three characters long.')
+				return
+			}
 
 			let params = {
 				query: this.searchInput, 
@@ -155,6 +158,32 @@ export default {
 	.filter-bars {
 		display: flex;
 		justify-content: space-between;
+
+		.button-and-input {
+			display:flex;
+			margin: 10px 0;
+			padding: 0;
+
+			input {
+				flex-grow:2;
+				/* And hide the input's outline, so the form looks like the outline */
+				border:none;
+				box-shadow: none;
+				outline: none;
+				margin: 0;
+			}
+
+			button {
+				margin: 0;
+				border: none;
+				padding: 10px 15px;
+				border-top-right-radius: 3px;
+				border-bottom-right-radius: 3px;
+				background: #525252;
+				color: #eee;
+				font-weight: 600;
+			}
+		}
 
 		.input-group:first-child {
 			flex: 1;

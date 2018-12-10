@@ -2,7 +2,6 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import Home from './views/Home.vue'
 import store from '@/store'
-import DatasetService from '@/services/DatasetService'
 
 Vue.use(Router)
 
@@ -14,16 +13,6 @@ export default new Router({
 			path: '/',
 			name: 'home',
 			component: Home
-		},
-		{
-			path: '/about',
-			name: 'about',
-			component: () => import('./views/About.vue')
-		},
-		{
-			path: '/add-dataset',
-			name: 'addDataset',
-			component: () => import('./views/AddDataset.vue')
 		},
 		{
 			path: '/admin',
@@ -45,24 +34,43 @@ export default new Router({
 			component: () => import('./views/Login.vue')
 		},
 		{
+			path: '/register',
+			name: 'register',
+			component: () => import('./views/Register.vue')
+		},
+		{
 			path: '/logout',
 			name: 'logout',
 			component: () => import('./views/Logout.vue')
 		},
 		{
-			path: '/datasets/create/:key',
+			path: '/users/me',
+			name: 'usersPage',
+			component: () => import('./views/UsersPage.vue'),
+			beforeEnter: (to, from, next) => {
+				if (store.state.accessToken == '') {
+					next({
+						name: 'login',
+						params: { error: 'You must be logged in to access this route.' },
+					})
+				} else {
+					next()
+				}
+			}
+		},
+		{
+			path: '/datasets/create',
 			name: 'createDataset',
 			component: () => import('./views/CreateDataset.vue'),
 			beforeEnter: (to, from, next) => {
-				DatasetService.isCreateDSKeyValid(to.params.key).then((response) => {
-					if (response.data.is_active) {
-						next()
-					} else {
-						next({
-							path: '/',
-						})
-					}
-				})
+				if (store.state.accessToken == '') {
+					next({
+						name: 'login',
+						params: { error: 'You must be logged in to add a dataset' },
+					})
+				} else {
+					next()
+				}
 			}
 		},
 		{
@@ -71,14 +79,19 @@ export default new Router({
 			component: () => import('./views/Dataset.vue')
 		},
 		{
-			path: '/datasets/:id/edit-request',
+			path: '/datasets/:id/edit',
 			name: 'editDataset',
-			component: () => import('./views/requests/EditDataset.vue')
-		},
-		{
-			path: '/datasets/:id/delete-request',
-			name: 'deleteDataset',
-			component: () => import('./views/requests/DeleteDataset.vue')
+			component: () => import('./views/EditDataset.vue'),
+			beforeEnter: (to, from, next) => {
+				if (store.state.datasetsOwned.indexOf(parseInt(to.params.id)) != -1 || store.state.isAdmin) {
+					next()
+				} else {
+					next({
+						name: 'login',
+						params: { error: 'You must be logged in as the owner to edit this dataset' },
+					})
+				}
+			}
 		}
 	]
 })

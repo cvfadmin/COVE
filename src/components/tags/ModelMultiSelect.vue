@@ -114,6 +114,10 @@ export default {
 		}		
 
 	},
+
+	beforeMount () {
+		this.selectedModels = this.$store.state.selectedTags.filter((item) => {return item.category == this.category})
+	}
 }
 
 </script>

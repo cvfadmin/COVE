@@ -8,9 +8,11 @@
 			<nav id='nav'>
 				<ul>
 					<li><router-link tag="a" to="/">Home</router-link></li>
-					<li><router-link tag="a" to="/add-dataset">Add a Dataset</router-link></li>
-					<li><router-link tag="a" to="/about">About COVE</router-link></li>
-					<li v-if="this.isLoggedIn"><router-link tag="a" to="/admin">Admin Panel</router-link></li>
+					<li><router-link tag="a" to="/datasets/create">Add a Dataset</router-link></li>
+					<li v-if="this.isLoggedIn"><router-link tag="a" to="/users/me">Your Page</router-link></li>
+					<li v-if="!this.isLoggedIn"><router-link tag="a" to="/login">Login</router-link></li>
+					<li v-if="!this.isLoggedIn"><router-link tag="a" to="/register">Register</router-link></li>
+					<li v-if="this.isLoggedIn && this.isAdmin"><router-link tag="a" to="/admin">Admin Panel</router-link></li>
 					<li v-if="this.isLoggedIn"><router-link tag="a" to="/logout">Logout</router-link></li>
 				</ul>
 			</nav>
@@ -26,7 +28,12 @@ export default {
 	computed: {
 		isLoggedIn () {
 			return this.$store.state.accessToken != ''
+		},
+
+		isAdmin () {
+			return this.$store.state.isAdmin
 		}
+
 	}
 }
 

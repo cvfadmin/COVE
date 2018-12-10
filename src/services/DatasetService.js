@@ -24,6 +24,10 @@ export default {
 			return Api().post('/datasets/', data)
 		},
 
+		updateDataset (dataset_id, data) {
+			return Api().put('/datasets/' + dataset_id, data)
+		},
+
 		getTags () {
 			return Api().get('/tags/')
 		},
@@ -37,36 +41,19 @@ export default {
 			return Api().post('/users/login', data)
 		},
 
+		registerUser (data) {
+			return Api().post('/users/register', data)
+		},
+
 		logoutUser () {
 			return Api().post('/users/logout')
 		},
 
-		createAddDSRequest(data) {
-			return Api().post('/requests/add-dataset', data)
-		},
-
-		createDeleteDSRequest(data) {
-			return Api().post('/requests/delete-dataset', data)
-		},
-
-		createEditDSRequest(data) {
-			return Api().post('/requests/edit-dataset', data)
+		getCurrentUserInfo () {
+			return Api().get('/users/me')
 		},
 
 		// Admin stuff
-		
-		getAddDSRequests () {
-			return Api().get('/requests/add-dataset')
-		},
-		
-		getDeleteDSRequests () {
-			return Api().get('/requests/delete-dataset')
-		},
-		
-		getEditDSRequests () {
-			return Api().get('/requests/edit-dataset')
-		},
-
 		getNotApprovedDatasets () {
 			// Only admins can accesss this route
 			return Api().get('/datasets?approved=false')
@@ -74,22 +61,6 @@ export default {
 
 		adminDatasetResponse (id, approval_obj) {
 			return Api().put('/admin/datasets/' + id, approval_obj)
-		},
-
-		adminAddDSRequestResponse (id, approval_obj) {
-			return Api().put('/admin/requests/add-dataset/' + id, approval_obj)
-		},
-
-		adminEditDSRequestResponse (id, approval_obj) {
-			return Api().put('/admin/requests/edit-dataset/' + id, approval_obj)
-		},
-
-		adminDeleteDSRequestResponse (id, approval_obj) {
-			return Api().put('/admin/requests/delete-dataset/' + id, approval_obj)
-		},
-
-		isCreateDSKeyValid (key) {
-			return Api().get('/admin/create-dataset-key/' + key)
 		},
 
 }

@@ -1,14 +1,19 @@
 <template>
-	<div class="login container">
+	<div class="register container">
 		<PageHeader></PageHeader>
 		<div class="form-container">
-			<h2>Login:</h2>
+			<h2>Register:</h2>
 			<form v-on:submit.prevent="handleSubmit">
 				<p class="error">{{error}}</p>
-				<p class="error">{{routeError}}</p>
 				<div class="input-group">
-					<input v-model="username" type="text" placeholder="username" required>
-					<input v-model="password" type="password" placeholder="password" required>
+					<div class="input-row">
+						<input v-model="first_name" type="text" placeholder="First Name" required>
+						<input v-model="last_name" type="text" placeholder="Last Name" required>
+					</div>
+					<input v-model="username" type="text" placeholder="Username" required>
+					<input v-model="email" type="email" placeholder="Email" required>
+					<input v-model="password" type="password" placeholder="Password" required>
+					<input v-model="confirmPassword" type="password" placeholder="Confirm Password" required>
 				</div>
 				<div class="input-group">
 					<button type="submit">Submit</button>
@@ -24,33 +29,37 @@ import DatasetService from '@/services/DatasetService'
 import router from '@/router'
 
 export default {
-	name: 'login',
+	name: 'register',
 	components: {
 		PageHeader,
 	},
 
 	data () {
 		return {
+			first_name: '',
+			last_name: '',
 			username: '',
 			password: '',
+			confirmPassword: '',
+			email: '',
 			error: ''
-		}
-	},
-
-	computed: {
-		routeError() {
-			return this.$route.params.error
 		}
 	},
 
 	methods: {
 		handleSubmit () {
-			this.loginUser().then((response) => {
+			if (this.password != this.confirmPassword) {
+				this.error = "Passwords don't match"
+				return
+			}
+
+			this.registerUser().then((response) => {
 				if (response.data.error != undefined && response.status == 200) {
 					this.error = response.data.error
-
 				} else if (response.status == 200) {
-					this.$store.dispatch('login', [response.data.access_token, response.data.permissions.is_admin, response.data.datasets_owned])
+					// Save token to store
+					this.$store.commit('setAccessToken', response.data.access_token)
+					this.$store.commit('setIsAdmin', response.data.permissions.is_admin)
 					router.push({ name: 'home' })
 									
 				} else {
@@ -61,9 +70,12 @@ export default {
 			});
 		},
 
-		async loginUser() {
-			return await DatasetService.loginUser({
-				username: this.username, 
+		async registerUser() {
+			return await DatasetService.registerUser({
+				first_name: this.first_name,
+				last_name: this.last_name,
+				username: this.username,
+				email: this.email, 
 				password: this.password
 			})
 		},
@@ -91,6 +103,23 @@ h2 {
 }
 
 form {
+
+	.input-row {
+		display: flex;
+		align-items: center;
+
+		input {
+			flex: 1;
+		}
+
+		input:first-child {
+			margin-right: 7px;
+		}
+
+		input:last-child {
+			margin-left: 7px;
+		}
+	}
 
 	button {
 		background: none;

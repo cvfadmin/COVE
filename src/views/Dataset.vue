@@ -25,9 +25,8 @@
 						<p>{{dataset.citation}}</p>
 					</div>
 				</div>
-				<div class="bottom">
-					<router-link tag="a" :to="{path: '/datasets/' + dataset.id +'/edit-request'}">Edit Request</router-link>
-					<router-link tag="a" :to="{path: '/datasets/' + dataset.id +'/delete-request'}">Delete Request</router-link>
+				<div v-if="usersDatasets.indexOf(dataset.id) != -1" class="bottom">
+					<router-link tag="a" :to="{path: '/datasets/' + dataset.id +'/edit'}">Edit as Owner</router-link>
 				</div>
 
 			</div>
@@ -38,12 +37,10 @@
 						<img v-else :src="dataset.thumbnail">
 					</div>
 					<h4>Details:</h4>
-
-					<p><strong>Created:</strong> {{dataset.date_created | moment}}</p>
-					<p><strong>Last Updated:</strong> {{dataset.date_created | moment}}</p>
-
+					<p><strong>Year Created:</strong> {{dataset.year_created}}</p>
 					<p><strong>Size:</strong> {{dataset.size}}</p>
 					<p><strong>Number of Categories:</strong> {{dataset.num_cat}}</p>
+					<p><strong>COVE Profile Last Updated:</strong> {{dataset.date_created | moment}}</p>
 					
 					<div class="tag-list">
 						<p><strong>Tasks:</strong></p>
@@ -120,14 +117,25 @@ export default {
 			return this.tags.filter((item) => {
 				return item.category == 'data_types'
 			})
+		},
+
+		usersDatasets () {
+			return this.$store.state.datasetsOwned
 		}
 	},
 
 	methods: {
 		async getDataset () {
-			// TODO: Check for dataset in store before sending another request
-			const response = await DatasetService.getDatasetById(this.$route.params.id)
-			this.dataset = response.data.result
+			// Check for dataset in store before sending another request
+			let thisDSId = this.$route.params.id
+			let storedDS = this.$store.state.datasets.find((item) => { return item.id == thisDSId })
+
+			if (storedDS == undefined) {
+				const response = await DatasetService.getDatasetById(thisDSId)
+				this.dataset = response.data.result
+			} else {
+				this.dataset = storedDS
+			}
 		},
 
 		async adminDecision (bool) {
@@ -145,6 +153,12 @@ export default {
 	beforeMount(){
 		this.getDataset()
 		this.$store.commit('loadTags')
+		
+
+		// TODO: handle this in router.js
+		if (!this.dataset.is_approved && !this.$store.state.isAdmin) {
+			this.$router.push('/')
+		}
 	},
 
 	filters: {
@@ -212,11 +226,6 @@ strong {
 			font-weight: 700;
 			font-size: 14px;
 			color: #656565;
-		}
-
-		.bottom {
-			display: flex;
-			justify-content: space-between;
 		}
 
 		h2 {
