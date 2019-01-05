@@ -61,7 +61,7 @@ class Login(Resource):
                 access_token = create_access_token(identity=username, expires_delta=expires)
                 return {
                     'access_token': access_token,
-                    'datasets_owned': [d.id for d in user.datasets],
+                    'user_id': user.id,
                     'permissions': {
                         'is_admin': user.is_admin,
                     }
@@ -77,7 +77,6 @@ class UserView(Resource):
     @jwt_required
     def get(self):
         current_user = User.query.filter_by(username=get_jwt_identity()).first()
-        print(current_user.datasets)
         return {'result': user_schema.dump(current_user)}
 
 
