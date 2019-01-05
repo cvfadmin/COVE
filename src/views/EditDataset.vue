@@ -102,6 +102,14 @@ export default {
 		this.getDataset()
 		this.$store.commit('loadTags')
 
+		// TODO: better way to handle these permissions?
+		if (!this.$store.state.isAdmin && this.$store.state.userId != this.dataset.owner) {
+			this.$router.push({
+				name: 'login',
+				params: { error: 'You must be logged in as the owner to edit this dataset' },
+			})
+		}
+
 		this.formData = {
 			name: this.dataset.name,
 			url: this.dataset.url,

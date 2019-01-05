@@ -12,10 +12,11 @@ export default new Vuex.Store({
 		datasets: [],
 		tags: [],
 		selectedTags: [],
+		
 		//User info
 		accessToken: '',
 		isAdmin: false,
-		datasetsOwned: [],
+		userId: -1,
 	},
 
 	mutations: {
@@ -53,23 +54,23 @@ export default new Vuex.Store({
 			Vue.set(state, 'isAdmin', isAdmin)
 		},
 
-		setDatasetsOwned (state, list) {
-			Vue.set(state, 'datasetsOwned', list)
+		setUserId (state, id) {
+			Vue.set(state, 'userId', id)
 		}
 	},
 
 	actions: {
 		
-		login ({commit, state}, [access_token, is_admin, datasets_owned]) {
+		login ({commit, state}, [access_token, is_admin, user_id]) {
 			commit('setAccessToken', access_token)
 			commit('setIsAdmin', is_admin)
-			commit('setDatasetsOwned', datasets_owned)
+			commit('setUserId', user_id)
 		},
 		
 		logout ({commit, state}) {
 			commit('setAccessToken', '')
 			commit('setIsAdmin', false)
-			commit('setDatasetsOwned', [])
+			commit('setUserId', -1)
 		},
 
 		clearSelectedTags ({commit, state}) {

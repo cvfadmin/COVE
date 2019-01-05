@@ -79,19 +79,30 @@ export default new Router({
 			component: () => import('./views/Dataset.vue')
 		},
 		{
-			path: '/datasets/:id/edit',
-			name: 'editDataset',
-			component: () => import('./views/EditDataset.vue'),
+			path: '/datasets/:id/admin-edit-request',
+			name: 'editRequestForm',
+			component: () => import('./views/EditRequestForm.vue'),
 			beforeEnter: (to, from, next) => {
-				if (store.state.datasetsOwned.indexOf(parseInt(to.params.id)) != -1 || store.state.isAdmin) {
+				if (store.state.isAdmin) {
 					next()
 				} else {
 					next({
 						name: 'login',
-						params: { error: 'You must be logged in as the owner to edit this dataset' },
+						params: { error: 'You are not authorized to access this route.' },
 					})
 				}
 			}
+		},
+		{
+			path: '/datasets/:id/edit',
+			name: 'editDataset',
+			component: () => import('./views/EditDataset.vue'),
+		},
+		{
+			path: '/datasets/:id/edit/messages',
+			name: 'editDatasetMessages',
+			component: () => import('./views/EditDatasetMessages.vue'),
 		}
+
 	]
 })

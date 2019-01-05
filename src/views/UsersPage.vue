@@ -6,6 +6,12 @@
 			<p class="null-message" v-if="usersDatasets.length == 0">You currently own no datasets.</p>
 			<ul class="dataset-list">
 				<li v-for="dataset in usersDatasets" :key="dataset.id">
+					<router-link 
+						:to="{path: '/datasets/' + dataset.id +'/edit/messages'}" 
+						v-if="countUnreadMessages(dataset.edit_requests) > 0" 
+						class="edit-messages card-wrapper">
+						You have {{countUnreadMessages(dataset.edit_requests)}} unread edit requests for this dataset
+					</router-link>
 					<DatasetPreview :dataset="dataset"></DatasetPreview>
 				</li>
 			</ul>
@@ -38,6 +44,11 @@ export default {
 				this.usersDatasets = userInfo.datasets
 			})
 		},
+
+		countUnreadMessages(message_list) {
+			let unresolved = message_list.filter((item) => { return !item.is_resolved })
+			return unresolved.length
+		}
 	},
 
 	beforeMount() {
@@ -81,6 +92,20 @@ section {
 			width: calc(33% - 20px);
     	box-sizing: border-box;
 		}
+	}
+
+	a.edit-messages {
+		margin: 0 0 10px 0;
+		padding: 5px 8px;
+		font-family: 'Open Sans', san-serif;
+		font-size: 11px;
+		font-weight: 600;
+		color: #000;
+		display: block;
+	}
+
+	a.edit-messages:hover {
+		color: #444;
 	}
 }
 

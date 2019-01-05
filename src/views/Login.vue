@@ -50,7 +50,7 @@ export default {
 					this.error = response.data.error
 
 				} else if (response.status == 200) {
-					this.$store.dispatch('login', [response.data.access_token, response.data.permissions.is_admin, response.data.datasets_owned])
+					this.$store.dispatch('login', [response.data.access_token, response.data.permissions.is_admin, response.data.user_id])
 					router.push({ name: 'home' })
 									
 				} else {

@@ -63,4 +63,16 @@ export default {
 			return Api().put('/admin/datasets/' + id, approval_obj)
 		},
 
+		createEditRequest (dataset_id, data) {
+			return Api().post('/admin/datasets/' + dataset_id + '/edit-requests', data)
+		},
+
+		getEditRequests (dataset_id) {
+			return Api().get('/admin/datasets/' + dataset_id + '/edit-requests')
+		},
+
+		createEditRequestMessage (request_id, data) {
+			return Api().post('/admin/edit-requests/' + request_id + '/messages', data)
+		}
+
 }

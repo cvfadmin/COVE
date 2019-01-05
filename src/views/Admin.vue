@@ -55,7 +55,7 @@ export default {
 	},
 
 	beforeMount () {
-		this.getAddDSRequests()
+		this.getNotApprovedDatasets()
 	}
 }
 </script>

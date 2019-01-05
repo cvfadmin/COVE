@@ -1,13 +1,14 @@
 <template>
 	<div class="container">
 		<PageHeader></PageHeader>
-		<div v-if="dataset.is_approved == false" class="not-approved">
+		<div v-if="dataset.is_approved == false && isAdmin" class="not-approved">
 			<p>This dataset has not yet been approved.</p>
 			<div class="decision">
+				<router-link tag="button" :to="{path: '/datasets/' + dataset.id +'/admin-edit-request'}">Request Edit</router-link>
 				<button v-on:click="adminDecision(true)">Approve</button>
 				<button v-on:click="adminDecision(false)">Deny</button>
 			</div>
-		</div>
+		</div>		
 		<div class="dataset">
 			<div class="main card-wrapper">
 				<div class="top">
@@ -25,8 +26,12 @@
 						<p>{{dataset.citation}}</p>
 					</div>
 				</div>
-				<div v-if="usersDatasets.indexOf(dataset.id) != -1" class="bottom">
+				<div v-if="isCurrentUserOwner" class="bottom">
 					<router-link tag="a" :to="{path: '/datasets/' + dataset.id +'/edit'}">Edit as Owner</router-link>
+					<div class="edit-messages">
+						<router-link tag="a" :to="{path: '/datasets/' + dataset.id +'/edit/messages'}">Edit Request Messages</router-link>
+						<span>{{editMessagesLength}}</span>
+					</div>
 				</div>
 
 			</div>
@@ -119,8 +124,16 @@ export default {
 			})
 		},
 
-		usersDatasets () {
-			return this.$store.state.datasetsOwned
+		isCurrentUserOwner () {
+			return this.$store.state.userId == this.dataset.owner
+		},
+
+		isAdmin () {
+			return this.$store.state.isAdmin
+		},
+
+		editMessagesLength () {
+			return this.dataset.edit_request_messages.length
 		}
 	},
 
@@ -153,10 +166,9 @@ export default {
 	beforeMount(){
 		this.getDataset()
 		this.$store.commit('loadTags')
-		
 
-		// TODO: handle this in router.js
-		if (!this.dataset.is_approved && !this.$store.state.isAdmin) {
+		// TODO: better way to handle these permissions?
+		if (!this.dataset.is_approved && !this.$store.state.isAdmin && !this.$store.state.datasetsOwned.indexOf(parseInt(this.$route.params.id)) != -1) {
 			this.$router.push('/')
 		}
 	},
@@ -226,6 +238,20 @@ strong {
 			font-weight: 700;
 			font-size: 14px;
 			color: #656565;
+		}
+
+		.bottom {
+			display: flex;
+			justify-content: space-between;
+
+			span {
+				font-family: 'Open Sans', sans-serif;
+				padding: 1px 5px;
+				border-radius: 3px;
+				background: #eee;
+				font-size: 12px;
+				margin-left: 10px;
+			}
 		}
 
 		h2 {
