@@ -32,11 +32,8 @@ class SingleDatasetView(SingleResourceByIdView):
         except ValidationError as err:
             return {'errors': err.messages}
 
-        # TODO: Clean this up
         if updated_tags:
-            tag_instances = []
-            for tag_id in updated_tags:
-                tag_instances.append(Tag.query.filter_by(id=tag_id).first())
+            tag_instances = [Tag.query.filter_by(id=tag_id).first() for tag_id in updated_tags]
             model_instance.tags = tag_instances
 
         db.session.query(self.Model).filter_by(id=_id).update(req_body)

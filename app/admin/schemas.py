@@ -1,4 +1,5 @@
 from .models import EditRequestMessage, EditRequest
+from marshmallow import fields
 import flask_marshmallow.sqla as sqla
 from app import ma
 
@@ -6,6 +7,8 @@ from app import ma
 class EditRequestMessageSchema(sqla.ModelSchema):
     class Meta:
         model = EditRequestMessage
+
+    date_created = fields.DateTime(dump_only=True)
 
 class EditRequestSchema(sqla.ModelSchema):
     class Meta:
