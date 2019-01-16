@@ -24,6 +24,8 @@
 			</div>
 
 			<p>created {{request.date_created | moment}}</p>
+
+			<button v-if="isAdmin" v-on:click="resolveRequest(true)">Mark as Resolved</button>
 		</div>
 
 		<div v-if="displayMessages" v-for="message in request.messages" :key="message.id">
@@ -41,7 +43,7 @@
 <script>
 import moment from 'moment'
 import EditRequestMessage from '@/components/admin/EditRequestMessage.vue'
-import DatasetService from '@/services/DatasetService'
+import AdminService from '@/services/AdminService'
 
 export default {
 	name: 'editRequest',
@@ -71,6 +73,10 @@ export default {
 				return 'replies'
 			}
 		},
+
+		isAdmin() {
+			return this.$store.state.isAdmin
+		}
 	},
 
 	methods: {
@@ -101,7 +107,21 @@ export default {
 		},
 
 		async createMessage (request_id, data) {
-			return await DatasetService.createEditRequestMessage(request_id, data)
+			return await AdminService.createEditRequestMessage(request_id, data)
+		},
+
+
+		async resolveRequest () {
+			await AdminService.updateEditRequest(this.request.id, {"is_resolved": true}).then((response) => {
+				if (response.status == 200 && response.data.error == undefined) {
+					alert("Request #" + this.request.id + ' has been marked as resolved.')
+					this.$router.go()
+				} else {
+					// Some weird error
+					alert("Oops something went wrong :/ - Please email cove@thecvf.com if error persists.")
+					console.log(response)
+				}
+			})
 		},
 
 		moment: function () {
@@ -136,6 +156,10 @@ export default {
 			margin-left: 5px;
 			font-size: 11px;
 			font-weight: 600;
+		}
+
+		button {
+			margin-left: 5px;
 		}
 	}
 

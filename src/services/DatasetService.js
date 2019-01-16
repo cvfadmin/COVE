@@ -63,8 +63,4 @@ export default {
 			return Api().get('/admin/datasets/' + dataset_id + '/edit-requests')
 		},
 
-		createEditRequestMessage (request_id, data) {
-			return Api().post('/admin/edit-requests/' + request_id + '/messages', data)
-		}
-
 }

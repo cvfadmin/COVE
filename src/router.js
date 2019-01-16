@@ -71,7 +71,7 @@ export default new Router({
 		},
 		{
 			path: '/admin/open-edit-requests',
-			name: 'adminConfirmDatasets',
+			name: 'adminOpenEditRequests',
 			component: () => import('./views/admin/OpenEditRequests.vue'),
 			beforeEnter: (to, from, next) => { routerGuards.isAdminGuard(to, from, next) }
 		},

@@ -38,7 +38,7 @@ export default {
 			}
 
 			await AdminService.updateEditRequestMessage(this.message.id, updatedMessage).then((response) => {
-				if (response.status == 200) {
+				if (response.status == 200 && response.data.error== undefined) {
 					this.hasBeenRead = true
 				} else {
 					// Some weird error

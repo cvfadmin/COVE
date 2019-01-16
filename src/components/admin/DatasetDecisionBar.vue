@@ -3,6 +3,7 @@
 		<p>This dataset has not yet been approved.</p>
 		<div class="decision">
 			<router-link tag="button" :to="{path: '/datasets/' + datasetId +'/admin-edit-request'}">Request Edit</router-link>
+			<router-link tag="button" :to="{path: '/datasets/' + datasetId +'/edit/messages'}">View Edit Requests</router-link>
 			<button v-on:click="adminDecision(true)">Approve</button>
 			<button v-on:click="adminDecision(false)">Deny</button>
 		</div>
