@@ -1,12 +1,4 @@
 export default {
-	/*
-	buildUrl('http://example.com/path', {
-	  queryParams: {
-	    foo: 'bar',
-	    bar: 'baz'
-	  }
-	});
-	*/
 	buildUrl (route, params) {
 		let url = route
 		let isFirst = true

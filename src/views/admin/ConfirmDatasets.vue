@@ -5,23 +5,12 @@
 			<div class="admin-wrapper">
 				<SideMenu></SideMenu>
 				<div class="display">
-					<div v-if="display == 'datasets'">
-						<p class="null-message" v-if="notApprovedDatasets.length == 0"> No datasets to confirm.</p>
-						<ul class="dataset-list">
-							<li v-for="dataset in notApprovedDatasets" :key="dataset.id">
-								<DatasetPreview :dataset="dataset"></DatasetPreview>
-							</li>
-						</ul>
-					</div>
-
-					<div v-if="display == 'edit-requests'">
-						<p class="null-message" v-if="unresolvedEditRequests.length == 0"> No unresolved edit requests.</p>
-						<ul class="edit-request-list">
-							<li v-for="request in unresolvedEditRequests" :key="request.id">
-								<EditRequest :request="request"></EditRequest>
-							</li>
-						</ul>
-					</div>
+					<p class="null-message" v-if="notApprovedDatasets.length == 0"> No datasets to confirm.</p>
+					<ul class="dataset-list">
+						<li v-for="dataset in notApprovedDatasets" :key="dataset.id">
+							<DatasetPreview :dataset="dataset"></DatasetPreview>
+						</li>
+					</ul>
 				</div>
 			</div>
 		</div>
@@ -31,7 +20,6 @@
 <script>
 import PageHeader from '@/components/PageHeader.vue'
 import DatasetPreview from '@/components/datasets/DatasetPreview.vue'
-import EditRequest from '@/components/admin/EditRequest.vue'
 import SideMenu from '@/components/admin/SideMenu.vue'
 import AdminService from '@/services/AdminService'
 
@@ -40,15 +28,12 @@ export default {
 	components: {
 		PageHeader,
 		DatasetPreview,	
-		EditRequest,
 		SideMenu
 	},
 
 	data () {
 		return {
-			notApprovedDatasets: [],
-			unresolvedEditRequests: [],
-			display: 'datasets',
+			notApprovedDatasets: []
 		}
 	},
 
@@ -56,27 +41,17 @@ export default {
 		notApprovedDatasetsLength () {
 			return this.notApprovedDatasets.length
 		},
-
-		unresolvedEditRequestsLength () {
-			return this.unresolvedEditRequests.length
-		},
 	},
 
 	methods: {
 		async getNotApprovedDatasets() {
 			const response = await AdminService.getNotApprovedDatasets()
 			this.notApprovedDatasets = response.data.results
-		},
-
-		async getUnresolvedEditRequests() {
-			const response = await AdminService.getUnresolvedEditRequests()
-			this.unresolvedEditRequests = response.data.results
-		},
+		}
 	},
 
 	beforeMount () {
 		this.getNotApprovedDatasets()
-		this.getUnresolvedEditRequests()
 	}
 }
 </script>

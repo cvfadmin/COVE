@@ -9,7 +9,7 @@ import DatasetService from '@/services/DatasetService'
 import router from '@/router'
 
 export default {
-	name: 'dataset',
+	name: 'logout',
 
 	methods: {
 		async logout () {

@@ -12,7 +12,7 @@
 					<li v-if="this.isLoggedIn"><router-link tag="a" to="/users/me">Your Page</router-link></li>
 					<li v-if="!this.isLoggedIn"><router-link tag="a" to="/login">Login</router-link></li>
 					<li v-if="!this.isLoggedIn"><router-link tag="a" to="/register">Register</router-link></li>
-					<li v-if="this.isLoggedIn && this.isAdmin"><router-link tag="a" to="/admin">Admin Panel</router-link></li>
+					<li v-if="this.isLoggedIn && this.isAdmin"><router-link tag="a" to="/admin/confirm-datasets">Admin Panel</router-link></li>
 					<li v-if="this.isLoggedIn"><router-link tag="a" to="/logout">Logout</router-link></li>
 				</ul>
 			</nav>

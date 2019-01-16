@@ -1,12 +1,14 @@
 <template>
 	<div class="create-dataset container">
 		<PageHeader></PageHeader>
-		<DatasetForm 
-			:dataset="undefined" 
-			:formData="formData" 
-			:errors="errors" 
-			@submitEvent="handleSubmit()">
-		</DatasetForm>
+		<div class="form-container">
+			<DatasetForm 
+				:dataset="undefined" 
+				:formData="formData" 
+				:errors="errors" 
+				@submitEvent="handleSubmit()">
+			</DatasetForm>	
+		</div>
 	</div>
 </template>
 
@@ -88,5 +90,10 @@ export default {
 
 
 <style scoped lang="scss">
+
+.form-container {
+	width: 800px;
+	margin: 0 auto;
+}
 
 </style>

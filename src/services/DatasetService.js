@@ -54,14 +54,6 @@ export default {
 		},
 
 		// Admin stuff
-		getNotApprovedDatasets () {
-			// Only admins can accesss this route
-			return Api().get('/datasets?approved=false')
-		},
-
-		adminDatasetResponse (id, approval_obj) {
-			return Api().put('/admin/datasets/' + id, approval_obj)
-		},
 
 		createEditRequest (dataset_id, data) {
 			return Api().post('/admin/datasets/' + dataset_id + '/edit-requests', data)

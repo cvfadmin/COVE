@@ -1,14 +1,7 @@
 <template>
 	<div class="container">
 		<PageHeader></PageHeader>
-		<div v-if="dataset.is_approved == false && isAdmin" class="not-approved">
-			<p>This dataset has not yet been approved.</p>
-			<div class="decision">
-				<router-link tag="button" :to="{path: '/datasets/' + dataset.id +'/admin-edit-request'}">Request Edit</router-link>
-				<button v-on:click="adminDecision(true)">Approve</button>
-				<button v-on:click="adminDecision(false)">Deny</button>
-			</div>
-		</div>		
+		<DatasetDecisionBar v-if="dataset.is_approved == false && isAdmin" :datasetId="dataset.id"></DatasetDecisionBar>		
 		<div class="dataset">
 			<div class="main card-wrapper">
 				<div class="top">
@@ -29,8 +22,8 @@
 				<div v-if="isCurrentUserOwner" class="bottom">
 					<router-link tag="a" :to="{path: '/datasets/' + dataset.id +'/edit'}">Edit as Owner</router-link>
 					<div class="edit-messages">
-						<router-link tag="a" :to="{path: '/datasets/' + dataset.id +'/edit/messages'}">Edit Request Messages</router-link>
-						<span>{{editMessagesLength}}</span>
+						<router-link tag="a" :to="{path: '/datasets/' + dataset.id +'/edit/messages'}">Open Edit Requests</router-link>
+						<span>{{dataset.edit_requests.length}}</span>
 					</div>
 				</div>
 
@@ -74,15 +67,16 @@
 </template>
 
 <script>
-
 import PageHeader from '@/components/PageHeader.vue'
 import DatasetService from '@/services/DatasetService'
+import DatasetDecisionBar from '@/components/admin/DatasetDecisionBar.vue'
 import moment from 'moment'
 
 export default {
 	name: 'dataset',
 	components: {
 		PageHeader,
+		DatasetDecisionBar,
 	},
 
 	data () {
@@ -131,31 +125,12 @@ export default {
 		isAdmin () {
 			return this.$store.state.isAdmin
 		},
-
-		editMessagesLength () {
-			return this.dataset.edit_request_messages.length
-		}
 	},
 
 	methods: {
+		// TODO: Check for dataset in store before sending another request
 		async getDataset () {
-			// Check for dataset in store before sending another request
-			let thisDSId = this.$route.params.id
-			let storedDS = this.$store.state.datasets.find((item) => { return item.id == thisDSId })
-
-			if (storedDS == undefined) {
-				const response = await DatasetService.getDatasetById(thisDSId)
-				this.dataset = response.data.result
-			} else {
-				this.dataset = storedDS
-			}
-		},
-
-		async adminDecision (bool) {
-			await DatasetService.adminDatasetResponse(this.dataset.id, {"is_approved": bool}).then((response) => {
-				alert(response.data.message)
-				console.log(response)
-			})
+			return await DatasetService.getDatasetById(this.$route.params.id)
 		},
 
 		moment: function () {
@@ -164,13 +139,20 @@ export default {
 	},
 
 	beforeMount(){
-		this.getDataset()
-		this.$store.commit('loadTags')
+		this.getDataset().then((response) => {
+			this.dataset = response.data.result
 
-		// TODO: better way to handle these permissions?
-		if (!this.dataset.is_approved && !this.$store.state.isAdmin && !this.$store.state.datasetsOwned.indexOf(parseInt(this.$route.params.id)) != -1) {
-			this.$router.push('/')
-		}
+			// TODO: better way to handle these permissions?
+			if (!this.dataset.is_approved) {
+				if (!this.$store.state.isAdmin) {
+					if (this.$store.state.userId != this.dataset.owner) {
+						this.$router.push('/')
+					}
+				}
+			}
+		})
+		
+		this.$store.commit('loadTags')
 	},
 
 	filters: {
@@ -181,7 +163,7 @@ export default {
 }
 </script>
 
-<!-- Add "scoped" attribute to limit SCSS to this component only -->
+
 <style scoped lang="scss">
 
 a {
@@ -316,26 +298,6 @@ strong {
 .card-wrapper {
 	padding-top: 20px;
 	box-shadow: 0 1px 2px 0 rgba(0,0,0,0.1);
-}
-
-.not-approved {
-	display: flex;
-	justify-content: space-between;
-	margin: 20px 0;
-	background: #d27878;
-	padding: 10px 20px;
-	border-radius: 2px;
-	
-	p {
-		color: #862828;
-		margin: 0;
-	}	
-
-	.decision {
-		button {
-
-		}
-	}
 }
 
 </style>

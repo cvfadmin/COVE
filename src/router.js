@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import Home from './views/Home.vue'
 import store from '@/store'
+import routerGuards from '@/utils/router-guards';
 
 Vue.use(Router)
 
@@ -13,20 +14,6 @@ export default new Router({
 			path: '/',
 			name: 'home',
 			component: Home
-		},
-		{
-			path: '/admin',
-			name: 'admin',
-			component: () => import('./views/Admin.vue'),
-			beforeEnter: (to, from, next) => {
-				if (!store.state.isAdmin) {
-					next({
-						path: '/login',
-					})
-				} else {
-					next()
-				}
-			}
 		},
 		{
 			path: '/login',
@@ -47,31 +34,13 @@ export default new Router({
 			path: '/users/me',
 			name: 'usersPage',
 			component: () => import('./views/UsersPage.vue'),
-			beforeEnter: (to, from, next) => {
-				if (store.state.accessToken == '') {
-					next({
-						name: 'login',
-						params: { error: 'You must be logged in to access this route.' },
-					})
-				} else {
-					next()
-				}
-			}
+			beforeEnter: (to, from, next) => { routerGuards.isLoggedInGuard(to, from, next) }
 		},
 		{
 			path: '/datasets/create',
 			name: 'createDataset',
 			component: () => import('./views/CreateDataset.vue'),
-			beforeEnter: (to, from, next) => {
-				if (store.state.accessToken == '') {
-					next({
-						name: 'login',
-						params: { error: 'You must be logged in to add a dataset' },
-					})
-				} else {
-					next()
-				}
-			}
+			beforeEnter: (to, from, next) => { routerGuards.isLoggedInGuard(to, from, next) }
 		},
 		{
 			path: '/datasets/:id',
@@ -82,16 +51,7 @@ export default new Router({
 			path: '/datasets/:id/admin-edit-request',
 			name: 'editRequestForm',
 			component: () => import('./views/EditRequestForm.vue'),
-			beforeEnter: (to, from, next) => {
-				if (store.state.isAdmin) {
-					next()
-				} else {
-					next({
-						name: 'login',
-						params: { error: 'You are not authorized to access this route.' },
-					})
-				}
-			}
+			beforeEnter: (to, from, next) => { routerGuards.isAdminGuard(to, from, next) }
 		},
 		{
 			path: '/datasets/:id/edit',
@@ -102,7 +62,19 @@ export default new Router({
 			path: '/datasets/:id/edit/messages',
 			name: 'editDatasetMessages',
 			component: () => import('./views/EditDatasetMessages.vue'),
-		}
+		},
+		{
+			path: '/admin/confirm-datasets',
+			name: 'adminConfirmDatasets',
+			component: () => import('./views/admin/ConfirmDatasets.vue'),
+			beforeEnter: (to, from, next) => { routerGuards.isAdminGuard(to, from, next) }
+		},
+		{
+			path: '/admin/open-edit-requests',
+			name: 'adminConfirmDatasets',
+			component: () => import('./views/admin/OpenEditRequests.vue'),
+			beforeEnter: (to, from, next) => { routerGuards.isAdminGuard(to, from, next) }
+		},
 
 	]
 })
