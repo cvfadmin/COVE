@@ -22,3 +22,4 @@ class Config(object):
     MAIL_DEFAULT_SENDER = 'cove@thecvf.com'
 
     BASE_URL = os.environ.get('BASE_URL') or 'http://localhost:8080/'
+    NOTIFY_ADMIN_EMAIL = 'cove@thecvf.com'

@@ -1,19 +1,29 @@
 from __future__ import with_statement
 
 from logging.config import fileConfig
-from config import Config
+#from config import Config
+import importlib.util
+spec = importlib.util.spec_from_file_location("Config", "/Users/Devin/Documents/COVE/backend-update/coveapi/config.py")
+config_file = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(config_file)
 
 from alembic import context
 
-from app.auth.models import User
+#from app.auth.models import User
+import importlib.util
+spec2 = importlib.util.spec_from_file_location("User", "/Users/Devin/Documents/COVE/backend-update/coveapi/app/auth/models.py")
+auth_models = importlib.util.module_from_spec(spec2)
+spec.loader.exec_module(auth_models)
+
 from app.datasets.models import Dataset
+from app.admin.models import EditRequestMessage
 
 from sqlalchemy import engine_from_config, pool
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
-config.set_main_option('sqlalchemy.url', Config.SQLALCHEMY_DATABASE_URI)
+config.set_main_option('sqlalchemy.url', config_file.Config.SQLALCHEMY_DATABASE_URI)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
@@ -23,8 +33,9 @@ fileConfig(config.config_file_name)
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-target_metadata = [User.metadata]
-target_metadata = [Dataset.metadata]
+target_metadata = auth_models.User.metadata
+target_metadata = Dataset.metadata
+target_metadata = EditRequestMessage.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:

@@ -16,6 +16,7 @@ ma = Marshmallow()
 jwt = JWTManager()
 whooshee = Whooshee()
 mail = Mail()
+cors = CORS()
 
 # TODO: Replace with model
 blacklist = set()
@@ -26,7 +27,15 @@ api = Api(api_bp, errors=errors)
 
 def create_app(config_class=Config):
     app = Flask(__name__)
-    CORS(app)
+
+    # TODO: If production only accept requests from frontend host
+    # See: https://flask-cors.readthedocs.io/en/latest/api.html
+    cors.init_app(app, resources={r'*': {
+            'origins': '*',
+            'supports_credentials': True
+        }
+    })
+
     app.config.from_object(config_class)
 
     db.init_app(app)

@@ -1,4 +1,5 @@
 from app import api, db
+from config import Config
 from flask import request
 from marshmallow import ValidationError
 from app.lib.routes import SingleResourceByIdView, ListResourceView
@@ -7,6 +8,7 @@ from .models import Dataset, Tag
 from app.auth.permissions import AdminOnly
 from flask_jwt_extended import jwt_optional, get_jwt_identity, jwt_required
 from .filter import dataset_tag_filter
+from app.admin.mail import send_dataset_to_approve
 
 from .schemas import (
     dataset_schema,
@@ -30,11 +32,8 @@ class SingleDatasetView(SingleResourceByIdView):
         except ValidationError as err:
             return {'errors': err.messages}
 
-        # TODO: Clean this up
         if updated_tags:
-            tag_instances = []
-            for tag_id in req_body['tags']:
-                tag_instances.append(Tag.query.filter_by(id=tag_id).first())
+            tag_instances = [Tag.query.filter_by(id=tag_id).first() for tag_id in updated_tags]
             model_instance.tags = tag_instances
 
         db.session.query(self.Model).filter_by(id=_id).update(req_body)
@@ -96,6 +95,9 @@ class ListDatasetView(ListResourceView):
         else:
             db.session.add(new)
             db.session.commit()
+
+        # send email to cove admin
+        send_dataset_to_approve(Config.NOTIFY_ADMIN_EMAIL, req_body.get('Name', 'Name unavailable'))
 
         return {
             'message': 'successfully created',
