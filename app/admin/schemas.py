@@ -8,13 +8,14 @@ class EditRequestMessageSchema(sqla.ModelSchema):
     class Meta:
         model = EditRequestMessage
 
-    date_created = fields.DateTime(dump_only=True)
+    author_name = fields.Function(lambda obj: obj.author.username)
 
 class EditRequestSchema(sqla.ModelSchema):
     class Meta:
         model = EditRequest
 
     messages = ma.Nested(EditRequestMessageSchema, many=True)
+    dataset_name = fields.Function(lambda obj: obj.dataset.name)
 
 
 edit_request_message_schema = EditRequestMessageSchema()

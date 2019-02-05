@@ -35,7 +35,7 @@ class Register(Resource):
 
         return {
             'access_token': access_token,
-            'datasets_owned': [],
+            'user_id': new_user.id,
             'permissions': {
                 'is_admin': new_user.is_admin
             }
