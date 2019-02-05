@@ -3,6 +3,7 @@ from flask import request
 from flask_restful import Resource
 from sqlalchemy import asc
 from app.datasets.models import Dataset
+from app.auth.models import User
 from app.auth.permissions import AdminOnly, AdminOrDatasetOwner
 from .schemas import edit_request_schema, edit_requests_schema, edit_request_message_schema
 from .models import EditRequest, EditRequestMessage
@@ -12,6 +13,9 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from .mail import (
     send_dataset_approval,
     send_dataset_denial,
+    send_edit_request_notification,
+    send_admin_message_notification,
+    send_owner_message_notification
 )
 
 
@@ -85,7 +89,7 @@ class AdminEditRequestView(Resource):
     @jwt_required
     def post(self, _id):
 
-        if not AdminOrDatasetOwner.has_permission(get_jwt_identity(), _id):
+        if not AdminOnly.has_permission(get_jwt_identity()):
             return {
                 'message': 'Unauthorized user',
                 'status': 401
@@ -99,6 +103,9 @@ class AdminEditRequestView(Resource):
         except ValidationError as err:
             return {'errors': err.messages}
 
+        # send email to owner about new edit request
+        send_edit_request_notification(new.dataset.owner.email, new.dataset.name, new.dataset.id)
+
         # commit all changes
         db.session.add(new)
         db.session.commit()
@@ -109,13 +116,43 @@ class AdminEditRequestView(Resource):
         }, 200
 
 
+class EditRequestSingleView(Resource):
+
+    @jwt_required
+    def put(self, _id):
+
+        if not AdminOnly.has_permission(get_jwt_identity()):
+            return {
+                'message': 'Unauthorized user',
+                'status': 401
+            }, 401
+
+        edit_request = EditRequest.query.filter_by(id=_id).first_or_404()
+        req_body = request.get_json()
+
+        try:
+            edit_request_schema.load(req_body, instance=edit_request, partial=True)
+        except ValidationError as err:
+            return {'errors': err.messages}
+
+        db.session.query(EditRequest).filter_by(id=_id).update(req_body)
+        db.session.commit()
+
+        return {
+            'message': 'successfully created',
+            'updated': edit_request_message_schema.dump(edit_request)
+        }
+
+
+
 class AdminEditRequestMessageListView(Resource):
 
     @jwt_required
     def post(self, _id):
 
         dataset_id = EditRequest.query.filter_by(id=_id).first_or_404().dataset.id
-        if not AdminOrDatasetOwner.has_permission(get_jwt_identity(), dataset_id):
+        current_user = User.query.filter_by(username=get_jwt_identity()).first()
+        if not AdminOrDatasetOwner.has_permission(current_user.username, dataset_id):
             return {
                 'message': 'Unauthorized user',
                 'status': 401
@@ -124,10 +161,21 @@ class AdminEditRequestMessageListView(Resource):
         req_body = request.get_json()
         req_body['edit_request'] = _id
 
+        if current_user.is_admin:
+            req_body['has_admin_read'] = True
+        else:
+            req_body['has_owner_read'] = True
         try:
             new = edit_request_message_schema.load(req_body)
         except ValidationError as err:
             return {'errors': err.messages}
+
+        # send email to other party about new message
+        if current_user.is_admin:
+            # admin sent message - notify owner
+            send_owner_message_notification(new.edit_request.dataset.owner.email, new.edit_request.id, dataset_id)
+        else:
+            send_admin_message_notification(new.edit_request.id, dataset_id)
 
         # commit all changes
         db.session.add(new)
@@ -168,7 +216,6 @@ class AdminEditRequestMessageSingleView(Resource):
         }
 
 
-
 class AllEditRequestView(Resource):
 
     @jwt_required
@@ -180,14 +227,17 @@ class AllEditRequestView(Resource):
                 'status': 401
             }, 401
 
-        requests = EditRequest.query.order_by(
+        requests_query = EditRequest.query.order_by(
             asc(EditRequest.date_created)
-        ).all()
+        )
 
-        requests_json = edit_requests_schema.dump(requests)
+        if request.args.get('is_resolved') == 'false':
+            requests_query = requests_query.filter_by(is_resolved=False)
+
+        requests_json = edit_requests_schema.dump(requests_query.all())
 
         return {
-            'num_results': len(requests),
+            'num_results': len(requests_query.all()),
             'results': requests_json
         }
 
@@ -196,5 +246,6 @@ class AllEditRequestView(Resource):
 api.add_resource(AdminDatasetView, '/admin/datasets/<_id>')
 api.add_resource(AdminEditRequestView, '/admin/datasets/<_id>/edit-requests')
 api.add_resource(AllEditRequestView, '/admin/edit-requests')
+api.add_resource(EditRequestSingleView, '/admin/edit-requests/<_id>')
 api.add_resource(AdminEditRequestMessageListView, '/admin/edit-requests/<_id>/messages')
 api.add_resource(AdminEditRequestMessageSingleView, '/admin/edit-request-messages/<_id>')
