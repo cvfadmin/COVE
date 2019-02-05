@@ -118,7 +118,7 @@ export default {
 
 	methods: {
 		search() {
-			if (this.searchInput.length < 3) {
+			if (this.searchInput.length < 3 && this.searchInput.length > 0) {
 				alert('Search query must be at least three characters long.')
 				return
 			}

@@ -6,13 +6,7 @@
 			<p class="null-message" v-if="usersDatasets.length == 0">You currently own no datasets.</p>
 			<ul class="dataset-list">
 				<li v-for="dataset in usersDatasets" :key="dataset.id">
-					<router-link 
-						:to="{path: '/datasets/' + dataset.id +'/edit/messages'}" 
-						v-if="countUnreadMessages(dataset.edit_requests) > 0" 
-						class="edit-messages card-wrapper">
-						You have {{countUnreadMessages(dataset.edit_requests)}} unread edit requests for this dataset
-					</router-link>
-					<DatasetPreview :dataset="dataset"></DatasetPreview>
+					<DatasetPreview :dataset="dataset" :notification="getNotificationObject(dataset)"></DatasetPreview>
 				</li>
 			</ul>
 		</section>
@@ -48,6 +42,18 @@ export default {
 		countUnreadMessages(message_list) {
 			let unresolved = message_list.filter((item) => { return !item.is_resolved })
 			return unresolved.length
+		},
+
+		getNotificationObject (dataset) {
+			let numUnread = this.countUnreadMessages(dataset.edit_requests)
+			if (numUnread > 0) {
+				return {
+					'message': 'You have ' + numUnread + ' open edit requests for this dataset',
+					'link': {'path': '/datasets/' + dataset.id +'/edit/requests'},
+				}
+			} else {
+				return undefined
+			}
 		}
 	},
 

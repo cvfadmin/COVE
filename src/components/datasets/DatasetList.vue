@@ -1,7 +1,7 @@
 <template>
 	<ul class="dataset-list">
 		<li v-for="dataset in datasets" :key="dataset.id">
-			<DatasetPreview :dataset="dataset"></DatasetPreview>
+			<DatasetPreview :dataset="dataset" :notification="getNotificationObject(dataset)"></DatasetPreview>
 		</li>
 	</ul>
 </template>
@@ -21,6 +21,32 @@ export default {
 	computed: {
 		datasets () {
 			return this.$store.state.datasets
+		}
+	},
+
+	methods: {
+
+		countOpenRequests(message_list) {
+			let unresolved = message_list.filter((item) => { return !item.is_resolved })
+			return unresolved.length
+		},
+
+		getNotificationObject (dataset) {
+			if (this.$store.state.isAdmin && !dataset.is_approved) {
+				return {
+					'message': 'This dataset needs to be confirmed.',
+					'link': {'path': '/datasets/' + dataset.id},
+				}
+			} else if (this.$store.state.userId == dataset.owner) {
+				let numUnread = this.countOpenRequests(dataset.edit_requests)
+				if (numUnread > 0) {
+					return {
+						'message': 'You have ' + numUnread + ' unread edit requests for this dataset',
+						'link': {'path': '/datasets/' + dataset.id +'/edit/messages'},
+					}
+				}
+			}
+			return undefined
 		}
 	},
 

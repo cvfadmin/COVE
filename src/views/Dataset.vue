@@ -22,8 +22,8 @@
 				<div v-if="isCurrentUserOwner" class="bottom">
 					<router-link tag="a" :to="{path: '/datasets/' + dataset.id +'/edit'}">Edit as Owner</router-link>
 					<div class="edit-messages">
-						<router-link tag="a" :to="{path: '/datasets/' + dataset.id +'/edit/messages'}">Open Edit Requests</router-link>
-						<span>{{dataset.edit_requests.length}}</span>
+						<router-link tag="a" :to="{path: '/datasets/' + dataset.id +'/edit/requests'}">Open Edit Requests</router-link>
+						<span>{{numberOpenEditRequests}}</span>
 					</div>
 				</div>
 
@@ -43,21 +43,21 @@
 					<div class="tag-list">
 						<p><strong>Tasks:</strong></p>
 						<div v-for="tag in tasks">
-							{{tag.name}}
+							<router-link tag="a" :to="{name: 'home', query: {tasks: tag.name}}">{{tag.name}}</router-link>
 						</div>
 					</div>
 
 					<div class="tag-list">
 						<p><strong>Topics:</strong></p>
 						<div v-for="tag in topics">
-							{{tag.name}}
+							<router-link tag="a" :to="{name: 'home', query: {topics: tag.name}}">{{tag.name}}</router-link>
 						</div>
 					</div>
 
 					<div class="tag-list">
 						<p><strong>Data Types:</strong></p>
 						<div v-for="tag in dataTypes">
-							{{tag.name}}
+							<router-link tag="a" :to="{name: 'home', query: {data_types: tag.name}}">{{tag.name}}</router-link>
 						</div>
 					</div>
 				</div>
@@ -125,6 +125,10 @@ export default {
 		isAdmin () {
 			return this.$store.state.isAdmin
 		},
+
+		numberOpenEditRequests () {
+			return this.dataset.edit_requests.filter((item) => { return !item.is_resolved }).length
+		}
 	},
 
 	methods: {
@@ -257,7 +261,8 @@ strong {
 			flex-wrap: wrap;
 			align-items: center;
 
-			div {
+			div a {
+				text-decoration: none;
 				font-family: 'Open Sans', sans-serif;
 				font-size: 12px;
 		    font-weight: 700;

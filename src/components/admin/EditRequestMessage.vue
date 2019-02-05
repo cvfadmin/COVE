@@ -1,5 +1,5 @@
 <template>
-	<div class="edit-request-message card-wrapper">
+	<div class="edit-request-message card-wrapper" :class="readStatus">
 		<div class="top">
 			<p>From {{message.author_name}} {{message.date_created | moment}}</p>
 		</div>
@@ -26,6 +26,18 @@ export default {
 		}
 	},
 
+	computed: {
+		readStatus () {
+			if (this.$store.state.isAdmin && !this.message.has_admin_read) {
+				return 'unread'
+			} else if (!this.$store.state.isAdmin && !this.message.has_owner_read) {
+				return 'unread'
+			} else {
+				'read'
+			}
+		}
+	},
+
 	methods: {
 
 		async markAsRead () {
@@ -40,6 +52,7 @@ export default {
 			await AdminService.updateEditRequestMessage(this.message.id, updatedMessage).then((response) => {
 				if (response.status == 200 && response.data.error== undefined) {
 					this.hasBeenRead = true
+					this.$emit('markedAsRead', this.message.id)
 				} else {
 					// Some weird error
 					alert("Oops something went wrong :/ - Please email cove@thecvf.com if error persists.")
@@ -70,6 +83,11 @@ export default {
 </script>
 
 <style scoped lang="scss">
+
+.unread {
+	background: #f8d7da;
+}
+
 .edit-request-message, {
 	padding: 10px;
 	

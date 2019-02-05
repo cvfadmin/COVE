@@ -1,24 +1,17 @@
 <template>
-	<div class="edit-request">
-		<PageHeader></PageHeader>
+	<form v-on:submit.prevent="handleSubmit">
+		<div class="input-group">		
+			<div class="input-head">
+				<p>Please describe what you would like the owner of this dataset to edit:</p>
+				<p class="error">{{errors.content}}</p>
+			</div>
+			<textarea v-model="formData.content" placeholder="This message will be sent to the owner." required></textarea>
 
-		<div class="container">
-			<form v-on:submit.prevent="handleSubmit">
-				<div class="input-group">
-					
-					<div class="input-head">
-						<p>Please describe what you would like the owner of this dataset to edit:</p>
-						<p class="error">{{errors.content}}</p>
-					</div>
-					<textarea v-model="formData.content" placeholder="This message will be sent to the owner." required></textarea>
-
-				</div>
-				<div class="input-group">
-					<button type="submit">Submit</button>
-				</div>
-			</form>
 		</div>
-	</div>
+		<div class="input-group">
+			<button type="submit">Submit</button>
+		</div>
+	</form>
 </template>
 
 <script>
@@ -67,7 +60,7 @@ export default {
 					});
 						
 					alert("Your message has been sent.")
-					router.push({ name: 'admin' })
+					router.go()
 					
 				} else {
 					// Some weird error
@@ -84,11 +77,11 @@ export default {
 }
 </script>
 
-<!-- Add "scoped" attribute to limit SCSS to this component only -->
+
 <style scoped lang="scss">
 
 form {
-	margin-top: 25px;
+	margin-top: 0;
 }
 
 </style>

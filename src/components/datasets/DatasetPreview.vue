@@ -4,6 +4,9 @@
 			<div class="photo">
 				<img v-if="dataset.thumbnail == null" src="https://picsum.photos/300/200/?random">
 				<img v-else :src="dataset.thumbnail">
+				<div v-if="notification" class="notification alert">
+					<router-link :to="notification.link" class="alert"> {{notification.message}} </router-link>
+				</div>
 			</div>
 			<div class="info">
 				<h4>{{dataset.name}}</h4>
@@ -19,6 +22,7 @@ export default {
 	name: 'DatasetPreview',
 	props: {
 		dataset: Object,
+		notification: Object
 	},
 
 	filters: {
@@ -50,12 +54,30 @@ $card-radius: 3px;
 	}
 	
 	.photo {
+		position: relative;
 
 		img {
 			width: 100%;
 			height: 200px;
 			border-top-left-radius: $card-radius;
 			border-top-right-radius: $card-radius;
+		}
+
+		.notification {
+			position: absolute;
+			top: 10px;
+			left: 5px;
+			margin-right: 5px;
+			padding: 4px 5px;
+			border-radius: 2px;
+			display: flex;
+			align-items: center;
+
+			a {
+				font-size: 11px;
+				color: #721c24;
+				text-decoration: underline;
+			}
 		}
 	}
 	

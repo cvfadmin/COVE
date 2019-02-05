@@ -48,20 +48,14 @@ export default new Router({
 			component: () => import('./views/Dataset.vue')
 		},
 		{
-			path: '/datasets/:id/admin-edit-request',
-			name: 'editRequestForm',
-			component: () => import('./views/EditRequestForm.vue'),
-			beforeEnter: (to, from, next) => { routerGuards.isAdminGuard(to, from, next) }
-		},
-		{
 			path: '/datasets/:id/edit',
 			name: 'editDataset',
 			component: () => import('./views/EditDataset.vue'),
 		},
 		{
-			path: '/datasets/:id/edit/messages',
-			name: 'editDatasetMessages',
-			component: () => import('./views/EditDatasetMessages.vue'),
+			path: '/datasets/:id/edit/requests',
+			name: 'datasetEditRequests',
+			component: () => import('./views/dataset/EditRequests.vue'),
 		},
 		{
 			path: '/admin/confirm-datasets',

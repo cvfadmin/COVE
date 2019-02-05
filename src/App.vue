@@ -57,6 +57,12 @@ h2, h4, p, a, input, button {
 	box-shadow: 0 1px 2px 0 rgba(0,0,0,0.1);
 }
 
+.alert {
+	color: #721c24;
+  background-color: #f8d7da;
+  border-color: #f5c6cb;
+}
+
 textarea {
 	min-height: 75px;
 }

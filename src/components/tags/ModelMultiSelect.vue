@@ -166,6 +166,7 @@ ul {
 
 	#not-selected-list {
     position: absolute;
+    z-index: 100;
     background: #fff;
 
 		li {

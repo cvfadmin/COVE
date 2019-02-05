@@ -1,6 +1,5 @@
 <template>
 	<div class="dataset-form">
-		{{test}}
 		<form v-on:submit.prevent="triggerSubmit">
 			<div class="input-group">
 				
@@ -96,8 +95,8 @@ export default {
 	},
 
 	props: {
-		test: String,
 		dataset: Object,
+		oldTags: Array,
 		errors: Object,
 		formData: Object,
 	},
@@ -164,14 +163,15 @@ export default {
 		}
 	},
 
-	beforeMount(){
-		this.getTags()
-		this.$store.dispatch('clearSelectedTags')
+	created () {
+		this.getTags().then((response) => {
+			this.$store.dispatch('clearSelectedTags')
 
-		if (this.dataset != undefined ) {
-			// Add tags already selected:
-			this.$store.dispatch('setSelectedTagsFromDS', this.dataset)
-		}
+			if (this.dataset.tags != undefined ) {
+				// Add tags already selected:
+				this.$store.dispatch('setSelectedTags', this.dataset.tags)
+			}
+		})
 	},
 }
 </script>

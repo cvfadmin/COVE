@@ -3,6 +3,7 @@
 		<PageHeader></PageHeader>
 		<DatasetForm 
 			:dataset="dataset" 
+			:oldTags="tags"
 			:formData="formData" 
 			:errors="errors" 
 			@submitEvent="handleSubmit()">
@@ -30,23 +31,12 @@ export default {
 		return {
 			dataset: {},
 			formData: {},
+			tags: [],
 			errors: {},
 		}
 	},
 
 	methods: {
-		async getDataset () {
-			// Check for dataset in store before sending another request
-			let thisDSId = this.$route.params.id
-			let storedDS = this.$store.state.datasets.find((item) => { return item.id == thisDSId })
-
-			if (storedDS == undefined) {
-				const response = await DatasetService.getDatasetById(thisDSId)
-				this.dataset = response.data.result
-			} else {
-				this.dataset = storedDS
-			}
-		},
 
 		async handleSubmit() {
 			let selectedTags = this.$store.state.selectedTags
@@ -78,7 +68,7 @@ export default {
 						});
 						
 						alert("Your dataset has been updated");
-						router.push({ name: 'home' })
+						router.push({path: '/datasets/' + this.dataset.id})
 					
 					} else {
 						// Some weird error
@@ -98,28 +88,32 @@ export default {
 		},
 	},
 
-	beforeMount () {
-		this.getDataset()
-		this.$store.commit('loadTags')
+	async created () {
+		await DatasetService.getDatasetById(this.$route.params.id).then((response) => {
+			this.dataset = response.data.result
+			this.$store.commit('loadTags')
 
-		// TODO: better way to handle these permissions?
-		if (!this.$store.state.isAdmin && this.$store.state.userId != this.dataset.owner) {
-			this.$router.push({
-				name: 'login',
-				params: { error: 'You must be logged in as the owner to edit this dataset' },
-			})
-		}
+			// TODO: better way to handle these permissions?
+			if (!this.$store.state.isAdmin && this.$store.state.userId != this.dataset.owner) {
+				this.$router.push({
+					name: 'login',
+					params: { error: 'You must be logged in as the owner to edit this dataset' },
+				})
+			}
 
-		this.formData = {
-			name: this.dataset.name,
-			url: this.dataset.url,
-			description: this.dataset.description,
-			year_created: this.dataset.year_created,
-			size: this.dataset.size,
-			num_cat: this.dataset.num_cat,
-			thumbnail: this.dataset.thumbnail,
-			citation: this.dataset.citation,
-		}
+			this.formData = {
+				name: this.dataset.name,
+				url: this.dataset.url,
+				description: this.dataset.description,
+				year_created: this.dataset.year_created,
+				size: this.dataset.size,
+				num_cat: this.dataset.num_cat,
+				thumbnail: this.dataset.thumbnail,
+				citation: this.dataset.citation,
+			}
+
+			this.tags = this.dataset.tags
+		})
 	}
 }
 </script>

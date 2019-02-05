@@ -1,17 +1,18 @@
 <template>
-	<div class="edit-request card-wrapper">
+	<div class="edit-request card-wrapper" :id="request.id">
 		<div class="top">
 			<p>Edit request #{{request.id}} on dataset: <router-link tag="a" :to="{path: '/datasets/' + request.dataset}">{{request.dataset_name}}</router-link></p>
+			<button v-if="isAdmin" v-on:click="resolveRequest(true)">Mark as Resolved</button>
 		</div>
 
 		<p>{{request.content}}</p>
 
 		<div class="bottom">
-			<div v-if="!displayMessages" v-on:click="displayMessages = true" class="replies-button">
+			<div v-if="!displayMessages" v-on:click="displayMessages = true" :class="repliesButton">
 				<p>view {{request.messages.length}} {{replyOrReplies}}</p>
 			</div>
 
-			<div v-if="displayMessages" v-on:click="displayMessages = false" class="replies-button">
+			<div v-if="displayMessages" v-on:click="displayMessages = false" :class="repliesButton">
 				<p>hide {{request.messages.length}} {{replyOrReplies}}</p>
 			</div>
 
@@ -24,12 +25,10 @@
 			</div>
 
 			<p>created {{request.date_created | moment}}</p>
-
-			<button v-if="isAdmin" v-on:click="resolveRequest(true)">Mark as Resolved</button>
 		</div>
 
 		<div v-if="displayMessages" v-for="message in request.messages" :key="message.id">
-			<EditRequestMessage :message="message"></EditRequestMessage>
+			<EditRequestMessage :message="message" v-on:markedAsRead="messageMarkedAsRead"></EditRequestMessage>
 		</div>
 
 		<form v-if="displayReplyForm" v-on:submit.prevent="handleSubmit()">
@@ -76,6 +75,22 @@ export default {
 
 		isAdmin() {
 			return this.$store.state.isAdmin
+		},
+
+		repliesButton() {
+			let unreadMessages = []
+
+			if (this.isAdmin) {
+				unreadMessages = this.request.messages.filter((item) => {return !item.has_admin_read})
+			} else {
+				unreadMessages = this.request.messages.filter((item) => {return !item.has_owner_read})
+			}
+
+			if (unreadMessages.length != 0) {
+				return "replies-button-unread"
+			} else {
+				return "replies-button"
+			}
 		}
 	},
 
@@ -124,6 +139,15 @@ export default {
 			})
 		},
 
+		messageMarkedAsRead(message_id) {
+			let message = this.request.messages.find((item) => {return item.id == message_id})
+			if (this.isAdmin) {
+				message.has_admin_read = true
+			} else {
+				message.has_owner_read = false
+			}
+		},
+
 		moment: function () {
 			return moment();
 		},
@@ -157,13 +181,12 @@ export default {
 			font-size: 11px;
 			font-weight: 600;
 		}
-
-		button {
-			margin-left: 5px;
-		}
 	}
 
 	.top {
+		display: flex;
+		align-items: baseline;
+		justify-content: space-between;
 		margin-bottom: 5px;
 
 		p {
@@ -174,14 +197,23 @@ export default {
 		a {
 			color: #363636;
 		}
+
+		button {
+			margin-left: 10px;
+			background: #fff;
+		}
 	}
 }
 
-.replies-button, .reply-form-button {
+.replies-button, .reply-form-button, .replies-button-unread {
 	cursor: pointer;
 	background: #eee;
 	padding: 2px 4px;
 	border-radius: 2px;
+}
+
+.replies-button-unread {
+	background: #f8d7da;
 }
 
 

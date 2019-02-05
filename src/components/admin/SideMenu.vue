@@ -1,8 +1,8 @@
 <template>
 	<div class="side-menu">
 		<ul>
-			<li><router-link tag="a" to="/admin/confirm-datasets">Confirm Datasets <span>{{notApprovedDatasetsLength}}</span></router-link></li>
-			<li><router-link tag="a" to="/admin/open-edit-requests">Open Edit Requests <span>{{unresolvedEditRequestsLength}}</span></router-link></li>
+			<li><router-link tag="a" to="/admin/confirm-datasets">Confirm Datasets</router-link></li>
+			<li><router-link tag="a" to="/admin/open-edit-requests">Open Edit Requests</router-link></li>
 		</ul>
 	</div>
 </template>

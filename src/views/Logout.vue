@@ -18,11 +18,11 @@ export default {
 	},
 
 	beforeMount(){
-		this.$store.dispatch('logout')
 		this.logout().then((response) => {
-			console.log(response)
+			this.$store.dispatch('logout')
 			router.push({ name: 'home' })
 		}).catch((err) => {
+			this.$store.dispatch('logout')
 			router.push({ name: 'home' })
 		})
 	},

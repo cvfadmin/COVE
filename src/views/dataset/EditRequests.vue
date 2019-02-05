@@ -1,12 +1,18 @@
 <template>
-	<div class="edit-dataset-messages container">
+	<div class="edit-requests container">
 		<PageHeader></PageHeader>
-		<section>
+		<p class="null-message" v-if="unresolvedEditRequests.length == 0"> No open edit requests.</p>
+		<section v-if="unresolvedEditRequests.length > 0">
+			<h3>Open Edit Requests:</h3>
 			<ul class="edit-request-list">
 				<li v-for="request in unresolvedEditRequests" :key="request.id">
 					<EditRequest :request="request"></EditRequest>
 				</li>
 			</ul>
+		</section>
+		<section v-if="isAdmin" id="create-new">
+			<h3>Create a New Edit Request:</h3>
+			<EditRequestForm></EditRequestForm>
 		</section>
 	</div>
 </template>
@@ -15,19 +21,21 @@
 import PageHeader from '@/components/PageHeader'
 import DatasetService from '@/services/DatasetService'
 import EditRequest from '@/components/admin/EditRequest.vue'
+import EditRequestForm from '@/components/admin/EditRequestForm.vue'
 import moment from 'moment'
 
 export default {
-	name: 'editDatasetMessages',
+	name: 'datasetEditRequests',
 	components: {
 		PageHeader,
 		EditRequest,
+		EditRequestForm
 	},
 
 	data () {
 		return {
 			dataset: {},
-			requests: []
+			requests: [],
 		}
 	},
 
@@ -36,6 +44,10 @@ export default {
 			return this.requests.filter((item) => {
 				return !item.is_resolved
 			})
+		},
+
+		isAdmin () {
+			return this.$store.state.isAdmin
 		}
 	},
 
@@ -62,7 +74,7 @@ export default {
 		}
 	},
 
-	beforeMount () {
+	created () {
 		this.getDataset().then((response) => {
 			this.dataset = response.data.result
 
@@ -82,6 +94,15 @@ export default {
 
 
 <style scoped lang="scss">
+
+h3 {
+	font-family: 'Vollkorn', serif;
+  font-weight: 500;
+}
+
+.null-message {
+	text-align: center;
+}
 
 .request, .message {
 	padding: 10px;

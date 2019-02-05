@@ -77,8 +77,8 @@ export default new Vuex.Store({
 			commit('setSelectedTags', [])
 		},
 
-		setSelectedTagsFromDS ({commit, state}, dataset) {
-			let datasetTags = state.tags.filter((item) => {return dataset.tags.indexOf(item.id) != -1})
+		setSelectedTags ({commit, state}, tags) {
+			let datasetTags = state.tags.filter((item) => {return tags.indexOf(item.id) != -1})
 			commit('setSelectedTags', datasetTags)
 		},
 
