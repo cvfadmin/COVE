@@ -83,7 +83,6 @@ export default {
 		},
 
 		unselectModel(model) {
-			console.log(model)
 			this.removedTags.push(model)
 			this.$emit('changedTags', this.selectedTags, this.category)
 		},

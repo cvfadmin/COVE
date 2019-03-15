@@ -48,7 +48,7 @@ export default {
 			})
 			
 			this.createTags(newTags).then((response) => {
-				this.formData.tags = oldTags.concat(response.data.new).map((item) => { return item.id })
+				this.formData.tags = oldTags.concat(response.data.new).map((item) => item.id)
 				
 				this.updateDataset(this.$route.params.id, this.formData).then((response) => {
 					if (response.data.errors != undefined && response.status == 200) {

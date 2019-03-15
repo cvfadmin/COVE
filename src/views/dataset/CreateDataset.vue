@@ -40,7 +40,6 @@ export default {
 	methods: {
 		async handleSubmit(updatedTags) {
 			// Seperate previously created tags from new tags
-			console.log(updatedTags)
 			let oldTags = updatedTags.filter((item) => item.new == undefined)
 			let newTags = updatedTags.filter((item) => item.new != undefined)
 			newTags = newTags.map((item) => {
@@ -48,7 +47,7 @@ export default {
 			})
 			
 			this.createTags(newTags).then((response) => {
-				this.formData.tags = oldTags.concat(response.data.new)
+				this.formData.tags = oldTags.concat(response.data.new).map((item) => item.id)
 				
 				this.createDataset(this.formData).then((response) => {
 					console.log(response)

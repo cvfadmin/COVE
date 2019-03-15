@@ -75,6 +75,7 @@ export default {
 	.dataset-list {
 		display: flex;
 		justify-content: space-between;
+		flex-wrap: wrap;
 
 		li {
 			margin: 0 0 20px 0;
