@@ -97,7 +97,7 @@ class ListDatasetView(ListResourceView):
             db.session.commit()
 
         # send email to cove admin
-        send_dataset_to_approve(Config.NOTIFY_ADMIN_EMAIL, req_body.get('Name', 'Name unavailable'))
+        send_dataset_to_approve(Config.NOTIFY_ADMIN_EMAIL, req_body.get('name', 'Name Unavailable'))
 
         return {
             'message': 'successfully created',

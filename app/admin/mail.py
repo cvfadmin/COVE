@@ -28,7 +28,7 @@ def send_dataset_approval(recipient, d_id):
 
 def send_dataset_denial(recipient):
     subject = "Your COVE dataset submission."
-    body = "Hi,\n\nUnfortunately, your COVE dataset submission has been denied. " \
+    body = "Hi,\n\nUnfortunately, your COVE dataset submission has been denied at this time. " \
            "Please feel free to respond with any questions or concerns.\n\nThank you for your time."
 
     return send_email(subject, [recipient], body)
@@ -36,7 +36,7 @@ def send_dataset_denial(recipient):
 
 def send_dataset_to_approve(recipient, dataset_name):
     subject = "A dataset has been submitted to COVE."
-    body = "Hi,\n\nA dataset by the name: " + str(dataset_name) + "has been submitted to COVE the and pending approval"\
+    body = "Hi,\n\nA dataset by the name: " + str(dataset_name) + " has been submitted to COVE the and pending approval"\
            + " in the admin panel.\n\nThis is an automated email."
 
     return send_email(subject, [recipient], body)
@@ -56,7 +56,7 @@ def send_edit_request_notification(recipient, dataset_name, d_id):
 def send_admin_message_notification(request_id, dataset_id):
     subject = "There has been a reply to edit request: #" + str(request_id)
     body = "Please visit: " + str(Config.BASE_URL) + "datasets/" + str(dataset_id) + "/edit/requests" + " to proceed." \
-           + "\n\nThank you for your time."
+           + "\n\nThis is an automated email."
 
     return send_email(subject, [str(Config.NOTIFY_ADMIN_EMAIL)], body)
 
