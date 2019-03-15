@@ -42,7 +42,7 @@ export default {
 				if (numUnread > 0) {
 					return {
 						'message': 'You have ' + numUnread + ' unread edit requests for this dataset',
-						'link': {'path': '/datasets/' + dataset.id +'/edit/messages'},
+						'link': {'path': '/datasets/' + dataset.id +'/edit/requests'},
 					}
 				}
 			}

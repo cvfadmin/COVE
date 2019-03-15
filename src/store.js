@@ -3,7 +3,6 @@ import Vuex from 'vuex'
 import createPersistedState from 'vuex-persistedstate'
 import * as Cookies from 'js-cookie'
 import DatasetService from '@/services/DatasetService'
-import removeFromList from "@/components/utils.js"
 
 Vue.use(Vuex)
 
@@ -11,7 +10,6 @@ export default new Vuex.Store({
 	state: {
 		datasets: [],
 		tags: [],
-		selectedTags: [],
 		
 		//User info
 		accessToken: '',
@@ -32,18 +30,6 @@ export default new Vuex.Store({
 
 		setDatasets (state, list) {
 			Vue.set(state, 'datasets', list)
-		},
-
-		addSelectedTag (state, tag) {
-			state.selectedTags.push(tag)
-		},
-
-		removeSelectedTag (state, tag) {
-			Vue.set(state, 'selectedTags', removeFromList(tag, state.selectedTags))
-		},
-
-		setSelectedTags (state, list) {
-			Vue.set(state, 'selectedTags', list)
 		},
 
 		setAccessToken (state, token) {
@@ -73,15 +59,6 @@ export default new Vuex.Store({
 			commit('setUserId', -1)
 		},
 
-		clearSelectedTags ({commit, state}) {
-			commit('setSelectedTags', [])
-		},
-
-		setSelectedTags ({commit, state}, tags) {
-			let datasetTags = state.tags.filter((item) => {return tags.indexOf(item.id) != -1})
-			commit('setSelectedTags', datasetTags)
-		},
-
 		async searchDatasets ({commit, state}, args) {
 			await DatasetService.searchDatasets(args.query, args.tasks, args.topics, args.data_types).then((response) => {
 				commit('setDatasets', response.data.results);
@@ -92,15 +69,15 @@ export default new Vuex.Store({
 
 	},
 
-	plugins:[
-		createPersistedState({
+	plugins: [
+		createPersistedState()/*({
 			storage: {
 				getItem: key => Cookies.get(key),
 				// Please see https://github.com/js-cookie/js-cookie#json, on how to handle JSON.
 				setItem: (key, value) =>
-					Cookies.set(key, value, { expires: 1, secure: false }), // Expiration should match JWT expiration
+					Cookies.set(key, value, { expires: 3, secure: true }),
 				removeItem: key => Cookies.remove(key),
 			},
-		}),
+		}),*/
 	],
 })

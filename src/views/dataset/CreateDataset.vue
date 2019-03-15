@@ -3,10 +3,11 @@
 		<PageHeader></PageHeader>
 		<div class="form-container">
 			<DatasetForm 
-				:dataset="undefined" 
+				v-if="tags"
+				:tags="tags"
 				:formData="formData" 
 				:errors="errors" 
-				@submitEvent="handleSubmit()">
+				@submitEvent="handleSubmit">
 			</DatasetForm>	
 		</div>
 	</div>
@@ -30,17 +31,18 @@ export default {
 
 	data () {
 		return {
+			tags: null,
 			formData: {},
 			errors: {}
 		}
 	},
 
 	methods: {
-		async handleSubmit() {
-			let selectedTags = this.$store.state.selectedTags
-			let oldTags = selectedTags.filter((item) => item.new == undefined)
-			
-			let newTags = selectedTags.filter((item) => item.new != undefined)
+		async handleSubmit(updatedTags) {
+			// Seperate previously created tags from new tags
+			console.log(updatedTags)
+			let oldTags = updatedTags.filter((item) => item.new == undefined)
+			let newTags = updatedTags.filter((item) => item.new != undefined)
 			newTags = newTags.map((item) => {
 				return {"name": item.name, "category": item.category}
 			})
@@ -84,6 +86,16 @@ export default {
 		async createDataset(data) {
 			return await DatasetService.createDataset(data)
 		},
+
+		async getTags() {
+			await DatasetService.getTags().then((response) => {
+				this.tags = response.data.results
+			})
+		},
+	},
+
+	created () {
+		this.getTags()
 	}
 }
 </script>

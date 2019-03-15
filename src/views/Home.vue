@@ -17,17 +17,17 @@
 			<div id="tags">
 				<div class="input-group">
 					<p>Tasks:</p>
-					<ModelMultiSelect :models="tasks" :category="'tasks'" :createNew="false"></ModelMultiSelect>
+					<ModelMultiSelect :models="tasks" :category="'tasks'" :createNew="false" v-on:changedTags="updateTags"></ModelMultiSelect>
 				</div>
 				
 				<div class="input-group">
 					<p>Topics:</p>
-					<ModelMultiSelect :models="topics" :category="'topics'" :createNew="false"></ModelMultiSelect>
+					<ModelMultiSelect :models="topics" :category="'topics'" :createNew="false" v-on:changedTags="updateTags"></ModelMultiSelect>
 				</div>
 				
 				<div class="input-group">
 					<p>Data Types:</p>
-					<ModelMultiSelect :models="dataTypes" :category="'data_types'" :createNew="false"></ModelMultiSelect>
+					<ModelMultiSelect :models="dataTypes" :category="'data_types'" :createNew="false" v-on:changedTags="updateTags"></ModelMultiSelect>
 				</div>
 
 			</div>
@@ -46,6 +46,7 @@ import IntroText from '@/components/home/IntroText.vue'
 import DatasetList from '@/components/datasets/DatasetList.vue'
 import ModelMultiSelect from '@/components/tags/ModelMultiSelect'
 import DatasetService from '@/services/DatasetService'
+import {removeEmptyProps} from '@/utils/misc.js'
 import router from '@/router'
 
 export default {
@@ -60,6 +61,11 @@ export default {
 	data () {
 		return {
 			searchInput: '',
+			searchTags: {
+				tasks: [],
+				topics: [],
+				dataTypes: [],
+			},
 		}
 	},
 
@@ -69,50 +75,16 @@ export default {
 		},
 
 		tasks () {
-			return this.tags.filter((item) => {
-				return item.category == 'tasks'
-			})
+			return this.tags.filter((item) => item.category == 'tasks')
 		},
 
 		topics () {
-			return this.tags.filter((item) => {
-				return item.category == 'topics'
-			})
+			return this.tags.filter((item) => item.category == 'topics')
 		},
 
 		dataTypes () {
-			return this.tags.filter((item) => {
-				return item.category == 'data_types'
-			})
+			return this.tags.filter((item) => item.category == 'data_types')
 		},
-
-		selectedTags () {
-			return this.$store.state.selectedTags
-		},
-
-		selectedTasks () {
-			return this.selectedTags.filter((item) => {
-				return item.category == 'tasks'
-			}).map((item) => {
-				return item.name
-			})
-		},
-
-		selectedTopics () {
-			return this.selectedTags.filter((item) => {
-				return item.category == 'topics'
-			}).map((item) => {
-				return item.name
-			})
-		},
-
-		selectedDataTypes () {
-			return this.selectedTags.filter((item) => {
-				return item.category == 'data_types'
-			}).map((item) => {
-				return item.name
-			})
-		}
 	},
 
 
@@ -125,27 +97,23 @@ export default {
 
 			let params = {
 				query: this.searchInput, 
-				tasks: this.selectedTasks, 
-				topics: this.selectedTopics, 
-				data_types: this.selectedDataTypes
+				tasks: this.searchTags.tasks.map((item) => item.name), 
+				topics: this.searchTags.topics.map((item) => item.name), 
+				data_types: this.searchTags.dataTypes.map((item) => item.name),
 			}
 			
 			this.$store.dispatch('searchDatasets', params)
-			
-			// Clean params object
-			for (const key of Object.keys(params)) {
-				if (params[key].length == 0) {
-					delete params[key]
-				}
-			}
-
+			params = removeEmptyProps(params)
 			router.push({ path: '/', query: params})
+		},
+
+		updateTags (taglist, category) {
+			this.searchTags[category] = taglist
 		},
 	},
 
-	beforeMount(){
+	created(){
 		this.$store.commit('loadTags')
-		this.$store.dispatch('clearSelectedTags')
 	},
 }
 </script>

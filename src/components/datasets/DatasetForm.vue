@@ -55,21 +55,40 @@
 					<div class="tasks">
 						<p>Tasks:</p>
 						<div id="select-tags">
-							<ModelMultiSelect :models="tasks" :category="'tasks'" :createNew="true"></ModelMultiSelect>
+							<ModelMultiSelect 
+							:models="tasks" 
+							:category="'tasks'" 
+							:createNew="true" 
+							:currentTags="selectedTasks"
+							v-on:changedTags="updateTags">
+							</ModelMultiSelect>
 						</div>
 					</div>
 
 					<div class="topics">
 						<p>Topics:</p>
 						<div id="select-tags">
-							<ModelMultiSelect :models="topics" :category="'topics'" :createNew="true"></ModelMultiSelect>
+							<ModelMultiSelect 
+							:models="topics" 
+							:category="'topics'" 
+							:createNew="true" 
+							:currentTags="selectedTopics"
+							v-on:changedTags="updateTags">
+							</ModelMultiSelect>
 						</div>
 					</div>
 
 					<div class="data-types">
 						<p>Data Types:</p>
 						<div id="select-tags">
-							<ModelMultiSelect :models="dataTypes" :category="'data_types'" :createNew="true"></ModelMultiSelect>
+							<ModelMultiSelect
+							v-if="dataset.tags"
+							:models="dataTypes" 
+							:category="'data_types'" 
+							:createNew="true" 
+							:currentTags="selectedDataTypes"
+							v-on:changedTags="updateTags">
+							</ModelMultiSelect>
 						</div>
 					</div>
 				</div>
@@ -95,63 +114,63 @@ export default {
 	},
 
 	props: {
-		dataset: Object,
-		oldTags: Array,
+		tags: Array,
+		dataset: {
+			type: Object,
+			default: () => {return {tags: []}}
+		},
 		errors: Object,
 		formData: Object,
 	},
 
 	data () {
 		return {
-			tags: [],
+			updatedTags: this.dataset.tags
 		}
 	},
 
 	computed: {
 
 		tasks () {
-			return this.tags.filter((item) => {
-				return item.category == 'tasks'
-			})
+			return this.tags.filter((item) => item.category == 'tasks')
 		},
 
 		topics () {
-			return this.tags.filter((item) => {
-				return item.category == 'topics'
-			})
+			return this.tags.filter((item) => item.category == 'topics')
 		},
 
 		dataTypes () {
-			return this.tags.filter((item) => {
-				return item.category == 'data_types'
-			})
+			return this.tags.filter((item) => item.category == 'data_types')
 		},
 
-		formActionMethod () {
-			if (this.method == "post") {
-				return this.createDataset
-			} 
+		selectedTasks () {
+			return this.filterTagsByThisDS(this.tasks)
+		},
 
-			if (this.method == "put") {
-				return this.updateDataset
-			} 
+		selectedTopics () {
+			return this.filterTagsByThisDS(this.topics)
+		},
+
+		selectedDataTypes () {
+			return this.filterTagsByThisDS(this.dataTypes)
 		}
+
 	},
 
 	methods: {
 
 		triggerSubmit () {
-			if (!this.validateData()) { return } 
-			this.$emit('submitEvent')
+			if (!this.validateData()) { return }
+			this.$emit('submitEvent', this.updatedTags)
 		},
 
-		async getTags() {
-			const response = await DatasetService.getTags()
-			this.tags = response.data.results
+		updateTags (taglist, category) {
+			// Remove all tags of same category then add taglist
+			this.updatedTags = this.updatedTags.filter((item) => item.category != category).concat(taglist)
 		},
 
 		validateData () {
-			if (this.formData.thumbnail == '' || this.formData.thumbnail == undefined) {return}
+			if (this.formData.thumbnail == '' || this.formData.thumbnail == undefined) {return true}
 			let whitelist = ['jpg', 'gif', 'png', 'jpeg']
 			let thumbnailExtension = this.formData.thumbnail.split('.').pop()
 			
@@ -160,18 +179,19 @@ export default {
 				return false
 			}
 			return true
-		}
-	},
+		},
 
-	created () {
-		this.getTags().then((response) => {
-			this.$store.dispatch('clearSelectedTags')
-
-			if (this.dataset.tags != undefined ) {
-				// Add tags already selected:
-				this.$store.dispatch('setSelectedTags', this.dataset.tags)
+		filterTagsByThisDS(taglist) {
+			let ret = []
+			for(var i in taglist){
+				Array.from(taglist[i].datasets).forEach((item) => {
+					if (item == this.$route.params.id) {
+						ret.push(taglist[i])
+					} 
+				})
 			}
-		})
+			return ret
+		}
 	},
 }
 </script>

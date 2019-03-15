@@ -2,11 +2,12 @@
 	<div class="edit-dataset container">
 		<PageHeader></PageHeader>
 		<DatasetForm 
-			:dataset="dataset" 
-			:oldTags="tags"
+			v-if="dataset && tags" 
+			:dataset="dataset"
+			:tags="tags"
 			:formData="formData" 
 			:errors="errors" 
-			@submitEvent="handleSubmit()">
+			@submitEvent="handleSubmit">
 		</DatasetForm>
 	</div>
 </template>
@@ -29,20 +30,19 @@ export default {
 
 	data () {
 		return {
-			dataset: {},
+			dataset: null,
+			tags: null,
 			formData: {},
-			tags: [],
 			errors: {},
 		}
 	},
 
 	methods: {
 
-		async handleSubmit() {
-			let selectedTags = this.$store.state.selectedTags
-			let oldTags = selectedTags.filter((item) => item.new == undefined)
-			
-			let newTags = selectedTags.filter((item) => item.new != undefined)
+		async handleSubmit(updatedTags) {
+			// Seperate previously created tags from new tags
+			let oldTags = updatedTags.filter((item) => item.new == undefined)
+			let newTags = updatedTags.filter((item) => item.new != undefined)
 			newTags = newTags.map((item) => {
 				return {"name": item.name, "category": item.category}
 			})
@@ -51,7 +51,6 @@ export default {
 				this.formData.tags = oldTags.concat(response.data.new).map((item) => { return item.id })
 				
 				this.updateDataset(this.$route.params.id, this.formData).then((response) => {
-					console.log(response)
 					if (response.data.errors != undefined && response.status == 200) {
 						// Show validation errors
 						let errors = response.data.errors
@@ -79,6 +78,12 @@ export default {
 			}) 
 		},
 
+		async getTags() {
+			await DatasetService.getTags().then((response) => {
+				this.tags = response.data.results
+			})
+		},
+
 		async createTags (list) {
 			return await DatasetService.createManyTags(list)
 		},
@@ -91,7 +96,6 @@ export default {
 	async created () {
 		await DatasetService.getDatasetById(this.$route.params.id).then((response) => {
 			this.dataset = response.data.result
-			this.$store.commit('loadTags')
 
 			// TODO: better way to handle these permissions?
 			if (!this.$store.state.isAdmin && this.$store.state.userId != this.dataset.owner) {
@@ -111,9 +115,9 @@ export default {
 				thumbnail: this.dataset.thumbnail,
 				citation: this.dataset.citation,
 			}
-
-			this.tags = this.dataset.tags
 		})
+
+		this.getTags()
 	}
 }
 </script>

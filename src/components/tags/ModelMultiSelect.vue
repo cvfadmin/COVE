@@ -2,122 +2,111 @@
 	<div class="model-multi-select">
 		
 		<input type="text" 
-			v-model="modelSearchString" 
-			v-on:input="searchModelsList()"
-			v-on:keydown.enter.prevent="selectModelOrNew()"
-			v-on:focus="makeVisible()"
-			v-on-clickaway="makeHidden"
+			v-model="cleanedQuery"
+			v-on:keydown.enter.prevent="selectTagOrNew()"
+			v-on:focus="showDropdown()"
+			v-on-clickaway="hideDropdown"
 		>
 		
-		<ul id="not-selected-list" v-bind:class="{ hidden: isHidden }">
-			<li v-for="(model, index) in notSelectedModels" :class="{ 'active': index == 0 }">
+		<ul id="filtered-list" v-bind:class="{ hidden: isHidden }">
+			<li v-for="(model, index) in filteredTags" :class="{ 'active': index == 0 }">
 				<div v-on:click.self="selectModel(model, $event)">{{model.name}}</div>
 			</li>
 		</ul>
 
 		<ul id="selected-list">
-			<li v-for="model in selectedModels">
-				<div class="selected" v-on:click.self="unSelectModel(model, $event)">{{model.name}}</div>
+			<li v-for="model in selectedTags">
+				<div class="selected" v-on:click.self="unselectModel(model, $event)">{{model.name}}</div>
 			</li>
 		</ul>
 	</div>
 </template>
 
 <script>
-import removeFromList from "@/components/utils.js"
 import { mixin as clickaway } from 'vue-clickaway';
 
 export default {
 	name: 'ModelMultiSelect',
 	props: {
 		models: Array,
+		currentTags: {
+      type: Array,
+      default: () => {return []}
+    },
 		createNew: Boolean,
-		category: String
+		category: String,
 	},
-  mixins: [ clickaway ],
+	mixins: [ clickaway ],
 
 	data () {
 		return {
-			selectedModels: [],
-			filteredModels: [],
-			modelSearchString: '',
-			newModels: [], // Expects list of objs with name property
+			query: '',
+			removedTags: [],
+			newlySelectedTags: [],
 			isHidden: true,
 		}
 	},
 
 	computed: {
-		notSelectedModels () {
-			// Everything that is not selected or filtered out by the search
-			let notSelected = this.models.filter((item) => !this.selectedModels.includes(item))
-			return notSelected.filter((item) => !this.filteredModels.includes(item))
+
+		cleanedQuery: {
+			get: function () { return this.query },
+			set: function (newQuery) { this.query = newQuery.toLowerCase().replace(/[^a-z\s]/g,'') }
 		},
 
-		toFilterModels () {
-			return this.models.filter((item) => !this.selectedModels.includes(item))
+		selectedTags () {
+			// current tags plus any new tags minus removed tags
+			return this.currentTags.concat(this.newlySelectedTags).filter((item) => !this.removedTags.includes(item))
+		},
+
+		notSelectedTags () {
+			return this.models.filter((item) => !this.selectedTags.includes(item))
+		},
+
+		filteredTags () {
+			if (this.query == '') { return this.notSelectedTags }
+			return this.notSelectedTags.filter((item) => item.name.includes(this.query))
 		}
 	},
 
 	methods: {
 
-		selectModel(model) {
-			// notSelectedModels is computed - will adjust
-			this.selectedModels.push(model)
-			this.$store.commit('addSelectedTag', model)
-		},
-
-		unSelectModel(model) {
-			// notSelectedModels is computed - will adjust
-			this.selectedModels = removeFromList(model, this.selectedModels)
-			this.$store.commit('removeSelectedTag', model)
+		resetComponent () {
+			this.query = ''
+			this.isHidden = true
 		},
 		
-		searchModelsList() {
-			this.modelSearchString = this.modelSearchString.toLowerCase()
-
-			if (this.modelSearchString == '') { 
-				this.filteredModels = []
-			} else {
-				this.filteredModels = this.toFilterModels.filter((item) => !item.name.includes(this.modelSearchString))
-			}
+		// All changes are routed through selectModel and unselectModel
+		selectModel(model) {
+			this.newlySelectedTags.push(model)
+			this.$emit('changedTags', this.selectedTags, this.category)
 		},
 
-		selectModelOrNew () {
-			this.modelSearchString = this.modelSearchString.toLowerCase()
+		unselectModel(model) {
+			console.log(model)
+			this.removedTags.push(model)
+			this.$emit('changedTags', this.selectedTags, this.category)
+		},
 
-			if (this.notSelectedModels.length == 0 && this.createNew) {
+		selectTagOrNew () {
+			if (this.filteredTags.length == 0 && this.createNew) {
 				// Create new
 				this.selectModel({
-					"name": this.modelSearchString,
+					"name": this.query,
 					"category": this.category,
 					"new":true
 				})
-				// Reset
-				this.modelSearchString = ''
-				this.filteredModels = []
-			} else {
+			} else if (this.filteredTags[0] != undefined) {
 				// Select First value in unselected list
-				if (this.notSelectedModels[0] != undefined) {
-					this.selectModel(this.notSelectedModels[0])
-					// Clear text
-					this.modelSearchString = ''
-				}
+				this.selectModel(this.filteredTags[0])
 			}
+
+			this.resetComponent()
 		},
 		
-		makeVisible () {
-			this.isHidden = false
-		},
-
-		makeHidden: function () {
-			this.isHidden = true
-		}		
-
+		showDropdown () { this.isHidden = false },
+		hideDropdown: function () { this.isHidden = true } // Must use 'function' for click-away mixin	
 	},
-
-	beforeMount () {
-		this.selectedModels = this.$store.state.selectedTags.filter((item) => {return item.category == this.category})
-	}
 }
 
 </script>
@@ -164,10 +153,10 @@ ul {
 		background: #de6868;
 	}
 
-	#not-selected-list {
-    position: absolute;
-    z-index: 100;
-    background: #fff;
+	#filtered-list {
+		position: absolute;
+		z-index: 100;
+		background: #fff;
 
 		li {
 			border: 1px solid #000;
@@ -190,7 +179,7 @@ ul {
 		}
 	}
 
-	#not-selected-list:hover {
+	#filtered-list:hover {
 		.active {
 			background: auto;
 		}

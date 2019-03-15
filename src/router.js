@@ -18,17 +18,17 @@ export default new Router({
 		{
 			path: '/login',
 			name: 'login',
-			component: () => import('./views/Login.vue')
+			component: () => import('./views/auth/Login.vue')
 		},
 		{
 			path: '/register',
 			name: 'register',
-			component: () => import('./views/Register.vue')
+			component: () => import('./views/auth/Register.vue')
 		},
 		{
 			path: '/logout',
 			name: 'logout',
-			component: () => import('./views/Logout.vue')
+			component: () => import('./views/auth/Logout.vue')
 		},
 		{
 			path: '/users/me',
@@ -39,7 +39,7 @@ export default new Router({
 		{
 			path: '/datasets/create',
 			name: 'createDataset',
-			component: () => import('./views/CreateDataset.vue'),
+			component: () => import('./views/dataset/CreateDataset.vue'),
 			beforeEnter: (to, from, next) => { routerGuards.isLoggedInGuard(to, from, next) }
 		},
 		{
@@ -50,7 +50,7 @@ export default new Router({
 		{
 			path: '/datasets/:id/edit',
 			name: 'editDataset',
-			component: () => import('./views/EditDataset.vue'),
+			component: () => import('./views/dataset/EditDataset.vue'),
 		},
 		{
 			path: '/datasets/:id/edit/requests',
