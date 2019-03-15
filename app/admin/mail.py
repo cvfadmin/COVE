@@ -36,7 +36,7 @@ def send_dataset_denial(recipient):
 
 def send_dataset_to_approve(recipient, dataset_name):
     subject = "A dataset has been submitted to COVE."
-    body = "Hi,\n\nA dataset by the name: " + str(dataset_name) + " has been submitted to COVE the and pending approval"\
+    body = "Hi,\n\nA dataset by the name: " + str(dataset_name) + " has been submitted to COVE and is pending approval"\
            + " in the admin panel.\n\nThis is an automated email."
 
     return send_email(subject, [recipient], body)

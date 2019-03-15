@@ -25,6 +25,7 @@ class SingleDatasetView(SingleResourceByIdView):
     def put(self, _id):
         model_instance = self.Model.query.filter_by(id=_id).first_or_404()
         req_body = request.get_json()
+        # Expects a list of tag ids
         updated_tags = req_body.pop('tags', None)
 
         try:
@@ -82,6 +83,8 @@ class ListDatasetView(ListResourceView):
     @jwt_required
     def post(self):
         req_body = request.get_json()
+        # Expects a list of tag ids
+        tags = req_body.pop('tags', None)
 
         # Add owner to dataset object
         # TODO: Store ID in JWT
@@ -93,6 +96,7 @@ class ListDatasetView(ListResourceView):
         except ValidationError as err:
             return {'errors': err.messages}
         else:
+            new.tags = [Tag.query.filter_by(id=tag_id).first() for tag_id in tags]
             db.session.add(new)
             db.session.commit()
 
