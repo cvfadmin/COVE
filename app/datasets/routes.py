@@ -25,6 +25,7 @@ class SingleDatasetView(SingleResourceByIdView):
     def put(self, _id):
         model_instance = self.Model.query.filter_by(id=_id).first_or_404()
         req_body = request.get_json()
+        # Expects a list of tag ids
         updated_tags = req_body.pop('tags', None)
 
         try:
@@ -83,6 +84,8 @@ class ListDatasetView(ListResourceView):
     def post(self):
 
         req_body = request.get_json()
+        # Expects a list of tag ids
+        tags = req_body.pop('tags', None)
 
         # Add owner to dataset object
         # TODO: Store ID in JWT
@@ -95,11 +98,12 @@ class ListDatasetView(ListResourceView):
         except ValidationError as err:
             return {'errors': err.messages}
         else:
-            db.session.add(new.data)
+            new.tags = [Tag.query.filter_by(id=tag_id).first() for tag_id in tags]
+            db.session.add(new)
             db.session.commit()
 
         # send email to cove admin
-        send_dataset_to_approve(Config.NOTIFY_ADMIN_EMAIL, req_body.get('name', 'Name unavailable'))
+        send_dataset_to_approve(Config.NOTIFY_ADMIN_EMAIL, req_body.get('name', 'Name Unavailable'))
 
         return {
             'message': 'successfully created',

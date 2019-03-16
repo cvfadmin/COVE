@@ -15,6 +15,7 @@ db = SQLAlchemy()
 ma = Marshmallow()
 jwt = JWTManager()
 whooshee = Whooshee()
+whooshee.reindex()
 mail = Mail()
 cors = CORS()
 
@@ -42,6 +43,7 @@ def create_app(config_class=Config):
     ma.init_app(app)
     jwt.init_app(app)
     whooshee.init_app(app)
+    whooshee.reindex()
     mail.init_app(app)
 
     @jwt.token_in_blacklist_loader
@@ -62,3 +64,4 @@ def create_app(config_class=Config):
     app.register_blueprint(admin_bp)
 
     return app
+

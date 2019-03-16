@@ -14,6 +14,7 @@ class DatasetSchema(sqla.ModelSchema):
         model = Dataset
 
     edit_requests = ma.Nested(EditRequestSchema, many=True)
+    tags = ma.Nested(TagSchema, many=True)
 
 
 dataset_schema = DatasetSchema()

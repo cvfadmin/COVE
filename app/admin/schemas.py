@@ -10,6 +10,7 @@ class EditRequestMessageSchema(sqla.ModelSchema):
 
     author_name = fields.Function(lambda obj: obj.author.username)
 
+
 class EditRequestSchema(sqla.ModelSchema):
     class Meta:
         model = EditRequest
