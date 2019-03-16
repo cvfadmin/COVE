@@ -13,6 +13,7 @@ def send_email(subject, recipients, body):
     msg.body = body
 
     mail.send(msg)
+
     return {
         'message': 'Sent Email'
     }

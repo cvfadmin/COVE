@@ -82,6 +82,7 @@ class ListDatasetView(ListResourceView):
 
     @jwt_required
     def post(self):
+
         req_body = request.get_json()
         # Expects a list of tag ids
         tags = req_body.pop('tags', None)
@@ -89,6 +90,7 @@ class ListDatasetView(ListResourceView):
         # Add owner to dataset object
         # TODO: Store ID in JWT
         user = User.query.filter_by(username=get_jwt_identity()).first()
+
         req_body['owner'] = user.id
 
         try:
@@ -133,7 +135,7 @@ class ListTagView(ListResourceView):
             return {'errors': err.messages}
 
         if is_many:
-            for new_model in new:
+            for new_model in new.data:
                 db.session.add(new_model)
                 db.session.commit()
         else:

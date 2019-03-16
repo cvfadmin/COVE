@@ -24,7 +24,7 @@ class Register(Resource):
         new_user = user_schema.load({
             'username': username,
             'password_hash': User.hash_password(password)
-        })
+        }).data
 
         db.session.add(new_user)
         db.session.commit()
