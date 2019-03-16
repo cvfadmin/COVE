@@ -81,11 +81,13 @@ class ListDatasetView(ListResourceView):
 
     @jwt_required
     def post(self):
+
         req_body = request.get_json()
 
         # Add owner to dataset object
         # TODO: Store ID in JWT
         user = User.query.filter_by(username=get_jwt_identity()).first()
+
         req_body['owner'] = user.id
 
         try:
@@ -93,11 +95,11 @@ class ListDatasetView(ListResourceView):
         except ValidationError as err:
             return {'errors': err.messages}
         else:
-            db.session.add(new)
+            db.session.add(new.data)
             db.session.commit()
 
         # send email to cove admin
-        send_dataset_to_approve(Config.NOTIFY_ADMIN_EMAIL, req_body.get('Name', 'Name unavailable'))
+        send_dataset_to_approve(Config.NOTIFY_ADMIN_EMAIL, req_body.get('name', 'Name unavailable'))
 
         return {
             'message': 'successfully created',
@@ -129,7 +131,7 @@ class ListTagView(ListResourceView):
             return {'errors': err.messages}
 
         if is_many:
-            for new_model in new:
+            for new_model in new.data:
                 db.session.add(new_model)
                 db.session.commit()
         else:
