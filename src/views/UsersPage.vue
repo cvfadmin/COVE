@@ -15,7 +15,7 @@
 
 <script>
 import PageHeader from '@/components/PageHeader.vue'
-import DatasetService from '@/services/DatasetService'
+import UserService from '@/services/UserService'
 import DatasetPreview from '@/components/datasets/DatasetPreview.vue'
 
 export default {
@@ -33,7 +33,7 @@ export default {
 
 	methods: {
 		async getUserInfo () {
-			await DatasetService.getCurrentUserInfo().then((response) => {
+			await UserService.getCurrentUserInfo().then((response) => {
 				let userInfo = response.data.result
 				this.usersDatasets = userInfo.datasets
 			})

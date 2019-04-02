@@ -5,7 +5,7 @@
 		</div>
 		<div class="content">
 			<p>For feedback and inquiries, please contact us at <a href="mailto:cove@thecvf.com">cove@thecvf.com</a>.</p>
-			<p>Site maintained by Boston University, University of Michigan and Notre Dame. Updated 2018.</p>
+			<p>Site maintained by Boston University, University of Michigan and University of Notre Dame. Updated 2019.</p>
 			<p>This effort is sponsored by awards from the National Science Foundation (NSF) to <a href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=1629700" target="_blank" rel="noopener noreferrer">Boston University</a>, <a href="https://nsf.gov/awardsearch/showAward?AWD_ID=1463102" target="_blank" rel="noopener noreferrer">University of Notre Dame</a>, and <a href="https://nsf.gov/awardsearch/showAward?AWD_ID=1628987" target="_blank" rel="noopener noreferrer">University of Michigan</a>.</p>
 		</div>
 		<div class="nsf-logo">
