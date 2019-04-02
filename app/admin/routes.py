@@ -79,7 +79,7 @@ class AdminEditRequestView(Resource):
             asc(EditRequest.date_created)
         ).all()
 
-        requests_json = edit_requests_schema.dump(requests)
+        requests_json = edit_requests_schema.dump(requests).data
 
         return {
             'num_results': len(requests),
@@ -99,7 +99,7 @@ class AdminEditRequestView(Resource):
         req_body['dataset'] = _id
 
         try:
-            new = edit_request_schema.load(req_body)
+            new = edit_request_schema.load(req_body).data
         except ValidationError as err:
             return {'errors': err.messages}
 
@@ -166,7 +166,7 @@ class AdminEditRequestMessageListView(Resource):
         else:
             req_body['has_owner_read'] = True
         try:
-            new = edit_request_message_schema.load(req_body)
+            new = edit_request_message_schema.load(req_body).data
         except ValidationError as err:
             return {'errors': err.messages}
 
@@ -191,7 +191,6 @@ class AdminEditRequestMessageSingleView(Resource):
 
     @jwt_required
     def put(self, _id):
-
         message = EditRequestMessage.query.filter_by(id=_id).first_or_404()
         dataset_id = message.edit_request.dataset.id
 

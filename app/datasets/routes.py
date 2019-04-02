@@ -29,19 +29,18 @@ class SingleDatasetView(SingleResourceByIdView):
         updated_tags = req_body.pop('tags', None)
 
         try:
-            self.Schema.load(req_body, instance=model_instance)
+            self.Schema.load(req_body, instance=model_instance).data
         except ValidationError as err:
             return {'errors': err.messages}
 
         if updated_tags:
-            tag_instances = [Tag.query.filter_by(id=tag_id).first() for tag_id in updated_tags]
-            model_instance.tags = tag_instances
+            model_instance.tags = [Tag.query.filter_by(id=tag_id).first() for tag_id in updated_tags]
 
-        db.session.query(self.Model).filter_by(id=_id).update(req_body)
+        db.session.query(self.Model).filter_by(id=_id).update(dict(req_body))
         db.session.commit()
 
         return {
-            'message': 'successfully created',
+            'message': 'successfully updated',
             'updated': self.Schema.dump(model_instance)
         }
 
@@ -74,7 +73,7 @@ class ListDatasetView(ListResourceView):
             query_list = Dataset.query.whooshee_search(search_param, order_by_relevance=-1).all()
 
         query_list = dataset_tag_filter(request, query_list)
-        model_list_json = self.ListSchema.dump(query_list)
+        model_list_json = self.ListSchema.dump(query_list)[0]
         return {
             'num_results': len(model_list_json),
             'results': model_list_json
@@ -85,7 +84,7 @@ class ListDatasetView(ListResourceView):
 
         req_body = request.get_json()
         # Expects a list of tag ids
-        tags = req_body.pop('tags', None)
+        tags = req_body.pop('tags', [])
 
         # Add owner to dataset object
         # TODO: Store ID in JWT
@@ -94,7 +93,7 @@ class ListDatasetView(ListResourceView):
         req_body['owner'] = user.id
 
         try:
-            new = self.SingleSchema.load(req_body)
+            new = self.SingleSchema.load(req_body).data
         except ValidationError as err:
             return {'errors': err.messages}
         else:
@@ -107,7 +106,7 @@ class ListDatasetView(ListResourceView):
 
         return {
             'message': 'successfully created',
-            'new': self.SingleSchema.dump(new)
+            'new': self.SingleSchema.dump(new).data
         }
 
 
@@ -123,19 +122,24 @@ class ListTagView(ListResourceView):
         if not is_many:
             req_body = [req_body]
 
-        schema_to_use = self.ListSchema
+        if len(req_body) is 0:
+            return {
+                'message': 'Nothing to create',
+                'new': []
+            }
 
+        schema_to_use = self.ListSchema
         for tag in req_body:
             if tag.get('category', '') not in ['tasks', 'topics', 'data_types']:
                 return {'errors': {"tags": ['Category must be in the list: ["tasks", "topics", "data_types"]']}}
 
         try:
-            new = schema_to_use.load(req_body)
+            new = schema_to_use.load(req_body).data
         except ValidationError as err:
             return {'errors': err.messages}
 
         if is_many:
-            for new_model in new.data:
+            for new_model in new:
                 db.session.add(new_model)
                 db.session.commit()
         else:
@@ -144,7 +148,7 @@ class ListTagView(ListResourceView):
 
         return {
             'message': 'successfully created',
-            'new': schema_to_use.dump(new)
+            'new': schema_to_use.dump(new).data
         }
 
 

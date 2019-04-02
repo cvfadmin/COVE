@@ -11,6 +11,6 @@ passlib==1.7.1
 marshmallow-sqlalchemy==0.15.0
 Flask-Cors==3.0.7
 psycopg2==2.7.6.1
-marshmallow==2.16.3
+marshmallow==2.19.0
 Flask-Mail==0.9.1
 SQLAlchemy==1.2.13

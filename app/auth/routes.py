@@ -77,7 +77,7 @@ class UserView(Resource):
     @jwt_required
     def get(self):
         current_user = User.query.filter_by(username=get_jwt_identity()).first()
-        return {'result': user_schema.dump(current_user)}
+        return {'result': user_schema.dump(current_user)[0]}
 
 
 class UserLogoutView(Resource):
