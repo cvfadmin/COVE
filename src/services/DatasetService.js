@@ -6,12 +6,14 @@ export default {
 			return Api().get('/datasets/')
 		},
 
-		searchDatasets (query, tasks, topics, dataTypes) {
+		searchDatasets (params) {
 			let url = UrlUtil.buildUrl('/datasets/', {
-				search: query,
-				tasks: tasks,
-				topics: topics,
-				data_types: dataTypes
+				search: params.query,
+				tasks: params.tasks,
+				topics: params.topics,
+				data_types: params.dataTypes,
+				limit: params.limit,
+				offset: params.offset,
 			})
 			return Api().get(url)
 		},

@@ -34,7 +34,7 @@
 		</form>
 
 		<section id="datasets">
-			<DatasetList></DatasetList>
+			<DatasetList ref="datasetList"></DatasetList>
 		</section>
 
 	</div>
@@ -46,7 +46,7 @@ import IntroText from '@/components/home/IntroText.vue'
 import DatasetList from '@/components/datasets/DatasetList.vue'
 import ModelMultiSelect from '@/components/tags/ModelMultiSelect'
 import DatasetService from '@/services/DatasetService'
-import {removeEmptyProps} from '@/utils/misc.js'
+import miscFunctions from '@/utils/misc.js'
 import router from '@/router'
 
 export default {
@@ -101,10 +101,14 @@ export default {
 				topics: this.searchTags.topics.map((item) => item.name), 
 				data_types: this.searchTags.dataTypes.map((item) => item.name),
 			}
-			
-			this.$store.dispatch('searchDatasets', params)
-			params = removeEmptyProps(params)
-			router.push({ path: '/', query: params})
+
+			// Reset and make search query
+			this.$refs.datasetList.datasets = []
+			this.$refs.datasetList.offset = 0
+			this.$refs.datasetList.getDatasets(params)
+			// Update route
+			params = miscFunctions.cleanParams(params)
+			this.$router.push({ path: '/', query: params})
 		},
 
 		updateTags (taglist, category) {

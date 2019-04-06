@@ -15,8 +15,8 @@
 				<p>{{dataset.citation}}</p>
 			</div>
 		</div>
-		<div v-if="isCurrentUserOwner" class="bottom">
-			<router-link tag="a" :to="{path: '/datasets/' + dataset.id +'/edit'}">Edit as Owner</router-link>
+		<div v-if="isCurrentUserOwner || isAdmin" class="bottom">
+			<router-link tag="a" :to="{path: '/datasets/' + dataset.id +'/edit'}">Edit Dataset Profile</router-link>
 			<div class="edit-messages">
 				<router-link tag="a" :to="{path: '/datasets/' + dataset.id +'/edit/requests'}">Open Edit Requests</router-link>
 				<span>{{numberOpenEditRequests}}</span>
@@ -36,6 +36,10 @@ export default {
 	computed: {
 		isCurrentUserOwner () {
 			return this.$store.state.userId == this.dataset.owner
+		},
+
+		isAdmin () {
+			return this.$store.state.isAdmin
 		},
 
 		numberOpenEditRequests () {

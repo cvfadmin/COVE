@@ -13,4 +13,12 @@ function removeEmptyProps(obj) {
 	return obj
 }
 
-export default {removeFromList, removeEmptyProps};
+function cleanParams(obj) {
+	obj = removeEmptyProps(obj)
+	delete obj['limit']
+	delete obj['offset']
+
+	return obj
+}
+
+export default {removeFromList, removeEmptyProps, cleanParams};

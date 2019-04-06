@@ -8,7 +8,6 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
 	state: {
-		datasets: [],
 		tags: [],
 		
 		//User info
@@ -26,10 +25,6 @@ export default new Vuex.Store({
 		async loadTags (state) {
 			const response = await DatasetService.getTags()
 			Vue.set(state, 'tags', response.data.results)
-		},
-
-		setDatasets (state, list) {
-			Vue.set(state, 'datasets', list)
 		},
 
 		setAccessToken (state, token) {
@@ -57,14 +52,6 @@ export default new Vuex.Store({
 			commit('setAccessToken', '')
 			commit('setIsAdmin', false)
 			commit('setUserId', -1)
-		},
-
-		async searchDatasets ({commit, state}, args) {
-			await DatasetService.searchDatasets(args.query, args.tasks, args.topics, args.data_types).then((response) => {
-				commit('setDatasets', response.data.results);
-			}).catch((err) => {
-				alert("Something went wrong :/")
-			})
 		},
 
 	},
