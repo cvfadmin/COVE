@@ -9,6 +9,7 @@ from app.auth.permissions import AdminOnly
 from flask_jwt_extended import jwt_optional, get_jwt_identity, jwt_required
 from .filter import dataset_tag_filter
 from app.admin.mail import send_dataset_to_approve
+from sqlalchemy import desc
 
 from .schemas import (
     dataset_schema,
@@ -59,6 +60,9 @@ class ListDatasetView(ListResourceView):
             query_list = self.Model.query.filter_by(is_approved=True)
 
         approved = request.args.get('approved')
+        limit = request.args.get('limit', 50)
+        offset = request.args.get('offset', 0)
+
         if approved == 'false':
             if is_admin:
                 query_list = self.Model.query.filter_by(is_approved=False)
@@ -73,6 +77,8 @@ class ListDatasetView(ListResourceView):
             query_list = Dataset.query.whooshee_search(search_param, order_by_relevance=-1).all()
 
         query_list = dataset_tag_filter(request, query_list)
+        # Paginate - default sort by creation - newest first
+        query_list = query_list.order_by(desc(Dataset.date_created)).offset(offset).limit(limit)
         model_list_json = self.ListSchema.dump(query_list)[0]
         return {
             'num_results': len(model_list_json),
