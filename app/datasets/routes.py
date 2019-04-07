@@ -74,7 +74,7 @@ class ListDatasetView(ListResourceView):
 
         search_param = request.args.get('search')
         if search_param is not None:
-            query_list = Dataset.query.whooshee_search(search_param, order_by_relevance=-1).all()
+            query_list = Dataset.query.whooshee_search(search_param, order_by_relevance=-1)
 
         query_list = dataset_tag_filter(request, query_list)
         # Paginate - default sort by creation - newest first
