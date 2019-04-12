@@ -1,4 +1,0 @@
-# Todo Next
-* Insert MS Coco to database (Don't need use request) 
-* Working on search
-* Working on segmentation
