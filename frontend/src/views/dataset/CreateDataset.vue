@@ -1,16 +1,28 @@
 <template>
 	<div class="create-dataset container">
 		<PageHeader></PageHeader>
-		<div class="form-container">
-			<DatasetForm 
-				v-if="tags"
-				:tags="tags"
-				:formData="formData" 
-				:errors="errors" 
-				@submitEvent="handleSubmit">
-			</DatasetForm>	
-		</div>
-	</div>
+		<Promised :promise="tagsPromise">
+	    <!-- Use the "pending" slot to display a loading message -->
+	    <template v-slot:pending>
+	      <p>Loading...</p>
+	    </template>
+	    <!-- The default scoped slot will be used as the result -->
+	    <template v-slot="data">
+				<div class="form-container">
+					<DatasetForm 
+						:tags="data.data.results"
+						:formData="formData" 
+						:errors="errors" 
+						@submitEvent="handleSubmit">
+					</DatasetForm>	
+				</div>
+	    </template>
+	    <!-- The "rejected" scoped slot will be used if there is an error -->
+	    <template v-slot:rejected="error">
+	      <p>Error: {{ error.message }}</p>
+	    </template>
+	  </Promised>
+	 </div>
 </template>
 
 <script>
@@ -19,6 +31,7 @@ import DatasetForm from '@/components/datasets/DatasetForm'
 import DatasetService from '@/services/DatasetService'
 import PageHeader from '@/components/PageHeader'
 import router from '@/router'
+import { Promised } from 'vue-promised'
 
 
 export default {
@@ -26,12 +39,13 @@ export default {
 	components: {
 		ModelMultiSelect,
 		PageHeader,
-		DatasetForm
+		DatasetForm,
+		Promised
 	},
 
 	data () {
 		return {
-			tags: null,
+			tagsPromise: null,
 			formData: {},
 			errors: {}
 		}
@@ -85,16 +99,10 @@ export default {
 		async createDataset(data) {
 			return await DatasetService.createDataset(data)
 		},
-
-		async getTags() {
-			await DatasetService.getTags().then((response) => {
-				this.tags = response.data.results
-			})
-		},
 	},
 
 	created () {
-		this.getTags()
+		this.tagsPromise = DatasetService.getTags()
 	}
 }
 </script>
