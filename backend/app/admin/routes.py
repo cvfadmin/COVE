@@ -233,7 +233,7 @@ class AllEditRequestView(Resource):
         if request.args.get('is_resolved') == 'false':
             requests_query = requests_query.filter_by(is_resolved=False)
 
-        requests_json = edit_requests_schema.dump(requests_query.all())
+        requests_json = edit_requests_schema.dump(requests_query.all())[0]
 
         return {
             'num_results': len(requests_query.all()),

@@ -2,12 +2,12 @@
 	<div class="create-dataset container">
 		<PageHeader></PageHeader>
 		<Promised :promise="tagsPromise">
-	    <!-- Use the "pending" slot to display a loading message -->
-	    <template v-slot:pending>
-	      <p>Loading...</p>
-	    </template>
-	    <!-- The default scoped slot will be used as the result -->
-	    <template v-slot="data">
+			<!-- Use the "pending" slot to display a loading message -->
+			<template v-slot:pending>
+				<p>Loading...</p>
+			</template>
+			<!-- The default scoped slot will be used as the result -->
+			<template v-slot="data">
 				<div class="form-container">
 					<DatasetForm 
 						:tags="data.data.results"
@@ -16,12 +16,12 @@
 						@submitEvent="handleSubmit">
 					</DatasetForm>	
 				</div>
-	    </template>
-	    <!-- The "rejected" scoped slot will be used if there is an error -->
-	    <template v-slot:rejected="error">
-	      <p>Error: {{ error.message }}</p>
-	    </template>
-	  </Promised>
+			</template>
+			<!-- The "rejected" scoped slot will be used if there is an error -->
+			<template v-slot:rejected="error">
+				<p>Error: {{ error.message }}</p>
+			</template>
+		</Promised>
 	 </div>
 </template>
 

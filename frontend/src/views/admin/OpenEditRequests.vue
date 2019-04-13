@@ -4,17 +4,32 @@
 		<div class="container">
 			<div class="admin-wrapper">
 				<SideMenu></SideMenu>
-				<div class="display">
-					<p class="null-message" v-if="unresolvedEditRequests.length == 0"> No unresolved edit requests.</p>
-					<ul class="edit-request-list">
-						<li v-for="request in unresolvedEditRequests" :key="request.id">
-							<EditRequest :request="request"></EditRequest>
-						</li>
-					</ul>
-				</div>
+
+				<Promised :promise="unresolvedEditRequestsPromise">
+					<!-- Use the "pending" slot to display a loading message -->
+					<template v-slot:pending>
+						<p>Loading...</p>
+					</template>
+					<!-- The default scoped slot will be used as the result -->
+					<template v-slot="data">
+						<div class="display">
+							<p class="null-message" v-if="data.data.results.length == 0"> No unresolved edit requests.</p>
+							<ul class="edit-request-list">
+								<li v-for="request in data.data.results" :key="request.id">
+									<EditRequest :request="request"></EditRequest>
+								</li>
+							</ul>
+						</div>
+					</template>
+					<!-- The "rejected" scoped slot will be used if there is an error -->
+					<template v-slot:rejected="error">
+						<p>Error: {{ error.message }}</p>
+					</template>
+				</Promised>
+
 			</div>
 		</div>
-	</div>
+	 </div>
 </template>
 
 <script>
@@ -22,36 +37,25 @@ import PageHeader from '@/components/PageHeader.vue'
 import EditRequest from '@/components/admin/EditRequest.vue'
 import SideMenu from '@/components/admin/SideMenu.vue'
 import AdminService from '@/services/AdminService'
+import { Promised } from 'vue-promised'
 
 export default {
 	name: 'adminOpenEditRequests',
 	components: {
 		PageHeader,
 		EditRequest,
-		SideMenu
+		SideMenu,
+		Promised
 	},
 
 	data () {
 		return {
-			unresolvedEditRequests: [],
+			unresolvedEditRequestsPromise: null,
 		}
 	},
 
-	computed: {
-		unresolvedEditRequestsLength () {
-			return this.unresolvedEditRequests.length
-		},
-	},
-
-	methods: {
-		async getUnresolvedEditRequests() {
-			const response = await AdminService.getUnresolvedEditRequests()
-			this.unresolvedEditRequests = response.data.results
-		},
-	},
-
-	beforeMount () {
-		this.getUnresolvedEditRequests()
+	created () {
+		this.unresolvedEditRequestsPromise = AdminService.getUnresolvedEditRequests()
 	}
 }
 </script>

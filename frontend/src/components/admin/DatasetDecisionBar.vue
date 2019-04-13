@@ -23,7 +23,6 @@ export default {
 		async adminDecision (bool) {
 			await AdminService.adminDatasetResponse(this.datasetId, {"is_approved": bool}).then((response) => {
 				alert(response.data.message)
-				console.log(response)
 			})
 		},
 	},
