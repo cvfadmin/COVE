@@ -83,7 +83,14 @@ export default {
 		},
 
 		unselectModel(model) {
-			this.removedTags.push(model)
+			if (this.currentTags.includes(model)) {
+				// if model in current tags add to removed tags list
+				this.removedTags.push(model)
+			} else {
+				// otherwise just remove from newly selected tags
+				this.newlySelectedTags = this.newlySelectedTags.filter((item) => item != model) 
+			}
+			
 			this.$emit('changedTags', this.selectedTags, this.category)
 		},
 
@@ -161,8 +168,11 @@ ul {
 			border: 1px solid #000;
 			border-bottom: none;
 			width: $primary-width;
-			padding: 5px 10px;
 			cursor: pointer;
+
+			div {
+				padding: 5px 10px;
+			}
 		}
 
 		li:hover, .active {
