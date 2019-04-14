@@ -64,7 +64,6 @@ export default {
 				this.formData.tags = oldTags.concat(response.data.new).map((item) => item.id)
 				
 				this.createDataset(this.formData).then((response) => {
-					console.log(response)
 					if (response.data.errors != undefined && response.status == 200) {
 						// Show validation errors
 						let errors = response.data.errors

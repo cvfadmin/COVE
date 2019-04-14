@@ -95,17 +95,16 @@ class ListDatasetView(ListResourceView):
         # Add owner to dataset object
         # TODO: Store ID in JWT
         user = User.query.filter_by(username=get_jwt_identity()).first()
-
         req_body['owner'] = user.id
 
         try:
             new = self.SingleSchema.load(req_body).data
         except ValidationError as err:
             return {'errors': err.messages}
-        else:
-            new.tags = [Tag.query.filter_by(id=tag_id).first() for tag_id in tags]
-            db.session.add(new)
-            db.session.commit()
+
+        new.tags = [Tag.query.filter_by(id=tag_id).first() for tag_id in tags]
+        db.session.add(new)
+        db.session.commit()
 
         # send email to cove admin
         send_dataset_to_approve(Config.NOTIFY_ADMIN_EMAIL, req_body.get('name', 'Name Unavailable'))

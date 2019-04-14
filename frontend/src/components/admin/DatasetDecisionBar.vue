@@ -11,6 +11,7 @@
 
 <script>
 import AdminService from '@/services/AdminService'
+import router from '@/router'
 
 export default {
 	name: 'datasetDecisionBar',
@@ -23,6 +24,7 @@ export default {
 		async adminDecision (bool) {
 			await AdminService.adminDatasetResponse(this.datasetId, {"is_approved": bool}).then((response) => {
 				alert(response.data.message)
+				router.push({ name: 'adminConfirmDatasets' })
 			})
 		},
 	},
