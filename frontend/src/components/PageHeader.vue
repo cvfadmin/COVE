@@ -9,6 +9,7 @@
 				<ul>
 					<li><router-link tag="a" to="/">Home</router-link></li>
 					<li><router-link tag="a" to="/datasets/create">Add a Dataset</router-link></li>
+					<li><a href="https://github.com/cvfadmin/COVE/issues">Report an Issue</a></li>
 					<li v-if="this.isLoggedIn"><router-link tag="a" to="/users/me">Your Page</router-link></li>
 					<li v-if="!this.isLoggedIn"><router-link tag="a" to="/login">Login</router-link></li>
 					<li v-if="!this.isLoggedIn"><router-link tag="a" to="/register">Register</router-link></li>
