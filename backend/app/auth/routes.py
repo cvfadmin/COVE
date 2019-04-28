@@ -23,7 +23,10 @@ class Register(Resource):
 
         new_user = user_schema.load({
             'username': username,
-            'password_hash': User.hash_password(password)
+            'password_hash': User.hash_password(password),
+            'email': email,
+            'first_name': req_body.get('first_name', ''),
+            'last_name': req_body.get('last_name', ''),
         }).data
 
         db.session.add(new_user)
