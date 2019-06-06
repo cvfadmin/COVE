@@ -6,6 +6,8 @@ load_dotenv(os.path.join(basedir, '.env'))
 
 
 class Config(object):
+    TESTING = False
+
     SECRET_KEY = os.environ.get('SECRET_KEY')
     SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI') or 'postgresql://localhost:5432/coveapi_test'
 
@@ -23,3 +25,5 @@ class Config(object):
 
     BASE_URL = os.environ.get('BASE_URL') or 'http://localhost:8080/'
     NOTIFY_ADMIN_EMAIL = 'cove@thecvf.com'
+
+    ELASTICSEARCH_URL = os.environ.get('ELASTICSEARCH_URL')

@@ -6,16 +6,13 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from flask_jwt_extended import JWTManager
 from app.lib.errors import errors
-from flask_whooshee import Whooshee
 from flask_mail import Mail
-
+from elasticsearch import Elasticsearch
 
 db = SQLAlchemy()
 
 ma = Marshmallow()
 jwt = JWTManager()
-whooshee = Whooshee()
-whooshee.reindex()
 mail = Mail()
 cors = CORS()
 
@@ -42,9 +39,10 @@ def create_app(config_class=Config):
     db.init_app(app)
     ma.init_app(app)
     jwt.init_app(app)
-    whooshee.init_app(app)
-    whooshee.reindex()
     mail.init_app(app)
+
+    app.elasticsearch = Elasticsearch([app.config['ELASTICSEARCH_URL']]) \
+        if app.config['ELASTICSEARCH_URL'] else None
 
     @jwt.token_in_blacklist_loader
     def check_if_token_in_blacklist(decrypted_token):
@@ -64,4 +62,3 @@ def create_app(config_class=Config):
     app.register_blueprint(admin_bp)
 
     return app
-

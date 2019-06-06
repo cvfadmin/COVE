@@ -1,5 +1,6 @@
-from app import db, whooshee
+from app import db
 import datetime
+from app.datasets.search import SearchableMixin
 
 
 tags = db.Table('tags',
@@ -8,9 +9,9 @@ tags = db.Table('tags',
 )
 
 
-@whooshee.register_model('name', 'description')
-class Dataset(db.Model):
+class Dataset(SearchableMixin, db.Model):
     __tablename__ = "datasets"
+    __searchable__ = ['name', 'description', 'citation']
     id = db.Column(db.Integer, primary_key=True)
     is_approved = db.Column(db.Boolean, default=False)
     name = db.Column(db.String(1000), nullable=False)

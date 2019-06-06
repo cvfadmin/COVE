@@ -55,9 +55,9 @@ class ListDatasetView(ListResourceView):
     def get(self):
         is_admin = AdminOnly.has_permission(get_jwt_identity())
         if is_admin:
-            query_list = self.Model.query
+            query = self.Model.query
         else:
-            query_list = self.Model.query.filter_by(is_approved=True)
+            query = self.Model.query.filter_by(is_approved=True)
 
         approved = request.args.get('approved')
         limit = request.args.get('limit', 50)
@@ -74,12 +74,10 @@ class ListDatasetView(ListResourceView):
 
         search_param = request.args.get('search')
         if search_param is not None:
-            query_list = Dataset.query.whooshee_search(search_param, order_by_relevance=-1)
-
-        query_list = dataset_tag_filter(request, query_list)
-        # Paginate - default sort by creation - newest first
-        query_list = query_list.order_by(desc(Dataset.date_created)).offset(offset).limit(limit)
-        model_list_json = self.ListSchema.dump(query_list)[0]
+            # query is ordered by relevance according to elasticsearch scoring
+            query, total = Dataset.search(search_param, int(offset), int(limit))
+        query = dataset_tag_filter(request, query)
+        model_list_json = self.ListSchema.dump(query)[0]
         return {
             'num_results': len(model_list_json),
             'results': model_list_json
