@@ -18,10 +18,12 @@ def remove_from_index(index, model):
     current_app.elasticsearch.delete(index=index, doc_type=index, id=model.id)
 
 
+# Removes index if it exists
 def remove_index(index):
     if not current_app.elasticsearch:
         return
-    current_app.elasticsearch.indices.delete(index)
+    if current_app.elasticsearch.indices.exists(index=index):
+        current_app.elasticsearch.indices.delete(index)
 
 
 # Returns two things: a list of numeric IDS found with pagination filtering,
