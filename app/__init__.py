@@ -43,6 +43,9 @@ def create_app(config_class=Config):
 
     app.elasticsearch = Elasticsearch([app.config['ELASTICSEARCH_URL']]) \
         if app.config['ELASTICSEARCH_URL'] else None
+    with app.app_context():
+        from app.datasets.models import Dataset
+        Dataset.reindex()
 
     @jwt.token_in_blacklist_loader
     def check_if_token_in_blacklist(decrypted_token):

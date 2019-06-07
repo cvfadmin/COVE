@@ -88,7 +88,6 @@ class SearchableMixin(object):
 
     @classmethod
     def reindex(cls):
-        print (cls, "REINDEX")
         remove_index(cls.__tablename__)
         for obj in cls.query:
             add_to_index(cls.__tablename__, obj)
