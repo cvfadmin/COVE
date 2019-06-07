@@ -75,6 +75,8 @@ class ListDatasetView(ListResourceView):
         search_param = request.args.get('search')
         if search_param is not None:
             # query is ordered by relevance according to elasticsearch scoring
+            # search_param will be searched through the fields: 'name', 'description', 'citation'
+            # Matches with the 'name' field will be preferred over matches in other fields.
             query, total = Dataset.search(search_param, int(offset), int(limit))
         query = dataset_tag_filter(request, query)
         model_list_json = self.ListSchema.dump(query)[0]

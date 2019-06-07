@@ -26,13 +26,23 @@ def remove_index(index):
 
 # Returns two things: a list of numeric IDS found with pagination filtering,
 #                     the total number of results from query without pagination
-def query_index(index, query, page, per_page):
+def query_index(index, query, offset, limit):
     if not current_app.elasticsearch:
         return [], 0
     search = current_app.elasticsearch.search(
         index=index, doc_type=index,
-        body={'query': {'multi_match': {'query': query, 'fields': ['*']}},
-              'from': page, 'size': per_page})
+        body=
+        {
+            'query': {
+                'multi_match': {
+                    'query': query,
+                    'fields': ['*', 'name^2']
+                }
+            },
+            'from': offset,
+            'size': limit
+        }
+    )
     ids = [int(hit['_id']) for hit in search['hits']['hits']]
     return ids, search['hits']['total']
 
@@ -45,8 +55,8 @@ def query_index(index, query, page, per_page):
 #       are model instances in the db that have not indexed.
 class SearchableMixin(object):
     @classmethod
-    def search(cls, expression, page, per_page):
-        ids, total = query_index(cls.__tablename__, expression, page, per_page)
+    def search(cls, expression, offset, limit):
+        ids, total = query_index(cls.__tablename__, expression, offset, limit)
         if len(ids) == 0:
             return cls.query.filter_by(id=0), 0
         when = []
