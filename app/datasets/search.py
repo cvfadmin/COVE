@@ -3,6 +3,7 @@ from app import db
 
 
 def add_to_index(index, model):
+    '''Index every field in model.__searchable__.'''
     if not current_app.elasticsearch:
         return
     payload = {}
@@ -13,24 +14,37 @@ def add_to_index(index, model):
 
 
 def remove_from_index(index, model):
+    '''Deletes a model from an index.'''
     if not current_app.elasticsearch:
         return
     current_app.elasticsearch.delete(index=index, doc_type=index, id=model.id)
 
 
-# Removes index if it exists
 def remove_index(index):
+    '''Removes an index if it exists.'''
     if not current_app.elasticsearch:
         return
     if current_app.elasticsearch.indices.exists(index=index):
         current_app.elasticsearch.indices.delete(index)
 
 
-# Returns two things: a list of numeric IDS found with pagination filtering,
-#                     the total number of results from query without pagination
-def query_index(index, query, offset, limit):
+# Note: The search query's body is currently specific to the Database model.
+# If you want to use this method for other models, the body must be modified.
+def query_index(index, query):
+    '''
+    Searches through <index> for a text matching <query>.
+
+    Args:
+        index (str): The index name to be searched.
+        query (str): The expression being searched for.
+
+    Returns:
+        List of ints: Each int corresponds to an ID of a model that satisfies the query.
+        int:          The total number of models that satisfy the query
+    '''
     if not current_app.elasticsearch:
         return [], 0
+
     search = current_app.elasticsearch.search(
         index=index, doc_type=index,
         body=
@@ -38,27 +52,28 @@ def query_index(index, query, offset, limit):
             'query': {
                 'multi_match': {
                     'query': query,
-                    'fields': ['*', 'name^2']
-                }
-            },
-            'from': offset,
-            'size': limit
+                    'fields': ['*', 'name^10']
+            }}
         }
     )
     ids = [int(hit['_id']) for hit in search['hits']['hits']]
     return ids, search['hits']['total']
 
 
-# The base class for all searchable models.
-# A model inheriting from SearchableMixin does the following:
-#   1) Defines __searchable__ as a list of all fields the user wants indexed.
-#   2) Automatically indexes any new model instances when it is commited to the db.
-#   3) Can call Model.reindex() to reindex model instances. This needs to be done if there
-#       are model instances in the db that have not indexed.
 class SearchableMixin(object):
+    '''
+    The base class for all searchable models.
+
+    A model inheriting from SearchableMixin does the following:
+      1) Defines __searchable__ as a list of all fields desired to be indexed.
+      2) Automatically indexes any new model instances when it is commited to the db.
+      3) Can call Model.reindex() to reindex model instances. This needs to be done if there
+          are model instances in the db that have not indexed.
+    '''
+
     @classmethod
-    def search(cls, expression, offset, limit):
-        ids, total = query_index(cls.__tablename__, expression, offset, limit)
+    def search(cls, expression):
+        ids, total = query_index(cls.__tablename__, expression)
         if len(ids) == 0:
             return cls.query.filter_by(id=0), 0
         when = []

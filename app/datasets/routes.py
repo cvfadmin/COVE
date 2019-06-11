@@ -55,9 +55,9 @@ class ListDatasetView(ListResourceView):
     def get(self):
         is_admin = AdminOnly.has_permission(get_jwt_identity())
         if is_admin:
-            query = self.Model.query
+            query_list = self.Model.query
         else:
-            query = self.Model.query.filter_by(is_approved=True)
+            query_list = self.Model.query.filter_by(is_approved=True)
 
         approved = request.args.get('approved')
         limit = request.args.get('limit', 50)
@@ -73,13 +73,18 @@ class ListDatasetView(ListResourceView):
                 }, 401
 
         search_param = request.args.get('search')
-        if search_param is not None:
-            # query is ordered by relevance according to elasticsearch scoring
-            # search_param will be searched through the fields: 'name', 'description', 'citation'
-            # Matches with the 'name' field will be preferred over matches in other fields.
-            query, total = Dataset.search(search_param, int(offset), int(limit))
-        query = dataset_tag_filter(request, query)
-        model_list_json = self.ListSchema.dump(query)[0]
+        if search_param is None:
+            query_list = dataset_tag_filter(request, query_list)
+            # datasets ordered by creation date - newest first (on top of page)
+            query_list = query_list.order_by(desc(Dataset.date_created)).offset(offset).limit(limit)
+        else:
+            # datasets ordered by relevance
+            query_list, total = Dataset.search(search_param)
+            query_list = dataset_tag_filter(request, query_list)
+            query_list = query_list.offset(offset).limit(limit)
+
+        # Put results in json format and return it
+        model_list_json = self.ListSchema.dump(query_list)[0]
         return {
             'num_results': len(model_list_json),
             'results': model_list_json
