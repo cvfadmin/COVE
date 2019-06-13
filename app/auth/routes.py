@@ -1,10 +1,11 @@
-from app import api, db, blacklist
+from app import api, db
 import datetime
-from flask import request
+from flask import request, current_app
 from flask_restful import Resource
 from .schemas import user_schema
 from .models import User
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity, get_raw_jwt, jwt_optional
+from app.auth.blacklist_helpers import add_token_to_database, revoke_token
 
 
 class Register(Resource):
@@ -33,6 +34,9 @@ class Register(Resource):
         expires = datetime.timedelta(days=1)
         access_token = create_access_token(identity=username, expires_delta=expires)
 
+        # Store the tokens in our database with a status of not currently revoked.
+        add_token_to_database(access_token, current_app.config['JWT_IDENTITY_CLAIM'])
+
         return {
             'access_token': access_token,
             'user_id': new_user.id,
@@ -59,6 +63,10 @@ class Login(Resource):
                 # Generate Token
                 expires = datetime.timedelta(days=1)
                 access_token = create_access_token(identity=username, expires_delta=expires)
+
+                # Store the token in our database with a status of not currently revoked.
+                add_token_to_database(access_token, current_app.config['JWT_IDENTITY_CLAIM'])
+
                 return {
                     'access_token': access_token,
                     'user_id': user.id,
@@ -77,7 +85,6 @@ class UserView(Resource):
     @jwt_required
     def get(self):
         current_user = User.query.filter_by(username=get_jwt_identity()).first()
-        from marshmallow import pprint
         return {'result': user_schema.dump(current_user)[0]}
 
 
@@ -86,7 +93,8 @@ class UserLogoutView(Resource):
     @jwt_required
     def post(self):
         jti = get_raw_jwt()['jti']
-        blacklist.add(jti)
+        user_identity = get_jwt_identity()
+        revoke_token(jti, user_identity)
         return {"message": "Successfully logged out"}, 200
 
 
