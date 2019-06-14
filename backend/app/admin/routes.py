@@ -49,7 +49,7 @@ class AdminDatasetView(Resource):
             # send email to author saying it was approved
             send_dataset_approval(dataset.owner.email, dataset.id)
         else:
-            # send email to author saying it was denied and delete ds
+            # send email to author saying it was approved and delete ds
             send_dataset_denial(dataset.owner.email)
             db.session.delete(dataset)
 
@@ -233,7 +233,7 @@ class AllEditRequestView(Resource):
         if request.args.get('is_resolved') == 'false':
             requests_query = requests_query.filter_by(is_resolved=False)
 
-        requests_json = edit_requests_schema.dump(requests_query.all())[0]
+        requests_json = edit_requests_schema.dump(requests_query.all())
 
         return {
             'num_results': len(requests_query.all()),

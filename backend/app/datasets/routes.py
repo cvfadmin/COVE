@@ -73,12 +73,17 @@ class ListDatasetView(ListResourceView):
                 }, 401
 
         search_param = request.args.get('search')
-        if search_param is not None:
-            query_list = Dataset.query.whooshee_search(search_param, order_by_relevance=-1)
+        if search_param is None:
+            query_list = dataset_tag_filter(request, query_list)
+            # datasets ordered by creation date - newest first (on top of page)
+            query_list = query_list.order_by(desc(Dataset.date_created)).offset(offset).limit(limit)
+        else:
+            # datasets ordered by relevance
+            query_list, total = Dataset.search(search_param)
+            query_list = dataset_tag_filter(request, query_list)
+            query_list = query_list.offset(offset).limit(limit)
 
-        query_list = dataset_tag_filter(request, query_list)
-        # Paginate - default sort by creation - newest first
-        query_list = query_list.order_by(desc(Dataset.date_created)).offset(offset).limit(limit)
+        # Put results in json format and return it
         model_list_json = self.ListSchema.dump(query_list)[0]
         return {
             'num_results': len(model_list_json),
@@ -95,16 +100,17 @@ class ListDatasetView(ListResourceView):
         # Add owner to dataset object
         # TODO: Store ID in JWT
         user = User.query.filter_by(username=get_jwt_identity()).first()
+
         req_body['owner'] = user.id
 
         try:
             new = self.SingleSchema.load(req_body).data
         except ValidationError as err:
             return {'errors': err.messages}
-
-        new.tags = [Tag.query.filter_by(id=tag_id).first() for tag_id in tags]
-        db.session.add(new)
-        db.session.commit()
+        else:
+            new.tags = [Tag.query.filter_by(id=tag_id).first() for tag_id in tags]
+            db.session.add(new)
+            db.session.commit()
 
         # send email to cove admin
         send_dataset_to_approve(Config.NOTIFY_ADMIN_EMAIL, req_body.get('name', 'Name Unavailable'))
