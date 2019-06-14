@@ -12,13 +12,10 @@ def send_email(subject, recipients, body):
     msg.recipients = recipients
     msg.body = body
 
-    try:
-        mail.send(msg)
-    except Exception as e:
-        print(e)
-        return {'error': 'Email could not be sent'}
-
-    return {'message': 'Sent Email'}
+    mail.send(msg)
+    return {
+        'message': 'Sent Email'
+    }
 
 
 def send_dataset_approval(recipient, d_id):
