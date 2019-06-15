@@ -1,6 +1,7 @@
 from app import db
 import datetime
 from app.datasets.search import SearchableMixin
+from app.lib.ES_docs import ES_DATASET_DOC
 
 
 tags = db.Table('tags',
@@ -12,6 +13,7 @@ tags = db.Table('tags',
 class Dataset(SearchableMixin, db.Model):
     __tablename__ = "datasets"
     __searchable__ = ['name', 'description', 'citation']
+    __doc__ = ES_DATASET_DOC
     id = db.Column(db.Integer, primary_key=True)
     is_approved = db.Column(db.Boolean, default=False)
     name = db.Column(db.String(1000), nullable=False)
