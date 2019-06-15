@@ -2,6 +2,16 @@ from flask import current_app
 from app import db
 
 
+def create_index(model):
+    '''Creates an index for a model.'''
+    if not current_app.elasticsearch:
+        return
+    if hasattr(model, '__doc__'):
+        current_app.elasticsearch.indices.create(index=model.__tablename__, body=model.__doc__)
+    else:
+        current_app.elasticsearch.indices.create(index=model.__tablename__)
+
+
 def add_to_index(index, model):
     '''Index every field in model.__searchable__.'''
     if not current_app.elasticsearch:
@@ -42,19 +52,23 @@ def query_index(index, query):
         List of ints: Each int corresponds to an ID of a model that satisfies the query.
         int:          The total number of models that satisfy the query
     '''
+
     if not current_app.elasticsearch:
         return [], 0
-
     search = current_app.elasticsearch.search(
         index=index, doc_type=index,
         body=
         {
             'query': {
                 'multi_match': {
-                    'query': query,
-                    'fields': ['*', 'name^10']
+                    'query':                query,
+                    'type':                 'most_fields',
+                    'fields':               ['name^10', '*'],
+                    'operator':             'and'
             }}
-        }
+        },
+        search_type='dfs_query_then_fetch' # remove to increase search speed, but decrease accuracy
+                                           # can be removed once database has enough data
     )
     ids = [int(hit['_id']) for hit in search['hits']['hits']]
     return ids, search['hits']['total']
@@ -66,6 +80,7 @@ class SearchableMixin(object):
 
     A model inheriting from SearchableMixin does the following:
       1) Defines __searchable__ as a list of all fields desired to be indexed.
+      2) Optionally defines __doc__, which will be when creating the index for the model.
       2) Automatically indexes any new model instances when it is commited to the db.
       3) Can call Model.reindex() to reindex model instances. This needs to be done if there
           are model instances in the db that have not indexed.
@@ -106,6 +121,7 @@ class SearchableMixin(object):
     @classmethod
     def reindex(cls):
         remove_index(cls.__tablename__)
+        create_index(cls)
         for obj in cls.query:
             add_to_index(cls.__tablename__, obj)
 

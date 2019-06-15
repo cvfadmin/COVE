@@ -9,15 +9,13 @@ from app.lib.errors import errors
 from flask_mail import Mail
 from elasticsearch import Elasticsearch
 
+
 db = SQLAlchemy()
 
 ma = Marshmallow()
 jwt = JWTManager()
 mail = Mail()
 cors = CORS()
-
-# TODO: Replace with model
-blacklist = set()
 
 api_bp = Blueprint('api', __name__)
 api = Api(api_bp, errors=errors)
@@ -44,10 +42,11 @@ def create_app(config_class=Config):
     app.elasticsearch = Elasticsearch([app.config['ELASTICSEARCH_URL']]) \
         if app.config['ELASTICSEARCH_URL'] else None
 
+    from app.auth.blacklist_helpers import is_token_revoked
+    # Checks if token is revoked before allowing access to a protected endpoint
     @jwt.token_in_blacklist_loader
-    def check_if_token_in_blacklist(decrypted_token):
-        jti = decrypted_token['jti']
-        return jti in blacklist
+    def check_if_token_revoked(decoded_token):
+        return is_token_revoked(decoded_token)
 
     # Register blueprints from modules here!
     app.register_blueprint(api_bp)
