@@ -1,7 +1,7 @@
 <template>
 	<header>
 		<div class="header-wrapper">
-			<div class="logo">
+			<div class="logo" v-on:click="pushHome">
 				<h1>Cove</h1>
 				<h2>Computer Vision Exchange</h2>
 			</div>
@@ -22,6 +22,7 @@
 </template>
 
 <script>
+import router from '@/router'
 
 export default {
 	name: 'PageHeader',
@@ -34,7 +35,12 @@ export default {
 		isAdmin () {
 			return this.$store.state.isAdmin
 		}
+	},
 
+	methods: {
+		pushHome() {
+			this.$router.push({ path: '/'})
+		}
 	}
 }
 
@@ -104,6 +110,7 @@ header {
 			display: flex;
 			flex-direction: column;
 			align-items: center;
+			cursor: pointer;
 		}
 	}
 }
