@@ -4,6 +4,7 @@ from app.datasets.search import SearchableMixin
 from app.lib.ES_docs import ES_DATASET_DOC
 
 
+# Associative table to hold the many-many relationship between datasets and tags
 tags = db.Table('tags',
     db.Column('tag_id', db.Integer, db.ForeignKey('tag.id'), primary_key=True),
     db.Column('dataset_id', db.Integer, db.ForeignKey('datasets.id'), primary_key=True)
