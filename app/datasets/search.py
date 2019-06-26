@@ -16,6 +16,8 @@ def add_to_index(index, model):
     '''Index every field in model.__searchable__.'''
     if not current_app.elasticsearch:
         return
+    if not current_app.elasticsearch.indices.exists(index=index):
+        create_index(model)
     payload = {}
     for field in model.__searchable__:
         payload[field] = getattr(model, field)
@@ -63,8 +65,8 @@ def query_index(index, query):
                 'multi_match': {
                     'query':                query,
                     'type':                 'most_fields',
-                    'fields':               ['name^10', '*'],
-                    'operator':             'and'
+                    'fields':               ['name^10', '*']
+                    # 'operator':             'and'
             }}
         },
         search_type='dfs_query_then_fetch' # remove to increase search speed, but decrease accuracy
@@ -80,7 +82,7 @@ class SearchableMixin(object):
 
     A model inheriting from SearchableMixin does the following:
       1) Defines __searchable__ as a list of all fields desired to be indexed.
-      2) Optionally defines __doc__, which will be when creating the index for the model.
+      2) Optionally defines __doc__, which will be used for creating the index for the model.
       2) Automatically indexes any new model instances when it is commited to the db.
       3) Can call Model.reindex() to reindex model instances. This needs to be done if there
           are model instances in the db that have not indexed.
@@ -118,8 +120,19 @@ class SearchableMixin(object):
                 remove_from_index(obj.__tablename__, obj)
         session._changes = None
 
+    # For some reason, after db.session.query(Model).update(...), the changes are not saved
+    # in session.dirty in the before_commit() function.
+    # So we'll just update our indicies in the 'after_bulk_update()' event.
+    @classmethod
+    def after_bulk_update(cls, session, query, query_context, result):
+        '''Update all indices modifies by db.session.query(Model).update(...).'''
+        for obj in query.all():
+            if isinstance(obj, SearchableMixin):
+                add_to_index(obj.__tablename__, obj)
+
     @classmethod
     def reindex(cls):
+        '''Deletes and recreates an index and re-adds all its docs. '''
         remove_index(cls.__tablename__)
         create_index(cls)
         for obj in cls.query:
@@ -129,3 +142,6 @@ class SearchableMixin(object):
 # Automatically updates ElasticSearch indexes after every database commit
 db.event.listen(db.session, 'before_commit', SearchableMixin.before_commit)
 db.event.listen(db.session, 'after_commit', SearchableMixin.after_commit)
+
+# Automatically updates indices when a dataset is edited / updated.
+db.event.listen(db.session, 'after_bulk_update', SearchableMixin.after_bulk_update)
