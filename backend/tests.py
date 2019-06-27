@@ -2,10 +2,10 @@
 from datetime import datetime, timedelta
 import unittest
 from app import create_app, db
-from app.auth.models import User
+from app.auth.models import User, TokenBlacklist
 from app.datasets.models import Dataset, Tag
 from config import Config
-from flask import current_app
+from flask_jwt_extended import get_jti
 
 
 class TestConfig(Config):
@@ -14,7 +14,7 @@ class TestConfig(Config):
 
 
 class UserModelCase(unittest.TestCase):
-
+    '''Tests basic user functionalities.'''
     def setUp(self):
         self.app = create_app(TestConfig)
         self.app_context = self.app.app_context()
@@ -43,8 +43,8 @@ class DatasetModelCase(unittest.TestCase):
     '''
     Tests dataset manipulation and searching functionality.
 
-    Note: For elasticsearch, refresh index before search to ensure all index changes
-          have been pushed.
+    Note: For elasticsearch, refresh index before search to ensure all index
+          changes have been pushed.
     '''
 
     def setUp(self):
@@ -66,7 +66,7 @@ class DatasetModelCase(unittest.TestCase):
             1) Start with an empty database.
             2) Assert that a search for 'dolphin' returns nothing.
             3) Create a new dataset with name='dolphin' and commit to db.
-            4) Assert that a search for 'dolphin' returns the dataset just created.
+            4) Assert that 'dolphin' search returns the dataset just created.
         '''
         query, ___ = Dataset.search('dolphin')
         self.assertEqual(len(query.all()), 0)
@@ -110,7 +110,7 @@ class DatasetModelCase(unittest.TestCase):
             3) Assert that a search for 'crackers' returns nothing.
         '''
 
-        # -----------------------------Procedure 1--------------------------------
+        # -------------------------- Procedure 1 -----------------------------
         # Initialize an owner for the dataset
         user = User(
             username = 'cove',
@@ -135,15 +135,16 @@ class DatasetModelCase(unittest.TestCase):
         query, __ = Dataset.search('soup')
         self.assertEqual(len(query.all()), 0)
 
-        # 'name' now contains 'and' and 'soup'. A search for either should yield the dataset.
+        # 'name' now contains 'and' and 'soup'.
+        # Search for either should yield the dataset.
         new.name = 'crackers and soup'
         db.session.commit()
         self.app.elasticsearch.indices.refresh(index='datasets')
         query, __ = Dataset.search('soup')
         self.assertEqual(len(query.all()), 1)
 
-        # -----------------------------Procedure 2--------------------------------
-        # 'name' no longer contains 'crackers', so a search for it should return none.
+        # -------------------------- Procedure 2 -----------------------------
+        # 'name' no longer contains 'crackers'. Search should return none.
         new.name = 'soup'
         db.session.commit()
         self.app.elasticsearch.indices.refresh(index='datasets')
@@ -192,12 +193,13 @@ class DatasetModelCase(unittest.TestCase):
         query, __ = Dataset.search('racket')
         self.assertEqual(len(query.all()), 0)
 
-    def test_dataset_text_search(self):
+    def test_dataset_basic_text_search(self):
         '''
         Tests that a database can do full-text search for datasets.
 
         Test 1: Basic exact-text search example works.
-        Test 2: Datasets with a match in any field (name, description, citation) are returned.
+        Test 2: Datasets with matches in any field (name, description, citation)
+                of the dataset
         Test 3: Datasets with matches in the 'name' field have higher relevance.
         '''
         # Initialize an owner for the dataset
@@ -259,37 +261,183 @@ class DatasetModelCase(unittest.TestCase):
 
     def test_dataset_text_search_english_analyzer(self):
         '''
-        Tests that our search functionality can successfully intepret english to an extent.
+        Tests that our search functionality can successfully intepret
+        english to an extent.
 
-        Test 1: Search treats singular or plural forms the similarly.
-        Test 2: Search ignores apostrophes ('s').
-        Test 3: Search ignores tense.
+        Test 1: Uppercase and lowercase are ignore.
+        Test 2: Search treats singular or plural forms the similarly.
+        Test 3: Search ignores apostrophes ('s').
+        Test 4: Search ignores tense.
         '''
-        pass
+        # Initialize an owner for the dataset
+        user = User(
+            username = 'cove',
+            password_hash = User.hash_password('test')
+        )
+        db.session.add(user)
+        db.session.commit()
 
-class TokenBlacklistModelCase(unittest.TestCase):
+        # Create 3 datasets and commit them
+        d1 = Dataset(
+            id = 1,
+            citation = 'Australia',
+            description = 'Pictures of adult kangaroos in their habitat.',
+            name = 'Video of Jumping Kangaroos',
+            url = 'https://github.com/cvfadmin/COVE',
+            owner_id = 1
+        )
+        d2 = Dataset(
+            id = 2,
+            citation = 'Eric Jiang',
+            description = 'Video of a baby rabbit playing around the house.',
+            name = 'A white rabbit hops onto the table.',
+            url = 'https://github.com/cvfadmin/COVE',
+            owner_id = 1
+        )
+        d3 = Dataset(
+            id = 3,
+            citation = 'A gym',
+            description = 'An ad about why jumping jacks are healthy',
+            name = 'Jumping jacks is your friend.',
+            url = 'https://github.com/cvfadmin/COVE',
+            owner_id = 1
+        )
+        db.session.add_all([d1, d2, d3])
+        db.session.commit()
+
+        # Refresh index before search
+        self.app.elasticsearch.indices.refresh(index='datasets')
+
+        query, __ = Dataset.search('KaNgAroos')
+        query2, __ = Dataset.search('jack')
+        query3, __ = Dataset.search('rabbits')
+        query4, __ = Dataset.search("Eric's")
+        query5, __ = Dataset.search('jumped')
+        query6, __ = Dataset.search('babies')
+
+        # Test letter cases
+        self.assertEqual(query.first().id, 1)
+
+        # Test plural and singular forms
+        self.assertEqual(query2.first().id, 3)
+        self.assertEqual(query3.first().id, 2)
+
+        # Test 's
+        self.assertEqual(query4.first().id, 2)
+
+        # Test tense
+        self.assertEqual(len(query5.all()), 2)
+        self.assertEqual(query6.first().id, 2)
+
+
+class LoginLogoutCase(unittest.TestCase):
+    '''
+    Tests that the reigster, login, and logout routes work and
+    correctly handle token blacklisting.
+    '''
     def setUp(self):
         self.app = create_app(TestConfig)
         self.app_context = self.app.app_context()
         self.app_context.push()
         db.create_all()
+        # Make a client to send requests to routes
+        self.client = self.app.test_client()
 
     def tearDown(self):
         db.session.remove()
         db.drop_all()
         self.app_context.pop()
 
+    def test_register_login_logout(self):
+        with self.client as c:
+            # -------------------------- Register -----------------------------------------
+            # Using keyword 'json' sets content-type to 'application/json'
+            register_resp = c.post('/users/register', json=dict(
+                username = 'cove',
+                password = 'test',
+                email = 'cove@thecvf.com'
+            ))
+            self.assertEqual(register_resp.status_code, 200)
+
+            # Check that we have successfully registered
+            json_data = register_resp.get_json()
+            register_access_token = json_data.get('access_token')
+            self.assertNotEqual(register_access_token, None)
+            self.assertNotEqual(json_data.get('user_id'), None)
+            self.assertNotEqual(json_data.get('permissions').get('is_admin'), None)
+
+            # Assert that access token is not blacklisted
+            t1 = TokenBlacklist.query.filter_by(jti=get_jti(register_access_token)).first()
+            self.assertFalse(t1.revoked)
+
+            # -------------------------- Login ---------------------------------------------
+            # Try to log in with the newly registered user
+            login_resp = c.post('/users/login', json=dict(
+                username = 'cove',
+                password = 'test',
+            ))
+            self.assertEqual(login_resp.status_code, 200)
+
+            # Check that we have successfully logged in
+            json_data = login_resp.get_json()
+            login_access_token = json_data.get('access_token')
+            login_user_id = json_data.get('user_id')
+            self.assertNotEqual(login_access_token, None)
+            self.assertNotEqual(login_user_id, None)
+
+            # Assert that access token is not blacklisted
+            t2 = TokenBlacklist.query.filter_by(jti=get_jti(login_access_token)).first()
+            self.assertFalse(t2.revoked)
+
+            # -------------------------- Logout --------------------------------------------
+            # Log out of session from register. Register token should now be blacklisted
+            c.environ_base['HTTP_AUTHORIZATION'] = 'Bearer ' + register_access_token
+            logout_resp = c.post('/users/logout')
+            self.assertEqual(logout_resp.status_code, 200)
+            t1 = TokenBlacklist.query.filter_by(jti=get_jti(register_access_token)).first()
+            self.assertTrue(t1.revoked)
+
+            # Log out of session from login. Login token should now be blacklisted
+            c.environ_base['HTTP_AUTHORIZATION'] = 'Bearer ' + login_access_token
+            logout_resp = c.post('/users/logout')
+            self.assertEqual(logout_resp.status_code, 200)
+            t2 = TokenBlacklist.query.filter_by(jti=get_jti(login_access_token)).first()
+            self.assertTrue(t2.revoked)
+
+
+class TokenBlacklistCase(unittest.TestCase):
+    '''Test that blacklisted tokens can't access protected endpoints.'''
     def setUp(self):
         self.app = create_app(TestConfig)
         self.app_context = self.app.app_context()
         self.app_context.push()
         db.create_all()
+        # Make client to send requests to routes
+        self.client = self.app.test_client()
 
     def tearDown(self):
         db.session.remove()
         db.drop_all()
         self.app_context.pop()
+
+    def test_blacklist_token_vs_protected_endpoint(self):
+        with self.client as c:
+            # Register a user to get an access token
+            access_token = c.post('/users/register', json=dict(
+                username = 'cove',
+                password = 'test',
+                email = 'cove@thecvf.com'
+            )).get_json().get('access_token')
+
+            # Invalidate the token by logging out
+            c.environ_base['HTTP_AUTHORIZATION'] = 'Bearer ' + access_token
+            c.post('/users/logout')
+
+            # Assert that trying to access protected endpoints return status
+            # code of 401
+            self.assertEqual(c.get('/users/me').status_code, 401)
+            self.assertEqual(c.post('/users/logout').status_code, 401)
 
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest.main(warnings='ignore')
