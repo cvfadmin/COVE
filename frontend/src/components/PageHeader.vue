@@ -7,7 +7,7 @@
 			</div>
 			<nav id='nav'>
 				<ul>
-					<li><router-link tag="a" to="/">Home</router-link></li>
+					<li v-on:click="pushHome"><router-link tag="a" to="/">Home</router-link></li>
 					<li><router-link tag="a" to="/datasets/create">Add a Dataset</router-link></li>
 					<li><a href="https://github.com/cvfadmin/COVE/issues">Report an Issue</a></li>
 					<li v-if="this.isLoggedIn"><router-link tag="a" to="/users/me">Your Page</router-link></li>
@@ -40,6 +40,9 @@ export default {
 	methods: {
 		pushHome() {
 			this.$router.push({ path: '/'})
+
+			// Send signal up (to Home.vue) to reset the Home page
+			this.$emit('push-home')
 		}
 	}
 }

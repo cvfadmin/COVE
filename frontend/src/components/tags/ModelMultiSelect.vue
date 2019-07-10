@@ -8,8 +8,9 @@
 			v-on-clickaway="hideDropdown"
 		>
 		
+		<!-- Find a unique key for each for loop. Probably the dataset tag id. -->
 		<ul id="filtered-list" v-bind:class="{ hidden: isHidden }">
-			<li v-for="(model, index) in filteredTags" :class="{ 'active': index == 0 }">
+			<li v-for="model in filteredTags">
 				<div v-on:click.self="selectModel(model, $event)">{{model.name}}</div>
 			</li>
 		</ul>
@@ -30,9 +31,9 @@ export default {
 	props: {
 		models: Array,
 		currentTags: {
-      type: Array,
-      default: () => {return []}
-    },
+			type: Array,
+			default: () => {return []}
+		},
 		createNew: Boolean,
 		category: String,
 	},
@@ -54,15 +55,20 @@ export default {
 			set: function (newQuery) { this.query = newQuery.toLowerCase().replace(/[^a-z\s]/g,'') }
 		},
 
+		// Current tags plus newly added tags minus removed tags
+		// Updated when newlySelectedTags is updated
 		selectedTags () {
-			// current tags plus any new tags minus removed tags
 			return this.currentTags.concat(this.newlySelectedTags).filter((item) => !this.removedTags.includes(item))
 		},
 
+		// Current tags that have not been selected.
+		// Updated when selectTags is updated.
 		notSelectedTags () {
 			return this.models.filter((item) => !this.selectedTags.includes(item))
 		},
 
+		// Array of tags that have the "query" in their name.
+		// Updated when notSelectedTags is updated.
 		filteredTags () {
 			if (this.query == '') { return this.notSelectedTags }
 			return this.notSelectedTags.filter((item) => item.name.includes(this.query))
@@ -82,18 +88,22 @@ export default {
 			this.$emit('changedTags', this.selectedTags, this.category)
 		},
 
+		// Removes a tag.
+		// If the tag wasn't newly created one, add it to the removedTags list
+		// If tag was a newly created one, simply remove it from the newlySelectedTags list
 		unselectModel(model) {
 			if (this.currentTags.includes(model)) {
-				// if model in current tags add to removed tags list
 				this.removedTags.push(model)
 			} else {
-				// otherwise just remove from newly selected tags
 				this.newlySelectedTags = this.newlySelectedTags.filter((item) => item != model) 
 			}
 			
 			this.$emit('changedTags', this.selectedTags, this.category)
 		},
 
+		// Called when a user enters in a word into the "tag" boxes
+		// If none of the existing tags are similar to the word, create a new tag.
+		// If there are tags that are similar, select the first one returned.
 		selectTagOrNew () {
 			if (this.filteredTags.length == 0 && this.createNew) {
 				// Create new
@@ -108,6 +118,12 @@ export default {
 			}
 
 			this.resetComponent()
+		},
+
+		clearSelectedTags() {
+			this.resetComponent()
+			this.newlySelectedTags = []
+			this.$emit('changedTags', this.selectedTags, this.category)
 		},
 		
 		showDropdown () { this.isHidden = false },
