@@ -108,11 +108,18 @@ class ListDatasetView(ListResourceView):
         # Holds a list of tag ids to be associated with the dataset.
         tags = req_body.pop('tags', [])
 
+        # Ensure that new datasets have citations
+        if req_body.get('citation') is None:
+            return {'errors': 'Citation missing'}
+
         # Add owner to dataset object
         # TODO: Store ID in JWT
         user = User.query.filter_by(username=get_jwt_identity()).first()
         req_body['owner'] = user.id
 
+        # ValidationError is not raised when url / description is null.
+        # Upgrade to marshmallow 3.0 when it becomes stable to fix.
+        # https://github.com/marshmallow-code/marshmallow/milestone/10
         try:
             new = self.SingleSchema.load(req_body).data
         except ValidationError as err:

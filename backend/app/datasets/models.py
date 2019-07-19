@@ -22,7 +22,7 @@ class Dataset(SearchableMixin, db.Model):
     thumbnail = db.Column(db.String(1000), nullable=True)
     description = db.Column(db.Text, nullable=False)
     license = db.Column(db.String(256), nullable=True)
-    citation = db.Column(db.String(1000), nullable=False)
+    citation = db.Column(db.String(1000), nullable=True)
     year_created = db.Column(db.Integer, nullable=True)
     size = db.Column(db.String(256), nullable=True)
     num_cat = db.Column(db.String(256), nullable=True)
