@@ -8,15 +8,14 @@
 			v-on-clickaway="hideDropdown"
 		>
 		
-		<!-- Find a unique key for each for loop. Probably the dataset tag id. -->
 		<ul id="filtered-list" v-bind:class="{ hidden: isHidden }">
-			<li v-for="model in filteredTags">
+			<li v-for="model in filteredTags" :key=model.id>
 				<div v-on:click.self="selectModel(model, $event)">{{model.name}}</div>
 			</li>
 		</ul>
 
 		<ul id="selected-list">
-			<li v-for="model in selectedTags">
+			<li v-for="model in selectedTags" :key=model.id>
 				<div class="selected" v-on:click.self="unselectModel(model, $event)">{{model.name}}</div>
 			</li>
 		</ul>
@@ -52,7 +51,12 @@ export default {
 
 		cleanedQuery: {
 			get: function () { return this.query },
-			set: function (newQuery) { this.query = newQuery.toLowerCase().replace(/[^a-z\s]/g,'') }
+
+			// Is called whenever the user types in the "tags" box.
+			set: function (newQuery) {
+				this.query = newQuery.toLowerCase().replace(/[^a-z\s]/g,'')
+				this.showDropdown() // Show dropdown menu whenever user types
+			}
 		},
 
 		// Current tags plus newly added tags minus removed tags
@@ -101,10 +105,13 @@ export default {
 			this.$emit('changedTags', this.selectedTags, this.category)
 		},
 
-		// Called when a user enters in a word into the "tag" boxes
+		// Called when a user enters a word into the "tag" boxes
 		// If none of the existing tags are similar to the word, create a new tag.
 		// If there are tags that are similar, select the first one returned.
 		selectTagOrNew () {
+			// Do nothing if no word is entered
+			if (this.query == "") return
+
 			if (this.filteredTags.length == 0 && this.createNew) {
 				// Create new
 				this.selectModel({
@@ -113,7 +120,7 @@ export default {
 					"new":true
 				})
 			} else if (this.filteredTags[0] != undefined) {
-				// Select First value in unselected list
+				// Select first value in unselected list
 				this.selectModel(this.filteredTags[0])
 			}
 
