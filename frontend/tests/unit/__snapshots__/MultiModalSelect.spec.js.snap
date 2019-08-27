@@ -1,0 +1,169 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ModelMultiSelect @events @enter a word in text box create new tag 1`] = `
+<div
+  class="model-multi-select"
+>
+  <input
+    data-test-id="text"
+    type="text"
+  />
+   
+  <ul
+    class="hidden"
+    data-test-id="filtered-list"
+    id="filtered-list"
+  />
+   
+  <ul
+    data-test-id="selected-list"
+    id="selected-list"
+  />
+</div>
+`;
+
+exports[`ModelMultiSelect @events @enter a word in text box create new tag 2`] = `
+<div
+  class="model-multi-select"
+>
+  <input
+    data-test-id="text"
+    type="text"
+  />
+   
+  <ul
+    class="hidden"
+    data-test-id="filtered-list"
+    id="filtered-list"
+  >
+    <li>
+      <div>
+        testing
+      </div>
+    </li>
+  </ul>
+   
+  <ul
+    data-test-id="selected-list"
+    id="selected-list"
+  >
+    <li>
+      <div
+        class="selected"
+      >
+        birds
+      </div>
+    </li>
+  </ul>
+</div>
+`;
+
+exports[`ModelMultiSelect @events clicking tag in selectedTags removes tag from selectedTags 1`] = `
+<div
+  class="model-multi-select"
+>
+  <input
+    data-test-id="text"
+    type="text"
+  />
+   
+  <ul
+    class="hidden"
+    data-test-id="filtered-list"
+    id="filtered-list"
+  />
+   
+  <ul
+    data-test-id="selected-list"
+    id="selected-list"
+  >
+    <li>
+      <div
+        class="selected"
+      >
+        Airplane
+      </div>
+    </li>
+  </ul>
+</div>
+`;
+
+exports[`ModelMultiSelect @events clicking tag in selectedTags removes tag from selectedTags 2`] = `
+<div
+  class="model-multi-select"
+>
+  <input
+    data-test-id="text"
+    type="text"
+  />
+   
+  <ul
+    class="hidden"
+    data-test-id="filtered-list"
+    id="filtered-list"
+  />
+   
+  <ul
+    data-test-id="selected-list"
+    id="selected-list"
+  />
+</div>
+`;
+
+exports[`ModelMultiSelect @events clicking tag on filteredTags adds tag to selectedTags 1`] = `
+<div
+  class="model-multi-select"
+>
+  <input
+    data-test-id="text"
+    type="text"
+  />
+   
+  <ul
+    class="hidden"
+    data-test-id="filtered-list"
+    id="filtered-list"
+  >
+    <li>
+      <div>
+        testing
+      </div>
+    </li>
+  </ul>
+   
+  <ul
+    data-test-id="selected-list"
+    id="selected-list"
+  />
+</div>
+`;
+
+exports[`ModelMultiSelect @events clicking tag on filteredTags adds tag to selectedTags 2`] = `
+<div
+  class="model-multi-select"
+>
+  <input
+    data-test-id="text"
+    type="text"
+  />
+   
+  <ul
+    class="hidden"
+    data-test-id="filtered-list"
+    id="filtered-list"
+  />
+   
+  <ul
+    data-test-id="selected-list"
+    id="selected-list"
+  >
+    <li>
+      <div
+        class="selected"
+      >
+        testing
+      </div>
+    </li>
+  </ul>
+</div>
+`;
