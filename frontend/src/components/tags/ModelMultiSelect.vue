@@ -9,13 +9,13 @@
 		>
 		
 		<ul id="filtered-list" v-bind:class="{ hidden: isHidden }">
-			<li v-for="(model, index) in filteredTags" :class="{ 'active': index == 0 }">
+			<li v-for="model in filteredTags" :key=model.id>
 				<div v-on:click.self="selectModel(model, $event)">{{model.name}}</div>
 			</li>
 		</ul>
 
 		<ul id="selected-list">
-			<li v-for="model in selectedTags">
+			<li v-for="model in selectedTags" :key=model.id>
 				<div class="selected" v-on:click.self="unselectModel(model, $event)">{{model.name}}</div>
 			</li>
 		</ul>
@@ -30,9 +30,9 @@ export default {
 	props: {
 		models: Array,
 		currentTags: {
-      type: Array,
-      default: () => {return []}
-    },
+			type: Array,
+			default: () => {return []}
+		},
 		createNew: Boolean,
 		category: String,
 	},
@@ -51,18 +51,28 @@ export default {
 
 		cleanedQuery: {
 			get: function () { return this.query },
-			set: function (newQuery) { this.query = newQuery.toLowerCase().replace(/[^a-z\s]/g,'') }
+
+			// Is called whenever the user types in the "tags" box.
+			set: function (newQuery) {
+				this.query = newQuery.toLowerCase().replace(/[^a-z\s]/g,'')
+				this.showDropdown() // Show dropdown menu whenever user types
+			}
 		},
 
+		// Current tags plus newly added tags minus removed tags
+		// Updated when newlySelectedTags is updated
 		selectedTags () {
-			// current tags plus any new tags minus removed tags
 			return this.currentTags.concat(this.newlySelectedTags).filter((item) => !this.removedTags.includes(item))
 		},
 
+		// Current tags that have not been selected.
+		// Updated when selectTags is updated.
 		notSelectedTags () {
 			return this.models.filter((item) => !this.selectedTags.includes(item))
 		},
 
+		// Array of tags that have the "query" in their name.
+		// Updated when notSelectedTags is updated.
 		filteredTags () {
 			if (this.query == '') { return this.notSelectedTags }
 			return this.notSelectedTags.filter((item) => item.name.includes(this.query))
@@ -82,19 +92,26 @@ export default {
 			this.$emit('changedTags', this.selectedTags, this.category)
 		},
 
+		// Removes a tag.
+		// If the tag wasn't newly created one, add it to the removedTags list
+		// If tag was a newly created one, simply remove it from the newlySelectedTags list
 		unselectModel(model) {
 			if (this.currentTags.includes(model)) {
-				// if model in current tags add to removed tags list
 				this.removedTags.push(model)
 			} else {
-				// otherwise just remove from newly selected tags
 				this.newlySelectedTags = this.newlySelectedTags.filter((item) => item != model) 
 			}
 			
 			this.$emit('changedTags', this.selectedTags, this.category)
 		},
 
+		// Called when a user enters a word into the "tag" boxes
+		// If none of the existing tags are similar to the word, create a new tag.
+		// If there are tags that are similar, select the first one returned.
 		selectTagOrNew () {
+			// Do nothing if no word is entered
+			if (this.query == "") return
+
 			if (this.filteredTags.length == 0 && this.createNew) {
 				// Create new
 				this.selectModel({
@@ -103,11 +120,17 @@ export default {
 					"new":true
 				})
 			} else if (this.filteredTags[0] != undefined) {
-				// Select First value in unselected list
+				// Select first value in unselected list
 				this.selectModel(this.filteredTags[0])
 			}
 
 			this.resetComponent()
+		},
+
+		clearSelectedTags() {
+			this.resetComponent()
+			this.newlySelectedTags = []
+			this.$emit('changedTags', this.selectedTags, this.category)
 		},
 		
 		showDropdown () { this.isHidden = false },
