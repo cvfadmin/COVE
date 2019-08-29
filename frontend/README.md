@@ -1,4 +1,4 @@
-# cove-frontend
+# COVE frontend
 
 ## Project setup
 ```
