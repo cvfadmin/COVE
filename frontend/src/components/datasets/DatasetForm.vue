@@ -95,7 +95,7 @@
 			
 			</div>
 			<div class="input-group">
-				<button type="submit">Submit</button>
+				<button type="submit" onsubmit="this.disabled=True">Submit</button>
 			</div>
 		</form>
 	</div>

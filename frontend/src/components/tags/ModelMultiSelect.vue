@@ -6,15 +6,16 @@
 			v-on:keydown.enter.prevent="selectTagOrNew()"
 			v-on:focus="showDropdown()"
 			v-on-clickaway="hideDropdown"
+			v-test="{ id : 'text'}"
 		>
 		
-		<ul id="filtered-list" v-bind:class="{ hidden: isHidden }">
+		<ul id="filtered-list" v-bind:class="{ hidden: isHidden }" v-test="{ id: 'filtered-list'}">
 			<li v-for="model in filteredTags" :key=model.id>
 				<div v-on:click.self="selectModel(model, $event)">{{model.name}}</div>
 			</li>
 		</ul>
 
-		<ul id="selected-list">
+		<ul id="selected-list" v-test="{ id : 'selected-list'}">
 			<li v-for="model in selectedTags" :key=model.id>
 				<div class="selected" v-on:click.self="unselectModel(model, $event)">{{model.name}}</div>
 			</li>
@@ -24,9 +25,11 @@
 
 <script>
 import { mixin as clickaway } from 'vue-clickaway';
+import Test from '@/directives/test.js'
 
 export default {
 	name: 'ModelMultiSelect',
+	directives: { Test },
 	props: {
 		models: Array,
 		currentTags: {
