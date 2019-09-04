@@ -1,4 +1,5 @@
-import { shallowMount } from '@vue/test-utils'
+import { shallowMount } from '@vue/test-utils' // be sure to skip a line to avoid unit testing error
+
 import ModelMultiSelect from '@/components/tags/ModelMultiSelect.vue'
 
 let wrapper = null
