@@ -95,7 +95,7 @@
 			
 			</div>
 			<div class="input-group">
-				<button type="submit" onsubmit="this.disabled=True">Submit</button>
+				<button type="submit">Submit</button>
 			</div>
 		</form>
 	</div>
@@ -125,7 +125,8 @@ export default {
 
 	data () {
 		return {
-			updatedTags: this.dataset.tags
+			updatedTags: this.dataset.tags,
+			allowSubmit: true
 		}
 	},
 
@@ -160,7 +161,10 @@ export default {
 	methods: {
 
 		triggerSubmit () {
+			if (!this.allowSubmit) { return }
 			if (!this.validateData()) { return }
+
+			this.allowSubmit = false;
 			this.$emit('submitEvent', this.updatedTags)
 		},
 
