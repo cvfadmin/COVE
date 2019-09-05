@@ -90,7 +90,10 @@ class ListDatasetView(ListResourceView):
             query_list = query_list.order_by(desc(Dataset.date_created)).offset(offset).limit(limit)
         else:
             # datasets ordered by relevance
+            # TODO: Allow search to search through certain indexes, not all
             query_list, total = Dataset.search(search_param)
+            if not is_admin:
+                query_list = query_list.filter_by(is_approved=True)
             query_list = dataset_tag_filter(request, query_list)
             query_list = query_list.offset(offset).limit(limit)
 
