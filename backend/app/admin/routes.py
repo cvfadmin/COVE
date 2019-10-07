@@ -23,7 +23,7 @@ class AdminDatasetView(Resource):
 
     @jwt_required
     def put(self, _id):
-
+        '''Admin either approves or denies a dataset.'''
         if not AdminOnly.has_permission(get_jwt_identity()):
             return {
                 'message': 'Unauthorized user',

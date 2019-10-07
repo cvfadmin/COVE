@@ -24,19 +24,25 @@ class SingleDatasetView(SingleResourceByIdView):
     Schema = dataset_schema
 
     def put(self, _id):
+        '''Edit / Update the dataset with specified id.'''
         model_instance = self.Model.query.filter_by(id=_id).first_or_404()
         req_body = request.get_json()
-        # Expects a list of tag ids
+
+        # Holds a list of tag ids to be updated. Tags will be added to the dataset manually
         updated_tags = req_body.pop('tags', None)
 
+        # Test if updates are valid. If not, return error.
         try:
             self.Schema.load(req_body, instance=model_instance).data
         except ValidationError as err:
             return {'errors': err.messages}
 
+        # TO_DO: Can delete tag if adding another tag. But can't solely delete a tag.
+        # Front end issue maybe. A tag can only be deleted by adding another tag. Else the action won't be noticed.
         if updated_tags:
             model_instance.tags = [Tag.query.filter_by(id=tag_id).first() for tag_id in updated_tags]
 
+        # Actually do the updates on the dataset and commit it.
         db.session.query(self.Model).filter_by(id=_id).update(dict(req_body))
         db.session.commit()
 
@@ -53,6 +59,9 @@ class ListDatasetView(ListResourceView):
 
     @jwt_optional
     def get(self):
+        '''Returns datasets to be shown on homepage.'''
+
+        # Only display unapproved datasets to admins
         is_admin = AdminOnly.has_permission(get_jwt_identity())
         if is_admin:
             query_list = self.Model.query
@@ -63,6 +72,7 @@ class ListDatasetView(ListResourceView):
         limit = request.args.get('limit', 50)
         offset = request.args.get('offset', 0)
 
+        # Block non-admin users from seeing unapproved datasets through requests
         if approved == 'false':
             if is_admin:
                 query_list = self.Model.query.filter_by(is_approved=False)
@@ -72,6 +82,7 @@ class ListDatasetView(ListResourceView):
                     'status': 401
                 }, 401
 
+        # Filter datasets by search inputs.
         search_param = request.args.get('search')
         if search_param is None:
             query_list = dataset_tag_filter(request, query_list)
@@ -79,7 +90,10 @@ class ListDatasetView(ListResourceView):
             query_list = query_list.order_by(desc(Dataset.date_created)).offset(offset).limit(limit)
         else:
             # datasets ordered by relevance
+            # TODO: Allow search to search through certain indexes, not all
             query_list, total = Dataset.search(search_param)
+            if not is_admin:
+                query_list = query_list.filter_by(is_approved=True)
             query_list = dataset_tag_filter(request, query_list)
             query_list = query_list.offset(offset).limit(limit)
 
@@ -92,17 +106,23 @@ class ListDatasetView(ListResourceView):
 
     @jwt_required
     def post(self):
-
+        '''Tries to create a dataset.'''
         req_body = request.get_json()
-        # Expects a list of tag ids
+        # Holds a list of tag ids to be associated with the dataset.
         tags = req_body.pop('tags', [])
+
+        # Ensure that new datasets have citations
+        if req_body.get('citation') is None:
+            return {'errors': 'Citation missing'}
 
         # Add owner to dataset object
         # TODO: Store ID in JWT
         user = User.query.filter_by(username=get_jwt_identity()).first()
-
         req_body['owner'] = user.id
 
+        # ValidationError is not raised when url / description is null.
+        # Upgrade to marshmallow 3.0 when it becomes stable to fix.
+        # https://github.com/marshmallow-code/marshmallow/milestone/10
         try:
             new = self.SingleSchema.load(req_body).data
         except ValidationError as err:

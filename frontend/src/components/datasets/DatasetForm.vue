@@ -125,7 +125,8 @@ export default {
 
 	data () {
 		return {
-			updatedTags: this.dataset.tags
+			updatedTags: this.dataset.tags,
+			allowSubmit: true
 		}
 	},
 
@@ -160,7 +161,10 @@ export default {
 	methods: {
 
 		triggerSubmit () {
+			if (!this.allowSubmit) { return }
 			if (!this.validateData()) { return }
+
+			this.allowSubmit = false;
 			this.$emit('submitEvent', this.updatedTags)
 		},
 

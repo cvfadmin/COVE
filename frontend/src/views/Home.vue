@@ -1,6 +1,6 @@
 <template>
 	<div class="home container">
-		<PageHeader></PageHeader>
+		<PageHeader v-on:push-home="clearSearch"></PageHeader>
 		<IntroText></IntroText>
 		
 		<form id="filters" v-on:submit.prevent="search()">
@@ -17,17 +17,17 @@
 			<div id="tags">
 				<div class="input-group">
 					<p>Tasks:</p>
-					<ModelMultiSelect :models="tasks" :category="'tasks'" :createNew="false" v-on:changedTags="updateTags"></ModelMultiSelect>
+					<ModelMultiSelect ref="tasks" :models="tasks" :category="'tasks'" :createNew="false" v-on:changedTags="updateTags"></ModelMultiSelect>
 				</div>
 				
 				<div class="input-group">
 					<p>Topics:</p>
-					<ModelMultiSelect :models="topics" :category="'topics'" :createNew="false" v-on:changedTags="updateTags"></ModelMultiSelect>
+					<ModelMultiSelect ref="topics" :models="topics" :category="'topics'" :createNew="false" v-on:changedTags="updateTags"></ModelMultiSelect>
 				</div>
 				
 				<div class="input-group">
 					<p>Data Types:</p>
-					<ModelMultiSelect :models="dataTypes" :category="'data_types'" :createNew="false" v-on:changedTags="updateTags"></ModelMultiSelect>
+					<ModelMultiSelect ref="dataTypes" :models="dataTypes" :category="'data_types'" :createNew="false" v-on:changedTags="updateTags"></ModelMultiSelect>
 				</div>
 
 			</div>
@@ -113,6 +113,16 @@ export default {
 
 		updateTags (taglist, category) {
 			this.searchTags[category] = taglist
+		},
+
+		clearSearch() {
+			// Reset the search bar and tags
+			this.searchInput = ''
+			this.$refs.tasks.clearSelectedTags()
+			this.$refs.topics.clearSelectedTags()
+			this.$refs.dataTypes.clearSelectedTags()
+
+			this.search()
 		},
 	},
 

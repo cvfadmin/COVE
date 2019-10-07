@@ -4,6 +4,7 @@ from app.datasets.search import SearchableMixin
 from app.lib.ES_docs import ES_DATASET_DOC
 
 
+# Associative table to hold the many-many relationship between datasets and tags
 tags = db.Table('tags',
     db.Column('tag_id', db.Integer, db.ForeignKey('tag.id'), primary_key=True),
     db.Column('dataset_id', db.Integer, db.ForeignKey('datasets.id'), primary_key=True)
@@ -21,7 +22,7 @@ class Dataset(SearchableMixin, db.Model):
     thumbnail = db.Column(db.String(1000), nullable=True)
     description = db.Column(db.Text, nullable=False)
     license = db.Column(db.String(256), nullable=True)
-    citation = db.Column(db.String(1000), nullable=False)
+    citation = db.Column(db.String(1000), nullable=True)
     year_created = db.Column(db.Integer, nullable=True)
     size = db.Column(db.String(256), nullable=True)
     num_cat = db.Column(db.String(256), nullable=True)

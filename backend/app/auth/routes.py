@@ -23,8 +23,11 @@ class Register(Resource):
             return {'error': 'Email is already in use'}
 
         new_user = user_schema.load({
+            'first_name': req_body.get('first_name') if req_body.get('first_name') else None,
+            'last_name': req_body.get('last_name') if req_body.get('last_name') else None,
             'username': username,
-            'password_hash': User.hash_password(password)
+            'password_hash': User.hash_password(password),
+            'email': email
         }).data
 
         db.session.add(new_user)

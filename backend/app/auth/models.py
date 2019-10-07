@@ -20,7 +20,7 @@ class User(db.Model):
 
     @staticmethod
     def hash_password(password):
-        return pwd_context.encrypt(password)
+        return pwd_context.hash(password)
 
     def __repr__(self):
         return '<User(username={self.username!r})>'.format(self=self)

@@ -33,6 +33,8 @@ export default {
 
 	methods: {
 
+		// Whenever user has reached the bottom of the page, display the next
+		// set of datasets.
 		scroll () {
 			window.onscroll = () => {
 				let bottomOfWindow = Math.max(window.pageYOffset, document.documentElement.scrollTop, document.body.scrollTop) + window.innerHeight === document.documentElement.offsetHeight
@@ -50,9 +52,11 @@ export default {
 			}
 		},
 
+		// Get datasets to display, then set params for the next page.
 		async getDatasets (params) {
 			this.bottomMessage = "Loading..."
 
+			// Finish last dataset request before starting a new one
 			if (this.lastDatasetRequestCompleted) {
 				this.lastDatasetRequestCompleted = false
 				params.offset = this.offset
@@ -61,7 +65,6 @@ export default {
 				await DatasetService.searchDatasets(params).then((response) => {
 					if (response.data.results.length == 0) {
 						this.bottomMessage = "No more datasets to load."
-
 					} else {
 						this.datasets = this.datasets.concat(response.data.results)
 						this.bottomMessage = ""
@@ -123,7 +126,7 @@ export default {
 
 
 	mounted () {
-  	this.scroll()
+  		this.scroll()
 	},
 }
 
