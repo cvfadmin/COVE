@@ -3,6 +3,8 @@ from flask_mail import Message
 
 
 def send_email(subject, recipients, body):
+    if Config.NO_MAIL:
+        return None
     if None in recipients:
         return None
 

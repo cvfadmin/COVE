@@ -17,6 +17,9 @@ class Config(object):
     JWT_BLACKLIST_TOKEN_CHECKS = ['access', 'refresh']
     JWT_IDENTITY_CLAIM = 'sub'
 
+    # NO_MAIL - master variable to not send out mail
+    # For use in test enviornments
+    NO_MAIL = os.environ.get('NO_MAIL') == 'True' or False
     MAIL_SERVER = 'smtp.gmail.com'
     MAIL_PORT = 587
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
