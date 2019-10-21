@@ -2,6 +2,9 @@
 node_modules
 /dist
 
+# Migration history - should figure out best practices here
+alembic/versions
+
 # local env files
 .env.local
 .env.*.local
