@@ -1,5 +1,6 @@
 # COVE Backend
 
+*Please Note:* Without configuring `MAIL_USERNAME` and `MAIL_PASSWORD` properly in your own `.env` (to be accessed through `config.py`) a lot of core functionality will fail.
 
 ## Using
 **Installation:** `pip install -r requirements.txt`
