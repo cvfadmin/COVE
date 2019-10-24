@@ -2,7 +2,63 @@
    "mappings":{
       "datasets":{
          "properties":{
-            "citation":{
+            "old_citation":{
+               "type":"text",
+               "analyzer":"english",
+               "fields":{
+                  "keyword":{
+                     "type":"keyword",
+                     "ignore_above":256
+                  },
+                  "std":{
+                     "type":"text",
+                     "analyzer":"standard"
+                  }
+               }
+            },
+            "cite_title":{
+               "type":"text",
+               "analyzer":"english",
+               "fields":{
+                  "keyword":{
+                     "type":"keyword",
+                     "ignore_above":256
+                  },
+                  "std":{
+                     "type":"text",
+                     "analyzer":"standard"
+                  }
+               }
+            },
+            "cite_authors":{
+               "type":"text",
+               "analyzer":"english",
+               "fields":{
+                  "keyword":{
+                     "type":"keyword",
+                     "ignore_above":256
+                  },
+                  "std":{
+                     "type":"text",
+                     "analyzer":"standard"
+                  }
+               }
+            },
+            "cite_venue":{
+               "type":"text",
+               "analyzer":"english",
+               "fields":{
+                  "keyword":{
+                     "type":"keyword",
+                     "ignore_above":256
+                  },
+                  "std":{
+                     "type":"text",
+                     "analyzer":"standard"
+                  }
+               }
+            },
+            "cite_year":{
                "type":"text",
                "analyzer":"english",
                "fields":{

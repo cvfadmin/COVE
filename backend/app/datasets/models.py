@@ -13,7 +13,7 @@ tags = db.Table('tags',
 
 class Dataset(SearchableMixin, db.Model):
     __tablename__ = "datasets"
-    __searchable__ = ['name', 'description', 'citation']
+    __searchable__ = ['name', 'description', 'cite_title', 'cite_authors', 'cite_venue', 'cite_year', 'old_citation']
     __doc__ = ES_DATASET_DOC
     id = db.Column(db.Integer, primary_key=True)
     is_approved = db.Column(db.Boolean, default=False)
@@ -22,7 +22,6 @@ class Dataset(SearchableMixin, db.Model):
     thumbnail = db.Column(db.String(1000), nullable=True)
     description = db.Column(db.Text, nullable=False)
     license = db.Column(db.String(256), nullable=True)
-    citation = db.Column(db.String(1000), nullable=True)
     year_created = db.Column(db.Integer, nullable=True)
     size = db.Column(db.String(256), nullable=True)
     num_cat = db.Column(db.String(256), nullable=True)
@@ -33,6 +32,15 @@ class Dataset(SearchableMixin, db.Model):
     owner = db.relationship('User', backref='datasets', lazy=True)
 
     tags = db.relationship('Tag', secondary=tags, lazy='subquery', backref=db.backref('datasets', lazy=True))
+
+    # Citation Fields
+    cite_title = db.Column(db.String(1000), nullable=True)
+    cite_authors = db.Column(db.String(1000), nullable=True)
+    cite_venue = db.Column(db.String(1000), nullable=True)
+    cite_year = db.Column(db.Integer, nullable=True)
+
+    # Old Citation Field
+    old_citation = db.Column(db.String(1000), nullable=True)
 
 
 class Tag(db.Model):
