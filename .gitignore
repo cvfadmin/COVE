@@ -3,7 +3,7 @@ node_modules
 /dist
 
 # Migration history - should figure out best practices here
-alembic/versions
+backend/alembic/versions
 
 # local env files
 .env.local

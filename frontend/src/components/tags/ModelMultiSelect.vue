@@ -218,6 +218,10 @@ ul {
 		.active {
 			background: auto;
 		}
+		
+		/* Adds Scrolling */
+		max-height: 210px;
+		overflow-y: auto;
 	}
 }
 	
