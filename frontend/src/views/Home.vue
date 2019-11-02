@@ -112,7 +112,11 @@ export default {
 		},
 
 		updateTags (taglist, category) {
-			this.searchTags[category] = taglist
+			if (category == "data_types") {
+				this.searchTags["dataTypes"] = taglist;
+				return;
+			}
+			this.searchTags[category] = taglist // category = "data_types" but name of variable is dataType
 		},
 
 		clearSearch() {
