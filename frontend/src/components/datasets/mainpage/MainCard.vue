@@ -12,7 +12,7 @@
 			<p class="description">{{dataset.description}}</p>
 			<div class="citation">
 				<strong>Citation:</strong>
-				<p>{{dataset.old_citation}}</p>
+				<p v-if="!dataset.cite_title">{{dataset.old_citation}}</p>
 				<p>{{dataset.cite_title}} {{dataset.cite_authors}} {{dataset.cite_venue}} {{dataset.cite_year}}</p>
 			</div>
 		</div>

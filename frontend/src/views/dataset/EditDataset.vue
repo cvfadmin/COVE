@@ -113,7 +113,10 @@ export default {
 				size: this.dataset.size,
 				num_cat: this.dataset.num_cat,
 				thumbnail: this.dataset.thumbnail,
-				citation: this.dataset.citation,
+				cite_year: this.dataset.old_citation,
+				cite_venue: this.dataset.cite_venue,
+				cite_authors: this.dataset.cite_authors,
+				cite_title: this.dataset.cite_title,
 			}
 		})
 

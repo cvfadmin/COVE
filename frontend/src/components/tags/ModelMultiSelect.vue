@@ -4,6 +4,7 @@
 		<input type="text" 
 			v-model="cleanedQuery"
 			v-on:keydown.enter.prevent="selectTagOrNew()"
+			v-on:keydown.tab="hideDropdown"
 			v-on:focus="showDropdown()"
 			v-on-clickaway="hideDropdown"
 			v-test="{ id : 'text'}"

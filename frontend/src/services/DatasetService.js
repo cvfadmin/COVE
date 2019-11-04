@@ -11,7 +11,7 @@ export default {
 				search: params.query,
 				tasks: params.tasks,
 				topics: params.topics,
-				data_types: params.dataTypes,
+				data_types: params.data_types,
 				limit: params.limit,
 				offset: params.offset,
 			})
