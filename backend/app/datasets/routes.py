@@ -111,10 +111,6 @@ class ListDatasetView(ListResourceView):
         # Holds a list of tag ids to be associated with the dataset.
         tags = req_body.pop('tags', [])
 
-        # Ensure that new datasets have citations
-        if req_body.get('citation') is None:
-            return {'errors': 'Citation missing'}
-
         # Add owner to dataset object
         # TODO: Store ID in JWT
         user = User.query.filter_by(username=get_jwt_identity()).first()
@@ -124,11 +120,15 @@ class ListDatasetView(ListResourceView):
         # Upgrade to marshmallow 3.0 when it becomes stable to fix.
         # https://github.com/marshmallow-code/marshmallow/milestone/10
         try:
-            new = self.SingleSchema.load(req_body).data
+            # Switch primary keys into actual model objects
+            req_body['owner'] = User.query.filter_by(id=req_body['owner']).first()
+            req_body['tags'] = [Tag.query.filter_by(id=tag_id).first() for tag_id in tags]
+            # Load model
+            new = Dataset(**req_body)
         except ValidationError as err:
             return {'errors': err.messages}
         else:
-            new.tags = [Tag.query.filter_by(id=tag_id).first() for tag_id in tags]
+
             db.session.add(new)
             db.session.commit()
 

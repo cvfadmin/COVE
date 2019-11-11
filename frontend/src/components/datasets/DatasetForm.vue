@@ -2,7 +2,11 @@
 	<div class="dataset-form">
 		<form v-on:submit.prevent="triggerSubmit">
 			<div class="input-group">
-				
+
+				<div class="subsection-title">
+					<h2 class="no-margin-top">Metadata Fields:</h2>
+				</div>
+
 				<div class="input-head">
 					<p>Dataset name*:</p>
 					<p class="error">{{errors.name}}</p>
@@ -44,12 +48,40 @@
 					<p class="error">{{errors.thumbnail}}</p>
 				</div>
 				<input type="url" v-model="formData.thumbnail">
-					
-				<div class="input-head">
-					<p>Citation of paper dataset was published in*:</p>
-					<p class="error">{{errors.citation}}</p>
+				
+				<!--Citation Fields Start-->	
+				<div class="subsection-title">
+					<h2>Citation Fields:</h2>
 				</div>
-				<textarea v-model="formData.citation" required></textarea>
+
+				<div class="input-head">
+					<p>Title of paper dataset was published in*:</p>
+					<p class="error">{{errors.cite_title}}</p>
+				</div>
+				<input type="text" v-model="formData.cite_title" required>
+
+				<div class="input-head">
+					<p>Authors of paper dataset was published in*:</p>
+					<p class="error">{{errors.cite_authors}}</p>
+				</div>
+				<input type="text" v-model="formData.cite_authors" required>
+
+				<div class="input-head">
+					<p>Name of venue (conference, journal, etc.) of paper dataset was published in*:</p>
+					<p class="error">{{errors.cite_venue}}</p>
+				</div>
+				<input type="text" v-model="formData.cite_venue" required>
+
+				<div class="input-head">
+					<p>Year paper dataset was published in*:</p>
+					<p class="error">{{errors.cite_year}}</p>
+				</div>
+				<input type="text" v-model="formData.cite_year" required>
+				<!--Citation Fields End-->
+					
+				<div class="subsection-title">
+					<h2>Assign Tags:</h2>
+				</div>
 					
 				<div class="tags">
 					<div class="tasks">
@@ -103,9 +135,6 @@
 
 <script>
 import ModelMultiSelect from '@/components/tags/ModelMultiSelect'
-import DatasetService from '@/services/DatasetService'
-import router from '@/router'
-
 
 export default {
 	name: 'datasetForm',
@@ -163,8 +192,10 @@ export default {
 		triggerSubmit () {
 			if (!this.allowSubmit) { return }
 			if (!this.validateData()) { return }
-
+			
+			// So users can't click multiple times
 			this.allowSubmit = false;
+			// Defer logic to parents of this component - e.g. createNewDataset or updateDataset
 			this.$emit('submitEvent', this.updatedTags)
 		},
 
@@ -202,8 +233,12 @@ export default {
 
 <style scoped lang="scss">
 
+	.no-margin-top {
+		margin-top: 0;
+	}
+
 	form {
-		margin-top: 40px;
+		margin-top: 30px;
 
 		#select-tags .dropdown {
 			margin-top: 10px;
@@ -228,6 +263,12 @@ export default {
 			
 			.visible {
 				border-color: #000;
+			}
+		}
+
+		.subsection-title {
+			h2 {
+				font-weight: 300;
 			}
 		}
 
