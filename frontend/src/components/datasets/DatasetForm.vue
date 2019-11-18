@@ -194,6 +194,7 @@ export default {
 			if (!this.validateData()) { return }
 			
 			// So users can't click multiple times
+			// Should change to loading icon instead of never allowing again
 			this.allowSubmit = false;
 			// Defer logic to parents of this component - e.g. createNewDataset or updateDataset
 			this.$emit('submitEvent', this.updatedTags)

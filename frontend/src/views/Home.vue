@@ -17,17 +17,17 @@
 			<div id="tags">
 				<div class="input-group">
 					<p>Tasks:</p>
-					<ModelMultiSelect ref="tasks" :models="tasks" :category="'tasks'" :createNew="false" v-on:changedTags="updateTags"></ModelMultiSelect>
+					<ModelMultiSelect :models="tasks" :category="'tasks'" :createNew="false" v-on:changedTags="updateTags"></ModelMultiSelect>
 				</div>
 				
 				<div class="input-group">
 					<p>Topics:</p>
-					<ModelMultiSelect ref="topics" :models="topics" :category="'topics'" :createNew="false" v-on:changedTags="updateTags"></ModelMultiSelect>
+					<ModelMultiSelect :models="topics" :category="'topics'" :createNew="false" v-on:changedTags="updateTags"></ModelMultiSelect>
 				</div>
 				
 				<div class="input-group">
 					<p>Data Types:</p>
-					<ModelMultiSelect ref="dataTypes" :models="dataTypes" :category="'data_types'" :createNew="false" v-on:changedTags="updateTags"></ModelMultiSelect>
+					<ModelMultiSelect :models="dataTypes" :category="'data_types'" :createNew="false" v-on:changedTags="updateTags"></ModelMultiSelect>
 				</div>
 
 			</div>
@@ -61,11 +61,6 @@ export default {
 	data () {
 		return {
 			searchInput: '',
-			searchTags: {
-				tasks: [],
-				topics: [],
-				dataTypes: [],
-			},
 		}
 	},
 
@@ -94,18 +89,19 @@ export default {
 				alert('Search query must be at least three characters long.')
 				return
 			}
-
+			
 			let params = {
 				query: this.searchInput, 
-				tasks: this.searchTags.tasks.map((item) => item.name), 
-				topics: this.searchTags.topics.map((item) => item.name), 
-				data_types: this.searchTags.dataTypes.map((item) => item.name),
+				tasks: this.$store.state.searchTags.tasks.map((item) => item.name), 
+				topics: this.$store.state.searchTags.topics.map((item) => item.name), 
+				data_types: this.$store.state.searchTags.dataTypes.map((item) => item.name),
 			}
 
 			// Reset and make search query
 			this.$refs.datasetList.datasets = []
 			this.$refs.datasetList.offset = 0
 			this.$refs.datasetList.getDatasets(params)
+			
 			// Update route
 			params = miscFunctions.cleanParams(params)
 			this.$router.push({ path: '/', query: params})
@@ -113,18 +109,21 @@ export default {
 
 		updateTags (taglist, category) {
 			if (category == "data_types") {
-				this.searchTags["dataTypes"] = taglist;
-				return;
+				this.$store.commit('setDataTypesSearchTags', taglist);
+			} else if (category == "topics") {
+				this.$store.commit('setTopicsSearchTags', taglist);
+			} else {
+				this.$store.commit('setTasksSearchTags', taglist);
 			}
-			this.searchTags[category] = taglist // category = "data_types" but name of variable is dataType
+
+			// Update search results!
+			this.search()
 		},
 
 		clearSearch() {
 			// Reset the search bar and tags
 			this.searchInput = ''
-			this.$refs.tasks.clearSelectedTags()
-			this.$refs.topics.clearSelectedTags()
-			this.$refs.dataTypes.clearSelectedTags()
+			this.$store.commit('clearSearchTags')
 
 			this.search()
 		},

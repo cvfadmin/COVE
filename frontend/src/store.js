@@ -10,17 +10,20 @@ export default new Vuex.Store({
 	state: {
 		tags: [],
 		
+		// For persistent behavior with tags
+		searchTags: {
+			tasks: [],
+			topics: [],
+			dataTypes: [],
+		},
+
 		//User info
 		accessToken: '',
 		isAdmin: false,
 		userId: -1,
 	},
 
-	mutations: {
-		async loadDatasets (state) {
-			const response = await DatasetService.getDatasets()
-			Vue.set(state, 'datasets', response.data.results)
-		},
+	mutations: { // Always synchronous
 
 		async loadTags (state) {
 			const response = await DatasetService.getTags()
@@ -37,10 +40,26 @@ export default new Vuex.Store({
 
 		setUserId (state, id) {
 			Vue.set(state, 'userId', id)
+		},
+
+		setDataTypesSearchTags (state, updatedTags) {
+			Vue.set(state['searchTags'], 'dataTypes', updatedTags)
+		},
+
+		setTasksSearchTags (state, updatedTags) {
+			Vue.set(state['searchTags'], 'tasks', updatedTags)
+		},
+
+		setTopicsSearchTags (state, updatedTags) {
+			Vue.set(state['searchTags'], 'topics', updatedTags)
+		},
+
+		clearSearchTags (state) {
+			Vue.set(state, 'searchTags', { tasks: [], topics: [], dataTypes: [],})
 		}
 	},
 
-	actions: {
+	actions: { // Synchronous or Asynchronous
 		
 		login ({commit, state}, [access_token, is_admin, user_id]) {
 			commit('setAccessToken', access_token)
@@ -57,14 +76,6 @@ export default new Vuex.Store({
 	},
 
 	plugins: [
-		createPersistedState()/*({
-			storage: {
-				getItem: key => Cookies.get(key),
-				// Please see https://github.com/js-cookie/js-cookie#json, on how to handle JSON.
-				setItem: (key, value) =>
-					Cookies.set(key, value, { expires: 3, secure: true }),
-				removeItem: key => Cookies.remove(key),
-			},
-		}),*/
+		createPersistedState()
 	],
 })

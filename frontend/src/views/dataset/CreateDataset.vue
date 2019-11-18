@@ -61,6 +61,11 @@ export default {
 			})
 			
 			this.createTags(newTags).then((response) => {
+				if (response.data.errors) {
+					alert(response.data.errors.tags)
+					return
+				}
+
 				this.formData.tags = oldTags.concat(response.data.new).map((item) => item.id)
 				
 				this.createDataset(this.formData).then((response) => {
@@ -88,7 +93,12 @@ export default {
 						console.log(response)
 					}
 				})
-			}) 
+			}).catch((response) => {
+				console.log("HERES ThE CATCH")
+				// Tag creation went wrong
+				console.log(response)
+				
+			})
 		},
 
 		async createTags (list) {
