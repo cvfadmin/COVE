@@ -1,5 +1,4 @@
 from .models import Tag, Dataset
-from sqlalchemy import or_
 
 
 def dataset_tag_filter(request, query):
@@ -22,14 +21,7 @@ def dataset_tag_filter(request, query):
         return query
 
     # This filter assumes tag names are unique
-    print(name_list)
-    return query.filter(
-        Dataset.tags.any(
-            or_(
-                Tag.name.in_(name_list),
-            )
-        )
-    )
+    return query.filter(Dataset.tags.any(Tag.name.in_(name_list)))
 
 
 def ensure_arg_is_list(var):
