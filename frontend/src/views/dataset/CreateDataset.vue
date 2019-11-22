@@ -93,11 +93,6 @@ export default {
 						console.log(response)
 					}
 				})
-			}).catch((response) => {
-				console.log("HERES ThE CATCH")
-				// Tag creation went wrong
-				console.log(response)
-				
 			})
 		},
 
