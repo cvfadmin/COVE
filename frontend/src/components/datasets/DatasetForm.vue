@@ -127,7 +127,11 @@
 			
 			</div>
 			<div class="input-group">
-				<button type="submit">Submit</button>
+				<button type="submit" v-if="!hideSubmitButton">Submit</button>
+				<div v-if="hideSubmitButton" id="loading-icon">
+					<img src="@/assets/ripple-loading.gif" alt="Loading Icon">
+					<p>Submitting...</p>
+				</div>
 			</div>
 		</form>
 	</div>
@@ -155,7 +159,8 @@ export default {
 	data () {
 		return {
 			updatedTags: this.dataset.tags,
-			allowSubmit: true
+			allowSubmit: true,
+			hideSubmitButton: false,
 		}
 	},
 
@@ -195,7 +200,7 @@ export default {
 			
 			// So users can't click multiple times
 			// Should change to loading icon instead of never allowing again
-			this.allowSubmit = false;
+			this.hideSubmitButton = true;
 			// Defer logic to parents of this component - e.g. createNewDataset or updateDataset
 			this.$emit('submitEvent', this.updatedTags)
 		},
@@ -276,6 +281,15 @@ export default {
 		.tags {
 			div {
 				margin-bottom: 10px;
+			}
+		}
+
+		#loading-icon {
+			text-align: center;
+
+			img {
+				width: 100px;
+				height: 100px;
 			}
 		}
 	}
