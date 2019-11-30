@@ -123,7 +123,10 @@ export default {
 		clearSearch() {
 			// Reset the search bar and tags
 			this.searchInput = ''
-			this.$store.commit('clearSearchTags')
+			
+			this.$store.commit('setDataTypesSearchTags', []);
+			this.$store.commit('setTopicsSearchTags', []);
+			this.$store.commit('setTasksSearchTags', []);
 
 			this.search()
 		},
