@@ -164,6 +164,10 @@ class ListTagView(ListResourceView):
             if tag.get('category', '') not in ['tasks', 'topics', 'data_types']:
                 return {'errors': {"tags": ['Category must be in the list: ["tasks", "topics", "data_types"]']}}
 
+        for tag in req_body:
+            if self.Model.query.filter_by(name=tag.get('name')).count() > 0:
+                return {'errors': {"tags": ["The tag: '" + tag.get('name') + "' already exists."]}}
+
         try:
             new = schema_to_use.load(req_body).data
         except ValidationError as err:

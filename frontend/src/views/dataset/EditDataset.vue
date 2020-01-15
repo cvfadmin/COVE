@@ -74,6 +74,15 @@ export default {
 						alert("Oops something went wrong :/ - Please email cove@thecvf.com if error persists.")
 						console.log(response)
 					}
+
+					// Show submit button again
+					this.$refs.datasetForm.hideSubmitButton = false
+				
+				}).catch((response, y) => {
+					alert("Oops something went wrong :/ - Please check over your responses for errors! -  If error persists email cove@thecvf.com.")
+					console.log(response)
+					// Show submit button again
+					this.$refs.datasetForm.hideSubmitButton = false
 				})
 			}) 
 		},

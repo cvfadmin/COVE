@@ -10,9 +10,11 @@
 			<template v-slot="data">
 				<div class="form-container">
 					<DatasetForm 
+						ref="datasetForm"
 						:tags="data.data.results"
 						:formData="formData" 
-						:errors="errors" 
+						:errors="errors"
+						:hideSubmitButton="hideSubmitButton"
 						@submitEvent="handleSubmit">
 					</DatasetForm>	
 				</div>
@@ -47,7 +49,8 @@ export default {
 		return {
 			tagsPromise: null,
 			formData: {},
-			errors: {}
+			errors: {},
+			hideSubmitButton: false,
 		}
 	},
 
@@ -61,6 +64,11 @@ export default {
 			})
 			
 			this.createTags(newTags).then((response) => {
+				if (response.data.errors) {
+					alert(response.data.errors.tags)
+					return
+				}
+
 				this.formData.tags = oldTags.concat(response.data.new).map((item) => item.id)
 				
 				this.createDataset(this.formData).then((response) => {
@@ -87,8 +95,17 @@ export default {
 						alert("Oops something went wrong :/ - Please email cove@thecvf.com if error persists.")
 						console.log(response)
 					}
+
+					// Show submit button again
+					this.$refs.datasetForm.hideSubmitButton = false
+				
+				}).catch((response, y) => {
+					alert("Oops something went wrong :/ - Please check over your responses for errors! -  If error persists email cove@thecvf.com.")
+					console.log(response)
+					// Show submit button again
+					this.$refs.datasetForm.hideSubmitButton = false
 				})
-			}) 
+			})
 		},
 
 		async createTags (list) {
