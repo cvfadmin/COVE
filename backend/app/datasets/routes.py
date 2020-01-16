@@ -111,23 +111,52 @@ class ListDatasetView(ListResourceView):
 
     @jwt_required
     def post(self):
-        '''Tries to create a dataset.'''
+        """ Tries to create a dataset. """
+
+        # Jsonify request
         req_body = request.get_json()
 
-        # Add owner to dataset object
-        # TODO: Store ID in JWT
+        # Add owner to dataset request object
         user = User.query.filter_by(username=get_jwt_identity()).first()
         req_body['owner'] = user.id
 
+        # 1.) Validate dataset without tags
         try:
-            # Load model
+            tags = req_body.pop('tags', None)
+            self.SingleSchema.load(req_body)
+        except ValidationError as err:
+            return {'errors': err.messages}
+
+        # 2.) Create any new tags - validate new tags then create
+
+        # New tags are defined by not having an id associated with the,
+        new_tags_list = [tag for tag in tags if tag.get('id', None) is None]
+        old_tags_list = [tag for tag in tags if tag.get('id') is not None]
+
+        # There are tags that need to be created
+        if len(new_tags_list) > 0:
+            are_tags_validated, json_response = create_tags(new_tags_list)
+
+            # Handle exception when creating new tags
+            if not are_tags_validated:
+                print("TAGS NOT VAL", json_response)
+                return json_response
+
+            # Combine new tags with old tags
+            all_tags = json_response['new'] + old_tags_list
+        else:
+            all_tags = old_tags_list
+
+        # 3.) Validate dataset with tags
+        try:
+            req_body['tags'] = all_tags
+            print('FINAL_REQ_BODY', req_body)
             new = self.SingleSchema.load(req_body)
         except ValidationError as err:
             return {'errors': err.messages}
-        else:
 
-            db.session.add(new)
-            db.session.commit()
+        db.session.add(new)
+        db.session.commit()
 
         # send email to cove admin
         send_dataset_to_approve(Config.NOTIFY_ADMIN_EMAIL, req_body.get('name', 'Name Unavailable'))
@@ -138,50 +167,71 @@ class ListDatasetView(ListResourceView):
         }
 
 
+def validate_tags(tag_list):
+    """
+    Validates a list of potential tag objects
+    :return: (boolean, response json)
+    """
+    # Validate categories
+    for tag in tag_list:
+        if tag.get('category', '') not in ['tasks', 'topics', 'data_types']:
+            return False, {'errors': {"tags": ['Category must be in the list: ["tasks", "topics", "data_types"]']}}
+
+    # Enforce unique tags
+    for tag in tag_list:
+        if Tag.query.filter_by(name=tag.get('name')).count() > 0:
+            return False, {'errors': {"tags": ["The tag: '" + tag.get('name') + "' already exists."]}}
+
+    # Validate data with schema
+    try:
+        new = tag_list_schema.load(tag_list)
+    except ValidationError as err:
+        return False, {'errors': err.messages}
+
+    return True, new
+
+
+def create_tags(tag_list):
+    """
+    Tries to create tags
+    :param tag_list: List of potential tag objects
+    :param is_many: Boolean - Is there only one tag in list or > 1
+    :return: Response JSON
+    """
+
+    is_validated, data = validate_tags(tag_list)
+
+    if not is_validated:
+        return is_validated, data
+
+    print('Tags List:', tag_list)
+    print('DATA:', data)
+
+    for new_model in data:
+        db.session.add(new_model)
+        db.session.commit()
+
+    return is_validated, {
+        'message': 'successfully created',
+        'new': tag_list_schema.dump(data)
+    }
+
+
 class ListTagView(ListResourceView):
     Model = Tag
     ListSchema = tag_list_schema
     SingleSchema = tag_schema
 
     def post(self):
-        req_body = request.get_json()
-        is_many = request.args.get('many') == 'true'
-
-        if not is_many:
-            req_body = [req_body]
+        is_many = request.args.get('many') == 'true'  # TODO: This may be unecassary
+        req_body = request.get_json() if is_many else [request.get_json()]
 
         if len(req_body) is 0:
-            return {
-                'message': 'Nothing to create',
-                'new': []
-            }
+            return {'message': 'Nothing to create', 'new': []}
 
-        schema_to_use = self.ListSchema
-        for tag in req_body:
-            if tag.get('category', '') not in ['tasks', 'topics', 'data_types']:
-                return {'errors': {"tags": ['Category must be in the list: ["tasks", "topics", "data_types"]']}}
-
-        for tag in req_body:
-            if self.Model.query.filter_by(name=tag.get('name')).count() > 0:
-                return {'errors': {"tags": ["The tag: '" + tag.get('name') + "' already exists."]}}
-
-        try:
-            new = schema_to_use.load(req_body).data
-        except ValidationError as err:
-            return {'errors': err.messages}
-
-        if is_many:
-            for new_model in new:
-                db.session.add(new_model)
-                db.session.commit()
-        else:
-            db.session.add(new)
-            db.session.commit()
-
-        return {
-            'message': 'successfully created',
-            'new': schema_to_use.dump(new).data
-        }
+        # Factored out this logic so dataset view can also create tags
+        _, json_response = create_tags(req_body)
+        return json_response
 
 
 api.add_resource(SingleDatasetView, '/datasets/<_id>')
