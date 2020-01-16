@@ -35,10 +35,10 @@
 
 		<section id="datasets">
 
-			<p class="num-results" v-if="searchInput == '' ">
+			<p class="num-results" v-if="searchInput == '' && tags.length == 0">
 				There are {{ totalNumResults }} datasets in COVE (showing {{numPageResults}}):
 			</p>
-			<p class="num-results" v-if="searchInput != '' ">
+			<p class="num-results" v-else>
 				There are {{ totalNumResults }} datasets that match your query (showing {{numPageResults}}):
 			</p>
 
