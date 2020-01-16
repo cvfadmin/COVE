@@ -86,6 +86,7 @@ class ListDatasetView(ListResourceView):
         search_param = request.args.get('search')
         if search_param is None:
             query_list = dataset_tag_filter(request, query_list)
+            total_results = query_list.count()
             # datasets ordered by creation date - newest first (on top of page)
             query_list = query_list.order_by(desc(Dataset.date_created)).offset(offset).limit(limit)
         else:
@@ -95,12 +96,16 @@ class ListDatasetView(ListResourceView):
             if not is_admin:
                 query_list = query_list.filter_by(is_approved=True)
             query_list = dataset_tag_filter(request, query_list)
+
+            total_results = query_list.count()
             query_list = query_list.offset(offset).limit(limit)
 
         # Put results in json format and return it
         model_list_json = self.ListSchema.dump(query_list)[0]
+
         return {
-            'num_results': len(model_list_json),
+            'num_total_results': total_results,
+            'num_page_results': len(model_list_json),
             'results': model_list_json
         }, 200
 
