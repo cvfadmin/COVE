@@ -21,7 +21,7 @@ import router from '@/router'
 
 
 export default {
-	name: 'createDataset',
+	name: 'editDataset',
 	components: {
 		ModelMultiSelect,
 		PageHeader,
@@ -40,51 +40,42 @@ export default {
 	methods: {
 
 		async handleSubmit(updatedTags) {
-			// Seperate previously created tags from new tags
-			let oldTags = updatedTags.filter((item) => item.new == undefined)
-			let newTags = updatedTags.filter((item) => item.new != undefined)
-			newTags = newTags.map((item) => {
-				return {"name": item.name, "category": item.category}
-			})
-			
-			this.createTags(newTags).then((response) => {
-				this.formData.tags = oldTags.concat(response.data.new).map((item) => item.id)
-				
-				this.updateDataset(this.$route.params.id, this.formData).then((response) => {
-					if (response.data.errors != undefined && response.status == 200) {
-						// Show validation errors
-						let errors = response.data.errors
-						Object.keys(errors).forEach((key, idx) => {
-							console.log('Missing tag key: ' + key)
-							this.errors[key] = errors[key].join(" - ")
-						})
+			this.formData.tags = updatedTags
 
-					} else if (response.status == 200) {
-						// Created successfully
-						let self = this;
-						Object.keys(this.formData).forEach(function(key,index) {
-								self.formData[key] = '';
-						});
+			this.updateDataset(this.$route.params.id, this.formData).then((response) => {
+				if (response.data.errors != undefined && response.status == 200) {
+					// Show validation errors
+					let errors = response.data.errors
+					Object.keys(errors).forEach((key, idx) => {
+						console.log('Missing tag key: ' + key)
+						this.errors[key] = errors[key].join(" - ")
+					})
+					alert('Please check over your responses for errors!')
+
+				} else if (response.status == 200) {
+					// Created successfully
+					let self = this;
+					Object.keys(this.formData).forEach(function(key,index) {
+							self.formData[key] = '';
+					});
 						
-						alert("Your dataset has been updated");
-						router.push({path: '/datasets/' + this.dataset.id})
+					alert("Your dataset has been updated");
+					router.push({path: '/datasets/' + this.dataset.id})
 					
-					} else {
-						// Some weird error
-						alert("Oops something went wrong :/ - Please email cove@thecvf.com if error persists.")
-						console.log(response)
-					}
-
-					// Show submit button again
-					this.$refs.datasetForm.hideSubmitButton = false
-				
-				}).catch((response, y) => {
-					alert("Oops something went wrong :/ - Please check over your responses for errors! -  If error persists email cove@thecvf.com.")
+				} else {
+					// Some weird error
+					alert("Oops something went wrong :/ -  If error persists email cove@thecvf.com.")
 					console.log(response)
 					// Show submit button again
 					this.$refs.datasetForm.hideSubmitButton = false
-				})
-			}) 
+				}
+				
+			}).catch((response, y) => {
+				alert("Oops something went wrong :/ -  If error persists email cove@thecvf.com.")
+				console.log(response)
+				// Show submit button again
+				this.$refs.datasetForm.hideSubmitButton = false
+			})
 		},
 
 		async getTags() {
@@ -122,7 +113,7 @@ export default {
 				size: this.dataset.size,
 				num_cat: this.dataset.num_cat,
 				thumbnail: this.dataset.thumbnail,
-				cite_year: this.dataset.old_citation,
+				cite_year: this.dataset.cite_year,
 				cite_venue: this.dataset.cite_venue,
 				cite_authors: this.dataset.cite_authors,
 				cite_title: this.dataset.cite_title,

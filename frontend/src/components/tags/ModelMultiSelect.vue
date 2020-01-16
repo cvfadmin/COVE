@@ -119,7 +119,7 @@ export default {
 			// Only select a model if it is equal to a query - so new tags can be substrings of old tags
 			if (this.createNew) {
 				
-				if (this.filteredTags[0].name == this.query) {
+				if (this.filteredTags.length != 0 && this.filteredTags[0].name == this.query) {
 					// Select first value in unselected list
 					this.selectModel(this.filteredTags[0])
 				
@@ -132,8 +132,9 @@ export default {
 				}
 
 			} else {
-				// Select most similar
-				this.selectModel(this.filteredTags[0])
+				if (this.filteredTags.length != 0) {
+					this.selectModel(this.filteredTags[0])
+				}
 			}
 
 			this.resetComponent()

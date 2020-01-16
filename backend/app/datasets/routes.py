@@ -28,22 +28,43 @@ class SingleDatasetView(SingleResourceByIdView):
         model_instance = self.Model.query.filter_by(id=_id).first_or_404()
         req_body = request.get_json()
 
-        # Holds a list of tag ids to be updated. Tags will be added to the dataset manually
-        updated_tags = req_body.pop('tags', None)
-
-        # Test if updates are valid. If not, return error.
+        # 1.) Test if updates are valid without tags. If not, return error.
         try:
+            updated_tags = req_body.pop('tags', None)
             self.Schema.load(req_body, instance=model_instance)
         except ValidationError as err:
             return {'errors': err.messages}
 
-        # TO_DO: Can delete tag if adding another tag. But can't solely delete a tag.
-        # Front end issue maybe. A tag can only be deleted by adding another tag. Else the action won't be noticed.
-        if updated_tags:
-            model_instance.tags = [Tag.query.filter_by(id=tag_id).first() for tag_id in updated_tags]
+        # 2.) Create any new tags - validate new tags then create
+
+        # New tags are defined by not having an id associated with the,
+        new_tags_list = [tag for tag in updated_tags if tag.get('id', None) is None]
+        old_tags_list = [tag for tag in updated_tags if tag.get('id') is not None]
+
+        # There are tags that need to be created
+        if len(new_tags_list) > 0:
+            are_tags_validated, json_response = create_tags(new_tags_list)
+
+            # Handle exception when creating new tags
+            if not are_tags_validated:
+                return json_response
+
+            # Combine new tags with old tags
+            all_tags = json_response['new'] + old_tags_list
+        else:
+            all_tags = old_tags_list
+
+        # 3.) Validate dataset with tags and save
+        try:
+            # TO_DO: Can delete tag if adding another tag. But can't solely delete a tag.
+            # Front end issue maybe. A tag can only be deleted by adding another tag. Else the action won't be noticed.
+            model_instance.tags = [Tag.query.filter_by(id=tag["id"]).first() for tag in all_tags]
+            updated = self.Schema.load(req_body, instance=model_instance)
+        except ValidationError as err:
+            return {'errors': err.messages}
 
         # Actually do the updates on the dataset and commit it.
-        db.session.query(self.Model).filter_by(id=_id).update(dict(req_body))
+        db.session.add(updated) # if it has the same primary key update is assumed
         db.session.commit()
 
         return {
@@ -146,7 +167,7 @@ class ListDatasetView(ListResourceView):
         else:
             all_tags = old_tags_list
 
-        # 3.) Validate dataset with tags and save!
+        # 3.) Validate dataset with tags and save
         try:
             req_body['tags'] = all_tags
             new = self.SingleSchema.load(req_body)
@@ -201,9 +222,6 @@ def create_tags(tag_list):
 
     if not is_validated:
         return is_validated, data
-
-    print('Tags List:', tag_list)
-    print('DATA:', data)
 
     for new_model in data:
         db.session.add(new_model)
