@@ -139,7 +139,6 @@ class ListDatasetView(ListResourceView):
 
             # Handle exception when creating new tags
             if not are_tags_validated:
-                print("TAGS NOT VAL", json_response)
                 return json_response
 
             # Combine new tags with old tags
@@ -147,10 +146,9 @@ class ListDatasetView(ListResourceView):
         else:
             all_tags = old_tags_list
 
-        # 3.) Validate dataset with tags
+        # 3.) Validate dataset with tags and save!
         try:
             req_body['tags'] = all_tags
-            print('FINAL_REQ_BODY', req_body)
             new = self.SingleSchema.load(req_body)
         except ValidationError as err:
             return {'errors': err.messages}

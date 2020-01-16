@@ -84,6 +84,7 @@
 				</div>
 					
 				<div class="tags">
+					<p class="error">{{errors.tags}}</p>
 					<div class="tasks">
 						<p>Tasks:</p>
 						<div id="select-tags">

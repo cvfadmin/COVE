@@ -34,8 +34,7 @@
 		</form>
 
 		<section id="datasets">
-
-			<p class="num-results" v-if="searchInput == '' && tags.length == 0">
+			<p class="num-results" v-if="searchInput == '' && totalNumSearchTags == 0">
 				There are {{ totalNumResults }} datasets in COVE (showing {{numPageResults}}):
 			</p>
 			<p class="num-results" v-else>
@@ -83,6 +82,10 @@ export default {
 	computed: {
 		tags () {
 			return this.$store.state.tags
+		},
+
+		totalNumSearchTags () {
+			return this.$store.state.searchTags.tasks.length + this.$store.state.searchTags.topics.length + this.$store.state.searchTags.dataTypes.length
 		},
 
 		tasks () {
@@ -167,8 +170,6 @@ export default {
 		async getDatasets (params) {
 			params.offset = parseInt(this.limit) * (params.page - 1)
 			params.limit = this.limit
-
-			console.log(params.offset)
 
 			await DatasetService.searchDatasets(params).then((response) => {
 				this.totalNumResults = response.data.num_total_results

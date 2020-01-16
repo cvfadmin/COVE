@@ -56,55 +56,43 @@ export default {
 
 	methods: {
 		async handleSubmit(updatedTags) {
-			// Seperate previously created tags from new tags
-			let oldTags = updatedTags.filter((item) => item.new == undefined)
-			let newTags = updatedTags.filter((item) => item.new != undefined)
-			newTags = newTags.map((item) => {
-				return {"name": item.name, "category": item.category}
-			})
-			
-			this.createTags(newTags).then((response) => {
-				if (response.data.errors) {
-					alert(response.data.errors.tags)
-					return
+
+			// Add tags to formData
+			his.formData.tags = updatedTags
+				
+			this.createDataset(this.formData).then((response) => {
+				if (response.data.errors != undefined && response.status == 200) {
+					// Show validation errors
+					let errors = response.data.errors
+					Object.keys(errors).forEach((key, idx) => {
+						console.log('Error with: ' + key)
+						this.errors[key] = errors[key].join(" - ")
+					})
+
+				} else if (response.status == 200) {
+					// Created successfully
+					let self = this;
+					Object.keys(this.formData).forEach(function(key,index) {
+							self.formData[key] = '';
+					});
+						
+					alert("Thank you for your contribution! You can expect an email soon if your dataset is approved. You may close this page now.");
+					router.push({ name: 'home' })
+					
+				} else {
+					// Some weird error
+					alert("Oops something went wrong :/ - Please email cove@thecvf.com if error persists.")
+					console.log(response)
 				}
 
-				this.formData.tags = oldTags.concat(response.data.new).map((item) => item.id)
+				// Show submit button again
+				this.$refs.datasetForm.hideSubmitButton = false
 				
-				this.createDataset(this.formData).then((response) => {
-					if (response.data.errors != undefined && response.status == 200) {
-						// Show validation errors
-						let errors = response.data.errors
-						Object.keys(errors).forEach((key, idx) => {
-							console.log('Missing tag key: ' + key)
-							this.errors[key] = errors[key].join(" - ")
-						})
-
-					} else if (response.status == 200) {
-						// Created successfully
-						let self = this;
-						Object.keys(this.formData).forEach(function(key,index) {
-								self.formData[key] = '';
-						});
-						
-						alert("Thank you for your contribution! You can expect an email soon if your dataset is approved. You may close this page now.");
-						router.push({ name: 'home' })
-					
-					} else {
-						// Some weird error
-						alert("Oops something went wrong :/ - Please email cove@thecvf.com if error persists.")
-						console.log(response)
-					}
-
-					// Show submit button again
-					this.$refs.datasetForm.hideSubmitButton = false
-				
-				}).catch((response, y) => {
-					alert("Oops something went wrong :/ - Please check over your responses for errors! -  If error persists email cove@thecvf.com.")
-					console.log(response)
-					// Show submit button again
-					this.$refs.datasetForm.hideSubmitButton = false
-				})
+			}).catch((response, y) => {
+				alert("Oops something went wrong :/ - Please check over your responses for errors! -  If error persists email cove@thecvf.com.")
+				console.log(response)
+				// Show submit button again
+				this.$refs.datasetForm.hideSubmitButton = false
 			})
 		},
 
