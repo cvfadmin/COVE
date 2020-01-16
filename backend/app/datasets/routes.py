@@ -33,7 +33,7 @@ class SingleDatasetView(SingleResourceByIdView):
 
         # Test if updates are valid. If not, return error.
         try:
-            self.Schema.load(req_body, instance=model_instance).data
+            self.Schema.load(req_body, instance=model_instance)
         except ValidationError as err:
             return {'errors': err.messages}
 
@@ -101,7 +101,7 @@ class ListDatasetView(ListResourceView):
             query_list = query_list.offset(offset).limit(limit)
 
         # Put results in json format and return it
-        model_list_json = self.ListSchema.dump(query_list)[0]
+        model_list_json = self.ListSchema.dump(query_list)
 
         return {
             'num_total_results': total_results,
@@ -113,23 +113,15 @@ class ListDatasetView(ListResourceView):
     def post(self):
         '''Tries to create a dataset.'''
         req_body = request.get_json()
-        # Holds a list of tag ids to be associated with the dataset.
-        tags = req_body.pop('tags', [])
 
         # Add owner to dataset object
         # TODO: Store ID in JWT
         user = User.query.filter_by(username=get_jwt_identity()).first()
         req_body['owner'] = user.id
 
-        # ValidationError is not raised when url / description is null.
-        # Upgrade to marshmallow 3.0 when it becomes stable to fix.
-        # https://github.com/marshmallow-code/marshmallow/milestone/10
         try:
-            # Switch primary keys into actual model objects
-            req_body['owner'] = User.query.filter_by(id=req_body['owner']).first()
-            req_body['tags'] = [Tag.query.filter_by(id=tag_id).first() for tag_id in tags]
             # Load model
-            new = Dataset(**req_body)
+            new = self.SingleSchema.load(req_body)
         except ValidationError as err:
             return {'errors': err.messages}
         else:
@@ -142,7 +134,7 @@ class ListDatasetView(ListResourceView):
 
         return {
             'message': 'successfully created',
-            'new': self.SingleSchema.dump(new).data
+            'new': self.SingleSchema.dump(new)
         }
 
 

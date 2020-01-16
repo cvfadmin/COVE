@@ -1,15 +1,14 @@
 from .models import Dataset, Tag
 from app.admin.schemas import EditRequestSchema
-import flask_marshmallow.sqla as sqla
 from app import ma
 
 
-class TagSchema(sqla.ModelSchema):
+class TagSchema(ma.ModelSchema):
     class Meta:
         model = Tag
 
 
-class DatasetSchema(sqla.ModelSchema):
+class DatasetSchema(ma.ModelSchema):
     class Meta:
         model = Dataset
 
