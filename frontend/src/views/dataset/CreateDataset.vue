@@ -58,7 +58,7 @@ export default {
 		async handleSubmit(updatedTags) {
 
 			// Add tags to formData
-			his.formData.tags = updatedTags
+			this.formData.tags = updatedTags
 				
 			this.createDataset(this.formData).then((response) => {
 				if (response.data.errors != undefined && response.status == 200) {

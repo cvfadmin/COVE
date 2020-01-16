@@ -49,7 +49,7 @@ class AdminDatasetView(Resource):
             # send email to author saying it was approved
             send_dataset_approval(dataset.owner.email, dataset.id)
         else:
-            # send email to author saying it was approved and delete ds
+            # send email to author saying it was denied and delete ds
             send_dataset_denial(dataset.owner.email)
             db.session.delete(dataset)
 
