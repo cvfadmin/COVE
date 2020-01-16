@@ -73,7 +73,7 @@ export default {
 		return {
 			searchInput: '',
 			datasets: [],
-			limit: 3,  // Datasets per page - offset is computed from page query param
+			limit: 25,  // Datasets per page - offset is computed from page query param
 			totalNumResults: null,
 			numPageResults: null,
 		}
