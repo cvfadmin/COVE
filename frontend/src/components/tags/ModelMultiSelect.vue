@@ -110,22 +110,31 @@ export default {
 		},
 
 		// Called when a user enters a word into the "tag" boxes
-		// If none of the existing tags are similar to the word, create a new tag.
-		// If there are tags that are similar, select the first one returned.
+		// If none of the existing tags are equal to the word, create a new tag.
+		// If there is a tag that is equal, select the first one returned.
 		selectTagOrNew () {
 			// Do nothing if no word is entered
 			if (this.query == "") return
+			
+			// Only select a model if it is equal to a query - so new tags can be substrings of old tags
+			if (this.createNew) {
+				
+				if (this.filteredTags.length != 0 && this.filteredTags[0].name == this.query) {
+					// Select first value in unselected list
+					this.selectModel(this.filteredTags[0])
+				
+				} else {
+					// No tags match - create new
+					this.selectModel({
+						"name": this.query,
+						"category": this.category,
+					})
+				}
 
-			if (this.filteredTags.length == 0 && this.createNew) {
-				// Create new
-				this.selectModel({
-					"name": this.query,
-					"category": this.category,
-					"new":true
-				})
-			} else if (this.filteredTags[0] != undefined) {
-				// Select first value in unselected list
-				this.selectModel(this.filteredTags[0])
+			} else {
+				if (this.filteredTags.length != 0) {
+					this.selectModel(this.filteredTags[0])
+				}
 			}
 
 			this.resetComponent()

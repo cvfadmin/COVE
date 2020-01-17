@@ -10,7 +10,7 @@ class SingleResourceByIdView(Resource):
 
     def get(self, _id):
         model_instance = self.Model.query.filter_by(id=_id).first_or_404()
-        model_json = self.Schema.dump(model_instance)[0]
+        model_json = self.Schema.dump(model_instance)
         return {'result': model_json}
 
 
@@ -21,7 +21,7 @@ class ListResourceView(Resource):
 
     def get(self):
         model_list = self.Model.query.all()
-        model_list_json = self.ListSchema.dump(model_list)[0]
+        model_list_json = self.ListSchema.dump(model_list)
         return {
             'num_results': len(model_list_json),
             'results': model_list_json
@@ -47,5 +47,5 @@ class ListResourceView(Resource):
 
         return {
             'message': 'successfully created',
-            'new': schema_to_use.dump(new)[0]
+            'new': schema_to_use.dump(new)
         }

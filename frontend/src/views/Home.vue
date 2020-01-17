@@ -34,8 +34,17 @@
 		</form>
 
 		<section id="datasets">
-			<DatasetList ref="datasetList"></DatasetList>
+			<p class="num-results" v-if="searchInput == '' && totalNumSearchTags == 0">
+				There are {{ totalNumResults }} datasets in COVE (showing {{numPageResults}}):
+			</p>
+			<p class="num-results" v-else>
+				There are {{ totalNumResults }} datasets that match your query (showing {{numPageResults}}):
+			</p>
+
+			<DatasetList :datasets="datasets"></DatasetList>
 		</section>
+		
+		<Pagination ref="pagination" v-on:next="pushNextPage" v-on:previous="pushPreviousPage"></Pagination>
 
 	</div>
 </template>
@@ -43,6 +52,7 @@
 <script>
 import PageHeader from '@/components/PageHeader.vue'
 import IntroText from '@/components/home/IntroText.vue'
+import Pagination from '@/components/home/Pagination.vue'
 import DatasetList from '@/components/datasets/DatasetList.vue'
 import ModelMultiSelect from '@/components/tags/ModelMultiSelect'
 import DatasetService from '@/services/DatasetService'
@@ -53,7 +63,8 @@ export default {
 	name: 'home',
 	components: {
 		PageHeader,
-		IntroText, 
+		IntroText,
+		Pagination, 
 		DatasetList,
 		ModelMultiSelect,
 	},
@@ -61,12 +72,20 @@ export default {
 	data () {
 		return {
 			searchInput: '',
+			datasets: [],
+			limit: 25,  // Datasets per page - offset is computed from page query param
+			totalNumResults: null,
+			numPageResults: null,
 		}
 	},
 
 	computed: {
 		tags () {
 			return this.$store.state.tags
+		},
+
+		totalNumSearchTags () {
+			return this.$store.state.searchTags.tasks.length + this.$store.state.searchTags.topics.length + this.$store.state.searchTags.dataTypes.length
 		},
 
 		tasks () {
@@ -80,6 +99,10 @@ export default {
 		dataTypes () {
 			return this.tags.filter((item) => item.category == 'data_types')
 		},
+
+		page () {
+			return this.$route.query.page || 1
+		},
 	},
 
 
@@ -89,25 +112,11 @@ export default {
 				alert('Search query must be at least three characters long.')
 				return
 			}
-			
-			let params = {
-				query: this.searchInput, 
-				tasks: this.$store.state.searchTags.tasks.map((item) => item.name), 
-				topics: this.$store.state.searchTags.topics.map((item) => item.name), 
-				data_types: this.$store.state.searchTags.dataTypes.map((item) => item.name),
-			}
-
-			// Reset and make search query
-			this.$refs.datasetList.datasets = []
-			this.$refs.datasetList.offset = 0
-			this.$refs.datasetList.getDatasets(params)
-			
-			// Update route
-			params = miscFunctions.cleanParams(params)
-			this.$router.push({ path: '/', query: params})
+			// Go to 1st page after searching
+			this.pushToNewPage(1)
 		},
 
-		updateTags (taglist, category) {
+		updateTags(taglist, category) {
 			if (category == "data_types") {
 				this.$store.commit('setDataTypesSearchTags', taglist);
 			} else if (category == "topics") {
@@ -120,6 +129,32 @@ export default {
 			this.search()
 		},
 
+		pushToNewPage(page) {
+			/* Preserve current params but new page */
+			let params = miscFunctions.cleanParams({
+				query: this.searchInput, 
+				tasks: this.$store.state.searchTags.tasks.map((item) => item.name), 
+				topics: this.$store.state.searchTags.topics.map((item) => item.name), 
+				data_types: this.$store.state.searchTags.dataTypes.map((item) => item.name),
+				page: page,
+			})
+			
+			// Update route parameters so reload provides same results
+			this.$router.push({ path: '/', query: params})
+			
+			// Load datasets
+			this.getDatasets(params)
+		},
+
+		pushNextPage() {
+			this.pushToNewPage(parseInt(this.page) + 1)
+		},
+
+		pushPreviousPage() {
+			// TODO: Add logic of when there is no previous page
+			this.pushToNewPage(parseInt(this.page) - 1)
+		},
+
 		clearSearch() {
 			// Reset the search bar and tags
 			this.searchInput = ''
@@ -130,16 +165,68 @@ export default {
 
 			this.search()
 		},
+
+		// Get datasets to display, then set params for the next page.
+		async getDatasets (params) {
+			params.offset = parseInt(this.limit) * (params.page - 1)
+			params.limit = this.limit
+
+			await DatasetService.searchDatasets(params).then((response) => {
+				this.totalNumResults = response.data.num_total_results
+				this.numPageResults = response.data.num_page_results
+				this.datasets = response.data.results
+				
+				// Logic for which pagination buttons should be show
+				if (this.page == 1) {
+					this.$refs.pagination.hidePrevious = true
+				} else {
+					this.$refs.pagination.hidePrevious = false
+				}
+				
+				if ((parseInt(params.offset) + parseInt(this.limit)) >= parseInt(this.totalNumResults)) {
+					this.$refs.pagination.hideNext = true
+				} else {
+					this.$refs.pagination.hideNext = false
+				}
+
+			}).catch((err) => {
+				console.log(err)
+				alert("Something went wrong :/ - can't load more datasets.")
+			})
+		}
 	},
 
-	created(){
+	created () {
 		this.$store.commit('loadTags')
 	},
+
+	mounted () {
+		let params = {
+			query: this.$route.query.query, 
+			tasks: this.$route.query.tasks, 
+			topics: this.$route.query.topics, 
+			data_types: this.$route.query.data_types,
+			page: this.page,
+		}
+		
+		if (this.page == 1) {
+			this.$refs.pagination.hidePrevious = true
+		} else {
+			this.$refs.pagination.hidePrevious = false
+		}
+
+		this.getDatasets(params)
+	}
 }
 </script>
 
 <!-- Add "scoped" attribute to limit SCSS to this component only -->
 <style scoped lang="scss">
+
+.num-results {
+	font-size: 14px;
+	font-weight: 700;
+}
 
 #filters {
 
@@ -216,6 +303,7 @@ export default {
 			}
 		}
 	}
+
 }
 
 </style>
