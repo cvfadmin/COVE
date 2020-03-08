@@ -144,7 +144,8 @@ class ListDatasetView(ListResourceView):
         # 1.) Validate dataset without tags
         try:
             tags = req_body.pop('tags', None)
-            self.SingleSchema.load(req_body)
+            self.SingleSchema.load(req_body)  # Call .rollback() to remove this from being loaded too
+            db.session.rollback()
         except ValidationError as err:
             return {'errors': err.messages}
 
@@ -169,8 +170,12 @@ class ListDatasetView(ListResourceView):
 
         # 3.) Validate dataset with tags and save
         try:
+
             req_body['tags'] = all_tags
+            print(req_body)
             new = self.SingleSchema.load(req_body)
+            print(new)
+
         except ValidationError as err:
             return {'errors': err.messages}
 
