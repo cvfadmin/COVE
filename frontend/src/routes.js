@@ -50,6 +50,12 @@ export default [
         component: () => import('./views/dataset/EditRequests.vue'),
     },
     {
+        path: '/datasets/:id/requests/ownership',
+        name: 'datasetOwnershipRequests',
+        component: () => import('./views/dataset/OwnershipRequests.vue'),
+        beforeEnter: (to, from, next) => { routerGuards.isLoggedInGuard(to, from, next) }
+    },
+    {
         path: '/admin/confirm-datasets',
         name: 'adminConfirmDatasets',
         component: () => import('./views/admin/ConfirmDatasets.vue'),
@@ -59,6 +65,12 @@ export default [
         path: '/admin/open-edit-requests',
         name: 'adminOpenEditRequests',
         component: () => import('./views/admin/OpenEditRequests.vue'),
+        beforeEnter: (to, from, next) => { routerGuards.isAdminGuard(to, from, next) }
+    },
+    {
+        path: '/admin/open-ownership-requests',
+        name: 'adminOpenOwnershipRequests',
+        component: () => import('./views/admin/OpenOwnershipRequests.vue'),
         beforeEnter: (to, from, next) => { routerGuards.isAdminGuard(to, from, next) }
     },
 

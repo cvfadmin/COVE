@@ -1,6 +1,7 @@
 from .models import Dataset, Tag
 from app.admin.schemas import EditRequestSchema
 from app import ma
+from marshmallow import fields
 
 
 class TagSchema(ma.ModelSchema):
@@ -14,6 +15,7 @@ class DatasetSchema(ma.ModelSchema):
 
     edit_requests = ma.Nested(EditRequestSchema, many=True)
     tags = ma.Nested(TagSchema, many=True)
+    is_owned_by_admin = fields.Function(lambda obj: obj.owner.is_admin)
 
 
 dataset_schema = DatasetSchema()

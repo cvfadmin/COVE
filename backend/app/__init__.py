@@ -60,4 +60,7 @@ def create_app(config_class=Config):
     from app.admin import bp as admin_bp
     app.register_blueprint(admin_bp)
 
+    from app.ownership_request import bp as ownership_request_bp
+    app.register_blueprint(ownership_request_bp)
+
     return app

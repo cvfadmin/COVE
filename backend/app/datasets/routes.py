@@ -170,12 +170,8 @@ class ListDatasetView(ListResourceView):
 
         # 3.) Validate dataset with tags and save
         try:
-
             req_body['tags'] = all_tags
-            print(req_body)
             new = self.SingleSchema.load(req_body)
-            print(new)
-
         except ValidationError as err:
             return {'errors': err.messages}
 

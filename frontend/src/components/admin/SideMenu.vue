@@ -3,6 +3,7 @@
 		<ul>
 			<li><router-link tag="a" to="/admin/confirm-datasets">Confirm Datasets</router-link></li>
 			<li><router-link tag="a" to="/admin/open-edit-requests">Open Edit Requests</router-link></li>
+			<li><router-link tag="a" to="/admin/open-ownership-requests">Open Ownership Requests</router-link></li>
 		</ul>
 	</div>
 </template>
