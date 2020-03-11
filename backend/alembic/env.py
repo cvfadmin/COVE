@@ -5,9 +5,12 @@ from config import Config
 
 from alembic import context
 
+# Add new models from new apps - only need to add one and alembic should do the rest
+# Next - add metadata below
 from app.auth.models import User
 from app.datasets.models import Dataset
 from app.admin.models import EditRequestMessage
+from app.ownership_request.models import OwnershipRequest
 
 from sqlalchemy import engine_from_config, pool
 
@@ -27,6 +30,7 @@ fileConfig(config.config_file_name)
 target_metadata = User.metadata
 target_metadata = Dataset.metadata
 target_metadata = EditRequestMessage.metadata
+target_metadata = OwnershipRequest.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:

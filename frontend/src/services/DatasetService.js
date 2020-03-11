@@ -65,4 +65,8 @@ export default {
 			return Api().get('/admin/datasets/' + dataset_id + '/edit-requests')
 		},
 
+		createOwnershipRequest (dataset_id, data) {
+			return Api().post('/datasets/' + dataset_id + '/ownership-requests', data)
+		},
+
 }

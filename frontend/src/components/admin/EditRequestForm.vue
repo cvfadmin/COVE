@@ -29,13 +29,7 @@ export default {
 		return {
 			formData: {},
 			errors: {
-				first_name: '',
-				last_name: '',
-				email: '',
-				dataset_name: '',
-				year: '',
-				intro: '',
-				url: '',
+				content: ''
 			}
 		}
 	},

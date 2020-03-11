@@ -28,7 +28,7 @@ class Register(Resource):
             'username': username,
             'password_hash': User.hash_password(password),
             'email': email
-        }).data
+        })
 
         db.session.add(new_user)
         db.session.commit()

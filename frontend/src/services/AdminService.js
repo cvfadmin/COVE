@@ -24,4 +24,12 @@ export default {
 		getNotApprovedDatasets () {
 			return Api().get('/datasets/?approved=false')
 		},
+
+		getUnresolvedOwnershipRequests () {
+			return Api().get('/admin/ownership-requests')
+		},
+
+		updateOwnershipRequest (request_id, data) {
+			return Api().put('/admin/ownership-requests/' + request_id, data)
+		},
 }

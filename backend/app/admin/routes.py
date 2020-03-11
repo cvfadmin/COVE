@@ -1,15 +1,16 @@
 from app import api, db
-from flask import request
-from flask_restful import Resource
-from sqlalchemy import asc
 from app.datasets.models import Dataset
 from app.auth.models import User
 from app.auth.permissions import AdminOnly, AdminOrDatasetOwner
-from .schemas import edit_request_schema, edit_requests_schema, edit_request_message_schema
-from .models import EditRequest, EditRequestMessage
+
+from flask import request
+from flask_restful import Resource
+from sqlalchemy import asc
 from marshmallow import ValidationError
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
+from .schemas import edit_request_schema, edit_requests_schema, edit_request_message_schema
+from .models import EditRequest, EditRequestMessage
 from .mail import (
     send_dataset_approval,
     send_dataset_denial,
@@ -79,7 +80,7 @@ class AdminEditRequestView(Resource):
             asc(EditRequest.date_created)
         ).all()
 
-        requests_json = edit_requests_schema.dump(requests).data
+        requests_json = edit_requests_schema.dump(requests)
 
         return {
             'num_results': len(requests),
@@ -99,7 +100,7 @@ class AdminEditRequestView(Resource):
         req_body['dataset'] = _id
 
         try:
-            new = edit_request_schema.load(req_body).data
+            new = edit_request_schema.load(req_body)
         except ValidationError as err:
             return {'errors': err.messages}
 
@@ -166,7 +167,7 @@ class AdminEditRequestMessageListView(Resource):
         else:
             req_body['has_owner_read'] = True
         try:
-            new = edit_request_message_schema.load(req_body).data
+            new = edit_request_message_schema.load(req_body)
         except ValidationError as err:
             return {'errors': err.messages}
 
