@@ -174,7 +174,7 @@ export default {
 			await DatasetService.searchDatasets(params).then((response) => {
 				this.totalNumResults = response.data.num_total_results
 				this.numPageResults = response.data.num_page_results
-				this.datasets = response.data.results  // Why?
+				this.datasets = response.data.results
 				
 				// Logic for which pagination buttons should be show
 				if (this.page == 1) {
