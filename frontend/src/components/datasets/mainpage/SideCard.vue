@@ -36,6 +36,11 @@
 				<router-link tag="a" :to="{name: 'datasetOwnershipRequests', param: {id: dataset.id}}">Request Ownership</router-link>
 			</div>
 
+			<div id="openaccess-link" v-if="dataset.open_access_link">
+				<a :href="dataset.open_access_link" v-if="dataset.open_access_link"> OpenAccess Link </a>
+			</div>
+			
+
 		</div>
 	</div>
 </template>
@@ -86,6 +91,25 @@ export default {
 a {
 	color: #444;
 	font-size: 14px;
+}
+
+#openaccess-link {
+	display: flex;
+	justify-content: right;
+	margin-top: 10px;
+
+	a {
+		color: #fff;
+		background: #7395c5;
+		text-decoration: none;
+		padding: 8px 10px;
+		border-radius: 3px;
+	}
+
+	a:hover {
+		background: #6482ad;
+		cursor: pointer;
+	}
 }
 
 strong {
