@@ -38,6 +38,7 @@ class Dataset(SearchableMixin, db.Model):
     cite_authors = db.Column(db.String(1000), nullable=True)
     cite_venue = db.Column(db.String(1000), nullable=True)
     cite_year = db.Column(db.Integer, nullable=True)
+    open_access_link = db.Column(db.String(1000), nullable=True)
 
     # Old Citation Field
     old_citation = db.Column(db.String(1000), nullable=True)
