@@ -77,6 +77,12 @@
 					<p class="error">{{errors.cite_year}}</p>
 				</div>
 				<input type="text" v-model="formData.cite_year" required>
+
+				<div class="input-head">
+					<p>OpenAccess Link to paper:</p>
+					<p class="error">{{errors.open_access_link}}</p>
+				</div>
+				<input type="text" v-model="formData.open_access_link">
 				<!--Citation Fields End-->
 					
 				<div class="subsection-title">
