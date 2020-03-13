@@ -14,9 +14,6 @@
 				<strong>Citation:</strong>
 				<p v-if="!dataset.cite_title">{{dataset.old_citation}}</p>
 				<p>{{dataset.cite_title}} {{dataset.cite_authors}} {{dataset.cite_venue}} {{dataset.cite_year}}</p>
-
-				<strong v-if="dataset.open_access_link"> OpenAccess Link: </strong>
-				<a :href="dataset.open_access_link" v-if="dataset.open_access_link"> {{dataset.open_access_link}} </a>
 			</div>
 		</div>
 		<div v-if="isCurrentUserOwner || isAdmin" class="bottom">
