@@ -130,6 +130,7 @@ strong {
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
+		max-width: 300px;
 
 		div a {
 			text-decoration: none;
