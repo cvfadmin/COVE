@@ -73,5 +73,11 @@ export default [
         component: () => import('./views/admin/OpenOwnershipRequests.vue'),
         beforeEnter: (to, from, next) => { routerGuards.isAdminGuard(to, from, next) }
     },
+    {
+        path: '/admin/users-display',
+        name: 'adminUsersDisplay',
+        component: () => import('./views/admin/UsersDisplay.vue'),
+        beforeEnter: (to, from, next) => { routerGuards.isAdminGuard(to, from, next) }
+    },
 
 ]
