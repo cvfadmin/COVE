@@ -32,4 +32,8 @@ export default {
 		updateOwnershipRequest (request_id, data) {
 			return Api().put('/admin/ownership-requests/' + request_id, data)
 		},
+
+		getUsersList () {
+			return Api().get('/admin/all-users')
+		}
 }

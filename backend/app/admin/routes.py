@@ -5,11 +5,11 @@ from app.auth.permissions import AdminOnly, AdminOrDatasetOwner
 
 from flask import request
 from flask_restful import Resource
-from sqlalchemy import asc
+from sqlalchemy import asc, desc
 from marshmallow import ValidationError
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
-from .schemas import edit_request_schema, edit_requests_schema, edit_request_message_schema
+from .schemas import edit_request_schema, edit_requests_schema, edit_request_message_schema, users_schema
 from .models import EditRequest, EditRequestMessage
 from .mail import (
     send_dataset_approval,
@@ -242,6 +242,23 @@ class AllEditRequestView(Resource):
         }
 
 
+class AllUsersView(Resource):
+
+    @jwt_required
+    def get(self):
+
+        if not AdminOnly.has_permission(get_jwt_identity()):
+            return {
+                'message': 'Unauthorized user',
+                'status': 401
+            }, 401
+
+        page_param = request.args.get('page', 0)  # TODO: Add frontend functionality
+        users = User.query.order_by(desc(User.date_created)).all()#.offset(25 * page_param).limit(25).all()
+
+        return { 'users': users_schema.dump(users) }, 200
+
+
 # TODO: Clean up these routes into a better design
 api.add_resource(AdminDatasetView, '/admin/datasets/<_id>')
 api.add_resource(AdminEditRequestView, '/admin/datasets/<_id>/edit-requests')
@@ -249,3 +266,4 @@ api.add_resource(AllEditRequestView, '/admin/edit-requests')
 api.add_resource(EditRequestSingleView, '/admin/edit-requests/<_id>')
 api.add_resource(AdminEditRequestMessageListView, '/admin/edit-requests/<_id>/messages')
 api.add_resource(AdminEditRequestMessageSingleView, '/admin/edit-request-messages/<_id>')
+api.add_resource(AllUsersView, '/admin/all-users')
