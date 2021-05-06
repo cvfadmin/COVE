@@ -9,7 +9,7 @@ Flask-RESTful==0.3.6
 flask-marshmallow==0.11.0
 passlib==1.7.1
 marshmallow-sqlalchemy==0.21.0
-Flask-Cors==3.0.8
+Flask-Cors==3.0.9
 psycopg2==2.7.6.1
 psycopg2-binary==2.8.2
 marshmallow==3.3.0
